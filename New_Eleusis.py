@@ -8,3 +8,4 @@ def pick_random_card():
 
 
 print(pick_random_card())
+print('Blah Blah!')
