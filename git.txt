@@ -1,3 +1,6 @@
-A helper file of commit commands.
+A helper file for commit commands.
 
 git add New_Eleusis.py 
+git status  ==> Check for the modified files in green
+git commit -m "<Message about the commit>"
+git push
