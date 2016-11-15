@@ -11,6 +11,9 @@ numeric_characterstic = ['A','2','3','4','5','6','7','8','9','T','J','Q','K']
 suit_characterstic = ['C','S','D','H']
 
 def pick_random_card(card_characterstic_list):
+	'''
+	 Pick a random card using the card characterstic list given in the input
+	'''
 	if (card_characterstic_list):
 		card_number = card_characterstic_list['numeric_characterstic']
 		if(len(card_characterstic_list['suit_characterstic'])==1):
@@ -25,14 +28,10 @@ def pick_random_card(card_characterstic_list):
 		suit_characterstic.remove(card_suit) # remove the suit as we dont want a random card with the same suit
 	rank = random.choice( numeric_characterstic )
 	suit = random.choice( suit_characterstic )
->>>>>>> Stashed changes
 	card = rank + suit
 	return card
 
 
-<<<<<<< Updated upstream
-print pick_random_card()
-=======
 
 def initialize_negative_characteristic_list(card_characterstic_list):
 	# mapping of negative character
@@ -56,11 +55,5 @@ def map_card_characteristic_to_property():
 	return {'C1' : 'Red', 'C2':'Black', 'C3': 'D', 'C4':'H', 'C5':'S', 'C6':'C', 'C7':'Even', 'C8':'Odd', 'C9': 'Royal', 'C10':'Not_Royal'}
 
 
-# 0 => number
-# 1 => suit
-# 2 => color
-# sample test
-card_characterstic_list = {'numeric_characterstic': '9', 'suit_characterstic': 'C', 'color_characterstic': 'Black'}
-print(map_card_characteristic_to_property())
 
 
