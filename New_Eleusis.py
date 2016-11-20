@@ -88,8 +88,15 @@ def parse_board_state():
 		#Check if 1 or 2 cards are played based on the rule generated.
 		#Return the legal board state.
 		#Based on the rule curr, prev and prev2 will be initialized. 
+	else:
+		curr_tuple = board_state[-1]
+		if curr_tuple[1]:
+			curr = curr_tuple[1][-1]
+		else:
+			curr = curr_tuple[0]
+		prev2, prev = prev, curr
 	legal_indices = [x for (x,y) in board_state]
-	return_dict = {'prev2':prev2, 'prev':prev, 'legal_indices':legal_indices}
+	return_dict = {'prev2':prev2, 'prev':prev, 'curr':curr, 'legal_indices':legal_indices}
 
 def parse_illegal_indices():
 	#This function returns list of tuples of length 3 representing curr as the illegal card, 
@@ -112,3 +119,12 @@ def map_card_characteristic_to_property():
 		Return a mapping of all the card characterstic to the property
 	'''
 	return {'C1' : 'Red', 'C2':'Black', 'C3': 'D', 'C4':'H', 'C5':'S', 'C6':'C', 'C7':'Even', 'C8':'Odd', 'C9': 'Royal', 'C10':'Not_Royal'}
+
+def update_characteristic_list():
+	#Read the current card
+	#Get the card characteristics by invoking get_card_characteristics()
+	#Invoke the map_card_characteristics() to get the corresponding numeric index into the card characteristic list.
+	#Append the characteristics list with the index of the current card.
+	board_state = parse_board_state()
+	curr = board_state['curr']
+	card_characteristics = get_card_characteristics(curr)
