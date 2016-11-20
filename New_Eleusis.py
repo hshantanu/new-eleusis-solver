@@ -66,8 +66,12 @@ def initialize_negative_characteristic_list(card_characterstic_list):
 	characterstic_list.append(negative_characterstic_list[card_characterstic_list[2]])
 	return pick_random_card(characterstic_list)
 
-
 def board_state():
+    return master_board_state
+
+def parse_board_state():
+	board_state = board_state()
+	
 	if len(board_state) == 2:
 		#2 elements present, initialize prev & prev2
 		prev2 = board_state[0]
@@ -83,8 +87,8 @@ def board_state():
 		else:
 			curr = curr_tuple[0]
 		prev2, prev = prev, curr
-	legal_indices = [x for (x,y) in board_state]
-	return_dict = {'prev2':prev2, 'prev':prev, 'curr':curr, 'legal_indices':legal_indices}
+	legal_cards = [x for (x,y) in board_state]
+	return_dict = {'prev2':prev2, 'prev':prev, 'curr':curr, 'legal_indices':legal_cards}
 
 def parse_illegal_indices():
 	#This function returns list of tuples of length 3 representing curr as the illegal card, 
@@ -172,3 +176,13 @@ def initalize_characteristic_list():
 		Intialize the characterstic list with zero values, which will be later used by update_card_characterstic
 	'''
 	return {'C1' : 0, 'C2':0, 'C3': 0, 'C4':0, 'C5':0, 'C6':0, 'C7':0, 'C8':0, 'C9': 0, 'C10': 0, 'C11': 0, 'C12': 0, 'C13': 0, 'C14' : 0, 'C15': 0, 'C16': 0, 'C17':0, 'C18':0, 'C19':0, 'C20':0, 'C21':0, 'C22': 0, 'C23':0}
+
+
+def update_characteristic_list():
+	#Read the current card
+	#Get the card characteristics by invoking get_card_characteristics()
+	#Invoke the map_card_characteristics() to get the corresponding numeric index into the card characteristic list.
+	#Append the characteristics list with the index of the current card.
+	board_state = parse_board_state()
+	curr = board_state['curr']
+	card_characteristics = get_card_characteristics(curr)
