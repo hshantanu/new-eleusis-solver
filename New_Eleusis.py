@@ -98,7 +98,7 @@ def map_card_characteristic_to_property():
 	'''
 		Return a mapping of all the card characterstic to the property
 	'''
-	return {'C1' : 1, 'C2':2, 'C3': 3, 'C4':4, 'C5':5, 'C6':6, 'C7':7, 'C8':8, 'C9': 9, 'C10': 10, 'C11': 11, 'C12': 12, 'C13': 13, 'C14' : 'Red', 'C15':'Black', 'C16': 'D', 'C17':'H', 'C18':'S', 'C19':'C', 'C20':'Even', 'C21':'Odd', 'C22': 'Royal', 'C23':'Not_Royal'}
+	return {1 : 'C1' , 2 : 'C2', 3: 'C3', 4: 'C4', 5: 'C5', 6: 'C6', 7: 'C7', 8: 'C8', 9: 'C9', 10: 'C10', 11: 'C11', 12: 'C12', 13: 'C13', 'Red':'C14' , 'Black': 'C15', 'D': 'C16' , 'H':'C17', 'S': 'C18', 'C': 'C19', 'Even': 'C20', 'Odd': 'C21', 'Royal': 'C22' , 'Not_Royal': 'C23'}
 
 def initalize_characteristic_list():
 	'''
