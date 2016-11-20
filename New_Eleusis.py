@@ -1,14 +1,11 @@
 import random
 
 master_board_state = list()
-def pick_random_card():
-	rank = random.choice( ('A','2','3','4','5','6','7','8','9','T','J','Q','K') )
-	suit = random.choice( ('C','D','H','S') )
 
 board_state = []
 
 def pick_random_card():
-	rank = random.choice( ('A','2','3','4','5','6','7','8','9','T','J','Q','K') )
+	rank = random.choice( ('A','2','3','4','5','6','7','8','9','10','J','Q','K') )
 	suit = random.choice( ('C','D','H','S') )
 
 # R => Red
@@ -17,7 +14,7 @@ def pick_random_card():
 # D => Diamond
 # H => Hearts
 # S => Spade
-numeric_characterstic = ['A','2','3','4','5','6','7','8','9','T','J','Q','K']
+numeric_characterstic = ['A','2','3','4','5','6','7','8','9','10','J','Q','K']
 suit_characterstic = ['C','S','D','H']
 
 def pick_random_card(card_characterstic_list):
@@ -112,3 +109,53 @@ def map_card_characteristic_to_property():
 		Return a mapping of all the card characterstic to the property
 	'''
 	return {'C1' : 'Red', 'C2':'Black', 'C3': 'D', 'C4':'H', 'C5':'S', 'C6':'C', 'C7':'Even', 'C8':'Odd', 'C9': 'Royal', 'C10':'Not_Royal'}
+
+def get_card_characteristics(current='QH'):
+
+    #color, suite, number, even/odd, royal, 
+
+    royal = ['J', 'Q', 'K']
+    card_char = {}
+    #color = ""
+    card_num = current[0]
+    card_suite = current[1]
+
+    #See if the card is royal is not
+    if card_num in royal:
+        card_char['royal'] = 'royal'
+    else:
+        card_char['not_royal'] = 'not_royal'
+
+    #Adding the color in the char dictionary
+    if card_suite == 'H' or card_suite == 'D':
+        card_char['color'] = 'red'
+    else:
+        card_char['color'] = 'black'
+
+    #Adding the suite in the char dictionary
+    if card_suite == 'H':
+        card_char['suite'] = 'heart'
+    elif card_suite == 'D':
+        card_char['suite'] = 'diamond'
+    elif card_suite == 'C':
+        card_char['suite'] = 'club'
+    else:
+        card_char['suite'] = 'spade'		
+
+    #Adding the number in the card dictionary
+    if card_num == "J":
+        card_num = 11
+    elif card_num == "Q":
+        card_num = 12
+    elif card_num == "K":
+        card_num = 13
+    card_char['number'] = card_num
+
+    #Adding the even/odd property of the card in the char dictionary 
+    card_num = int(card_num)
+    if card_num % 2 == 0:
+        card_char['even'] = 'even'
+    else:
+        card_char['odd'] = 'odd'
+
+    return card_char
