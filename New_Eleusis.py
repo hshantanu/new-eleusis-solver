@@ -7,10 +7,6 @@ def pick_random_card():
 
 board_state = []
 
-def pick_random_card():
-	rank = random.choice( ('A','2','3','4','5','6','7','8','9','T','J','Q','K') )
-	suit = random.choice( ('C','D','H','S') )
-
 # R => Red
 # B => Black
 # C => Club
@@ -70,16 +66,7 @@ def initialize_negative_characteristic_list(card_characterstic_list):
 	return pick_random_card(characterstic_list)
 
 
-print(pick_random_card())
-
-
 def board_state():
-    return master_board_state
-
-
-def parse_board_state():
-	board_state = board_state()
-	
 	if len(board_state) == 2:
 		#2 elements present, initialize prev & prev2
 		prev2 = board_state[0]
@@ -111,4 +98,13 @@ def map_card_characteristic_to_property():
 	'''
 		Return a mapping of all the card characterstic to the property
 	'''
-	return {'C1' : 'Red', 'C2':'Black', 'C3': 'D', 'C4':'H', 'C5':'S', 'C6':'C', 'C7':'Even', 'C8':'Odd', 'C9': 'Royal', 'C10':'Not_Royal'}
+	return {'C1' : 1, 'C2':2, 'C3': 3, 'C4':4, 'C5':5, 'C6':6, 'C7':7, 'C8':8, 'C9': 9, 'C10': 10, 'C11': 11, 'C12': 12, 'C13': 13, 'C14' : 'Red', 'C15':'Black', 'C16': 'D', 'C17':'H', 'C18':'S', 'C19':'C', 'C20':'Even', 'C21':'Odd', 'C22': 'Royal', 'C23':'Not_Royal'}
+
+def initalize_characteristic_list():
+	'''
+		Intialize the characterstic list with zero values, which will be later used by update_card_characterstic
+	'''
+	return {'C1' : 0, 'C2':0, 'C3': 0, 'C4':0, 'C5':0, 'C6':0, 'C7':0, 'C8':0, 'C9': 0, 'C10': 0, 'C11': 0, 'C12': 0, 'C13': 0, 'C14' : 0, 'C15': 0, 'C16': 0, 'C17':0, 'C18':0, 'C19':0, 'C20':0, 'C21':0, 'C22': 0, 'C23':0}
+
+
+print(initalize_characteristic_list())
