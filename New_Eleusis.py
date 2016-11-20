@@ -112,7 +112,7 @@ def map_card_characteristic_to_property():
 	'''
 		Return a mapping of all the card characterstic to the property
 	'''
-	return {1 : 'C1' , 2 : 'C2', 3: 'C3', 4: 'C4', 5: 'C5', 6: 'C6', 7: 'C7', 8: 'C8', 9: 'C9', 10: 'C10', 11: 'C11', 12: 'C12', 13: 'C13', 'Red':'C14' , 'Black': 'C15', 'D': 'C16' , 'H':'C17', 'S': 'C18', 'C': 'C19', 'Even': 'C20', 'Odd': 'C21', 'Royal': 'C22' , 'Not_Royal': 'C23'}
+	return {1 : 'C1' , 2 : 'C2', 3: 'C3', 4: 'C4', 5: 'C5', 6: 'C6', 7: 'C7', 8: 'C8', 9: 'C9', 10: 'C10', 11: 'C11', 12: 'C12', 13: 'C13', 'red':'C14' , 'black': 'C15', 'diamond': 'C16' , 'heart':'C17', 'spade': 'C18', 'club': 'C19', 'even': 'C20', 'odd': 'C21', 'royal': 'C22' , 'not_royal': 'C23'}
 
 def update_characteristic_list():
 	#Read the current card
@@ -122,6 +122,12 @@ def update_characteristic_list():
 	board_state = parse_board_state()
 	curr = board_state['curr']
 	card_characteristics = get_card_characteristics(curr)
+
+def get_card_char_from_property(index='red'):
+
+    card_char_prop = map_card_characteristic_to_property();
+    property = card_char_prop.get(index)
+    return property
 
 def get_card_characteristics(current='QH'):
 
