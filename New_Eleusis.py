@@ -106,7 +106,7 @@ def map_card_characteristic_to_property():
 	'''
 		Return a mapping of all the card characterstic to the property
 	'''
-	return {'C1' : 'Red', 'C2':'Black', 'C3': 'D', 'C4':'H', 'C5':'S', 'C6':'C', 'C7':'Even', 'C8':'Odd', 'C9': 'Royal', 'C10':'Not_Royal'}
+	return {1 : 'C1' , 2 : 'C2', 3: 'C3', 4: 'C4', 5: 'C5', 6: 'C6', 7: 'C7', 8: 'C8', 9: 'C9', 10: 'C10', 11: 'C11', 12: 'C12', 13: 'C13', 'Red':'C14' , 'Black': 'C15', 'D': 'C16' , 'H':'C17', 'S': 'C18', 'C': 'C19', 'Even': 'C20', 'Odd': 'C21', 'Royal': 'C22' , 'Not_Royal': 'C23'}
 
 def update_characteristic_list():
 	#Read the current card
