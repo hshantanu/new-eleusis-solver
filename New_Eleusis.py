@@ -1,14 +1,11 @@
 import random
 
 master_board_state = list()
-def pick_random_card():
-	rank = random.choice( ('A','2','3','4','5','6','7','8','9','T','J','Q','K') )
-	suit = random.choice( ('C','D','H','S') )
 
 board_state = []
 
 def pick_random_card():
-	rank = random.choice( ('A','2','3','4','5','6','7','8','9','T','J','Q','K') )
+	rank = random.choice( ('A','2','3','4','5','6','7','8','9','10','J','Q','K') )
 	suit = random.choice( ('C','D','H','S') )
 
 # R => Red
@@ -17,7 +14,7 @@ def pick_random_card():
 # D => Diamond
 # H => Hearts
 # S => Spade
-numeric_characterstic = ['A','2','3','4','5','6','7','8','9','T','J','Q','K']
+numeric_characterstic = ['A','2','3','4','5','6','7','8','9','10','J','Q','K']
 suit_characterstic = ['C','S','D','H']
 
 def pick_random_card(card_characterstic_list):
@@ -70,16 +67,7 @@ def initialize_negative_characteristic_list(card_characterstic_list):
 	return pick_random_card(characterstic_list)
 
 
-print(pick_random_card())
-
-
 def board_state():
-    return master_board_state
-
-
-def parse_board_state():
-	board_state = board_state()
-	
 	if len(board_state) == 2:
 		#2 elements present, initialize prev & prev2
 		prev2 = board_state[0]
@@ -128,3 +116,59 @@ def update_characteristic_list():
 	board_state = parse_board_state()
 	curr = board_state['curr']
 	card_characteristics = get_card_characteristics(curr)
+
+def get_card_characteristics(current='QH'):
+
+    #color, suite, number, even/odd, royal
+
+    royal = ['J', 'Q', 'K']
+    card_char = {}
+    #color = ""
+    card_num = current[0]
+    card_suite = current[1]
+
+    #See if the card is royal is not
+    if card_num in royal:
+        card_char['royal'] = 'royal'
+    else:
+        card_char['not_royal'] = 'not_royal'
+
+    #Adding the color in the char dictionary
+    if card_suite == 'H' or card_suite == 'D':
+        card_char['color'] = 'red'
+    else:
+        card_char['color'] = 'black'
+
+    #Adding the suite in the char dictionary
+    if card_suite == 'H':
+        card_char['suite'] = 'heart'
+    elif card_suite == 'D':
+        card_char['suite'] = 'diamond'
+    elif card_suite == 'C':
+        card_char['suite'] = 'club'
+    else:
+        card_char['suite'] = 'spade'		
+
+    #Adding the number in the card dictionary
+    if card_num == "J":
+        card_num = 11
+    elif card_num == "Q":
+        card_num = 12
+    elif card_num == "K":
+        card_num = 13
+    card_char['number'] = card_num
+
+    #Adding the even/odd property of the card in the char dictionary 
+    card_num = int(card_num)
+    if card_num % 2 == 0:
+        card_char['even'] = 'even'
+    else:
+        card_char['odd'] = 'odd'
+
+    return card_char
+
+def initalize_characteristic_list():
+	'''
+		Intialize the characterstic list with zero values, which will be later used by update_card_characterstic
+	'''
+	return {'C1' : 0, 'C2':0, 'C3': 0, 'C4':0, 'C5':0, 'C6':0, 'C7':0, 'C8':0, 'C9': 0, 'C10': 0, 'C11': 0, 'C12': 0, 'C13': 0, 'C14' : 0, 'C15': 0, 'C16': 0, 'C17':0, 'C18':0, 'C19':0, 'C20':0, 'C21':0, 'C22': 0, 'C23':0}
