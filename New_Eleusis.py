@@ -67,16 +67,7 @@ def initialize_negative_characteristic_list(card_characterstic_list):
 	return pick_random_card(characterstic_list)
 
 
-print(pick_random_card())
-
-
 def board_state():
-    return master_board_state
-
-
-def parse_board_state():
-	board_state = board_state()
-	
 	if len(board_state) == 2:
 		#2 elements present, initialize prev & prev2
 		prev2 = board_state[0]
@@ -112,7 +103,7 @@ def map_card_characteristic_to_property():
 
 def get_card_characteristics(current='QH'):
 
-    #color, suite, number, even/odd, royal, 
+    #color, suite, number, even/odd, royal
 
     royal = ['J', 'Q', 'K']
     card_char = {}
@@ -159,3 +150,9 @@ def get_card_characteristics(current='QH'):
         card_char['odd'] = 'odd'
 
     return card_char
+
+def initalize_characteristic_list():
+	'''
+		Intialize the characterstic list with zero values, which will be later used by update_card_characterstic
+	'''
+	return {'C1' : 0, 'C2':0, 'C3': 0, 'C4':0, 'C5':0, 'C6':0, 'C7':0, 'C8':0, 'C9': 0, 'C10': 0, 'C11': 0, 'C12': 0, 'C13': 0, 'C14' : 0, 'C15': 0, 'C16': 0, 'C17':0, 'C18':0, 'C19':0, 'C20':0, 'C21':0, 'C22': 0, 'C23':0}
