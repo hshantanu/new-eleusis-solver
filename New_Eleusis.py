@@ -7,6 +7,8 @@ board_state = []
 def pick_random_card():
 	rank = random.choice( ('A','2','3','4','5','6','7','8','9','10','J','Q','K') )
 	suit = random.choice( ('C','D','H','S') )
+	card = rank + suit
+	return card
 
 # R => Red
 # B => Black
