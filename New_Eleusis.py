@@ -2,10 +2,16 @@ import random
 
 master_board_state = list()
 
-board_state = []
-
 def pick_random_card():
 	rank = random.choice( ('A','2','3','4','5','6','7','8','9','10','J','Q','K') )
+	suit = random.choice( ('C','D','H','S') )
+
+board_state = ['9S','3H']
+rule_list={}
+
+
+def pick_random_card():
+	rank = random.choice( ('A','2','3','4','5','6','7','8','9','T','J','Q','K') )
 	suit = random.choice( ('C','D','H','S') )
 
 # R => Red
@@ -67,12 +73,12 @@ def initialize_negative_characteristic_list(card_characterstic_list):
 	return pick_random_card(characterstic_list)
 
 
-def board_state():
+def parse_board_state():
 	if len(board_state) == 2:
 		#2 elements present, initialize prev & prev2
 		prev2 = board_state[0]
 		prev = board_state[1]
-
+		curr = '7H'
 		#Check if 1 or 2 cards are played based on the rule generated.
 		#Return the legal board state.
 		#Based on the rule curr, prev and prev2 will be initialized. 
@@ -85,6 +91,7 @@ def board_state():
 		prev2, prev = prev, curr
 	legal_indices = [x for (x,y) in board_state]
 	return_dict = {'prev2':prev2, 'prev':prev, 'curr':curr, 'legal_indices':legal_indices}
+	return return_dict
 
 def parse_illegal_indices():
 	#This function returns list of tuples of length 3 representing curr as the illegal card, 
@@ -101,11 +108,11 @@ def parse_illegal_indices():
 
 	return illegal_tuple_list
 
-
 def map_card_characteristic_to_property():
 	'''
 		Return a mapping of all the card characterstic to the property
 	'''
+#<<<<<<< Updated upstream
 	return {'C1' : 'Red', 'C2':'Black', 'C3': 'D', 'C4':'H', 'C5':'S', 'C6':'C', 'C7':'Even', 'C8':'Odd', 'C9': 'Royal', 'C10':'Not_Royal'}
 
 def update_characteristic_list():
@@ -117,7 +124,7 @@ def update_characteristic_list():
 	curr = board_state['curr']
 	card_characteristics = get_card_characteristics(curr)
 
-def get_card_characteristics(current='QH'):
+def get_card_characteristics(current):
 
     #color, suite, number, even/odd, royal
 
@@ -165,10 +172,62 @@ def get_card_characteristics(current='QH'):
     else:
         card_char['odd'] = 'odd'
 
-    return card_char
+	return card_char
 
 def initalize_characteristic_list():
 	'''
 		Intialize the characterstic list with zero values, which will be later used by update_card_characterstic
 	'''
 	return {'C1' : 0, 'C2':0, 'C3': 0, 'C4':0, 'C5':0, 'C6':0, 'C7':0, 'C8':0, 'C9': 0, 'C10': 0, 'C11': 0, 'C12': 0, 'C13': 0, 'C14' : 0, 'C15': 0, 'C16': 0, 'C17':0, 'C18':0, 'C19':0, 'C20':0, 'C21':0, 'C22': 0, 'C23':0}
+
+def initialize_variable_offset():
+	offset_list=[]
+	count=len(board_state)
+	print count
+	if count >= 3:
+		prev2= board_state[-1]
+		prev1=board_state[-2]
+		curr = board_state[-3]
+		offset_list.append(prev2)
+		offset_list.append(prev1)
+		offset_list.append(curr)
+		print "[Current,Previous1, Previous2]: ",offset_list
+	elif count is 1:
+		curr = board_state[-1]
+		offset_list.append(curr)
+		print "[Current]: ",offset_list
+	elif count is 0:
+		print 'Board empty'
+	elif count is 2:
+		curr = board_state[-2]
+		prev1 = board_state[-1]
+		offset_list.append(prev1)
+		offset_list.append(curr)
+		print "[Current,Previous1]:",offset_list
+		return offset_list
+
+card_characteristic_list =[]
+def scan_and_rank_hypothesis(board_state,card_characteristic_list):
+	hypothesis_dict = {}
+	#get legal indices from the the board state
+	board_state = parse_board_state ()
+	prevSet = set(get_card_characteristics(board_state['prev']).values())
+	prev2Set = set(get_card_characteristics(board_state['prev2']).values())
+	currSet = set(get_card_characteristics(board_state['curr']).values())
+	intersecting_set= []
+	print board_state
+	#Considering curr, prev1 and prev2 being present
+	for i in currSet.intersection(prevSet).intersection(prev2Set):
+		intersecting_set.append(i)
+	return intersecting_set			#To decide on the data structure for hypothesis.
+
+print scan_and_rank_hypothesis(board_state,card_characteristic_list)
+
+def pick_next_negative_card(rule_list):
+	top_rule=max(rule_list.iteritems(),key=operator.itemgetter(1))[0]
+
+	return disproved_card
+
+def validate_rule(current_card):
+	adheres_rule=check_if_conforms_rule(card)
+	return adheres_rule
