@@ -533,8 +533,6 @@ def scan_and_rank_hypothesis(board_state,card_characteristic_list):
 		intersecting_set.append(i)
 	return intersecting_set			#To decide on the data structure for hypothesis.
 
-print scan_and_rank_hypothesis(board_state,card_characteristic_list)
-
 def pick_next_negative_card(rule_list):
 	#top_rule=max(rule_list.iteritems(),key=operator.itemgetter(1))[0]
 	#return disproved_card
