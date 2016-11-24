@@ -431,13 +431,13 @@ def map_card_characteristic_to_property():
 	return {1 : 'C1' , 2 : 'C2', 3: 'C3', 4: 'C4', 5: 'C5', 6: 'C6', 7: 'C7', 8: 'C8', 9: 'C9', 10: 'C10', 11: 'C11', 12: 'C12', 13: 'C13', 'red':'C14' , 'black': 'C15', 'diamond': 'C16' , 'heart':'C17', 'spade': 'C18', 'club': 'C19', 'even': 'C20', 'odd': 'C21', 'royal': 'C22' , 'not_royal': 'C23'}
 
 
-def get_card_char_from_property(index='red'):
+def get_card_char_from_property(index):
 
     card_char_prop = map_card_characteristic_to_property();
     property = card_char_prop.get(index)
     return property
 
-def get_card_characteristics(current='QH'):
+def get_card_characteristics(current):
     #color, suite, number, even/odd, royal
 
     royal = ['J', 'Q', 'K']
@@ -536,12 +536,14 @@ def scan_and_rank_hypothesis(board_state,card_characteristic_list):
 print scan_and_rank_hypothesis(board_state,card_characteristic_list)
 
 def pick_next_negative_card(rule_list):
-	top_rule=max(rule_list.iteritems(),key=operator.itemgetter(1))[0]
-	return disproved_card
+	#top_rule=max(rule_list.iteritems(),key=operator.itemgetter(1))[0]
+	#return disproved_card
+    return
 
 def validate_rule(current_card):
-	adheres_rule=check_if_conforms_rule(card)
-	return adheres_rule
+	#adheres_rule=check_if_conforms_rule(card)
+	#return adheres_rule
+    return
 
 def update_characteristic_list():
 	#Read the current card
@@ -556,3 +558,4 @@ def update_characteristic_list():
 def get_card_from_characteristics(card_characteristics):
     #Iterate over each of the card characteristic from the input list and compose a matching card. 
     #This will be done by creating a card with first characteristic from the characteristic list and iteratively applying filters based on subsequent characteristics.
+    return
