@@ -194,7 +194,7 @@ def combine(f, args):
     elif len(args) == 3:
         return Tree(f, args[0], args[1], args[2])
     else:
-        raise Exception, "Incorrect arguments: {} {}".format(f, str(args))
+        raise Exception("Incorrect arguments: {} {}".format(f, str(args)))
     
 def parse(s):
     """Converts a string representation of a rule into a Tree"""
@@ -212,7 +212,30 @@ def parse(s):
         else:
             return (s[i], i + 1)
     return parse2(list(scan(s)), 0)[0]
-        
+
+
+def scientist():
+	parse_board_state()
+	initialize_variable_offset()
+	pick_random_card()
+	plays = 0
+	while plays <= 200:
+		#play(<card>)
+		parse_illegal_indices()
+		initalize_characteristic_list()
+		#TODO Please remove
+		characteristic_list = get_card_characteristics('7H')
+		# update_characteristic_list(characteristic_list)
+		map_card_characteristic_to_property()
+		# scan_and_rank_hypothesis()
+		scan_and_rank_rules()
+		validate_and_refine_formulated_rule()
+		# pick_next_random_card()
+		#validate_and_refine_formulated_rule()
+		#pick_next_negative_card()
+
+
+
 class Tree:
 
     def __init__(self, root, first=None, second=None, third=None):
@@ -530,6 +553,10 @@ def scan_and_rank_hypothesis(board_state,card_characteristic_list):
 		intersecting_set.append(i)
 	return intersecting_set			#To decide on the data structure for hypothesis.
 
+def scan_and_rank_rules():
+	# TODO function needs to be implemented
+	return ;
+
 def pick_next_negative_card(rule_list):
 	#top_rule=max(rule_list.iteritems(),key=operator.itemgetter(1))[0]
 	#return disproved_card
@@ -539,6 +566,9 @@ def validate_rule(current_card):
 	#adheres_rule=check_if_conforms_rule(card)
 	#return adheres_rule
     return
+
+def validate_and_refine_formulated_rule():
+	return
 
 def update_characteristic_list():
     #Read the current card
