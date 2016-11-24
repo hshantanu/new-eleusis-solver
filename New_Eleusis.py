@@ -406,8 +406,6 @@ def parse_board_state():
 	legal_indices = [x for (x,y) in board_state]
 	return_dict = {'prev2':prev2, 'prev':prev, 'curr':curr, 'legal_indices':legal_indices}
 	return return_dict
-	legal_cards = [x for (x,y) in board_state]
-	return_dict = {'prev2':prev2, 'prev':prev, 'curr':curr, 'legal_indices':legal_cards}
 
 def parse_illegal_indices():
 	#This function returns list of tuples of length 3 representing curr as the illegal card, 
