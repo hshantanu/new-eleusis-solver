@@ -5,6 +5,8 @@ master_board_state = list()
 def pick_random_card():
 	rank = random.choice( ('A','2','3','4','5','6','7','8','9','10','J','Q','K') )
 	suit = random.choice( ('C','D','H','S') )
+	card = rank + suit
+	return card
 
 board_state = ['9S','3H']
 rule_list={}
@@ -72,8 +74,11 @@ def initialize_negative_characteristic_list(card_characterstic_list):
 	characterstic_list.append(negative_characterstic_list[card_characterstic_list[2]])
 	return pick_random_card(characterstic_list)
 
+def board_state():
+    return master_board_state
 
 def parse_board_state():
+	board_state = board_state()
 	if len(board_state) == 2:
 		#2 elements present, initialize prev & prev2
 		prev2 = board_state[0]
@@ -92,6 +97,8 @@ def parse_board_state():
 	legal_indices = [x for (x,y) in board_state]
 	return_dict = {'prev2':prev2, 'prev':prev, 'curr':curr, 'legal_indices':legal_indices}
 	return return_dict
+	legal_cards = [x for (x,y) in board_state]
+	return_dict = {'prev2':prev2, 'prev':prev, 'curr':curr, 'legal_indices':legal_cards}
 
 def parse_illegal_indices():
 	#This function returns list of tuples of length 3 representing curr as the illegal card, 
@@ -112,8 +119,7 @@ def map_card_characteristic_to_property():
 	'''
 		Return a mapping of all the card characterstic to the property
 	'''
-#<<<<<<< Updated upstream
-	return {'C1' : 'Red', 'C2':'Black', 'C3': 'D', 'C4':'H', 'C5':'S', 'C6':'C', 'C7':'Even', 'C8':'Odd', 'C9': 'Royal', 'C10':'Not_Royal'}
+	return {1 : 'C1' , 2 : 'C2', 3: 'C3', 4: 'C4', 5: 'C5', 6: 'C6', 7: 'C7', 8: 'C8', 9: 'C9', 10: 'C10', 11: 'C11', 12: 'C12', 13: 'C13', 'red':'C14' , 'black': 'C15', 'diamond': 'C16' , 'heart':'C17', 'spade': 'C18', 'club': 'C19', 'even': 'C20', 'odd': 'C21', 'royal': 'C22' , 'not_royal': 'C23'}
 
 def update_characteristic_list():
 	#Read the current card
@@ -124,8 +130,13 @@ def update_characteristic_list():
 	curr = board_state['curr']
 	card_characteristics = get_card_characteristics(curr)
 
-def get_card_characteristics(current):
+def get_card_char_from_property(index='red'):
 
+    card_char_prop = map_card_characteristic_to_property();
+    property = card_char_prop.get(index)
+    return property
+
+def get_card_characteristics(current='QH'):
     #color, suite, number, even/odd, royal
 
     royal = ['J', 'Q', 'K']
@@ -231,3 +242,12 @@ def pick_next_negative_card(rule_list):
 def validate_rule(current_card):
 	adheres_rule=check_if_conforms_rule(card)
 	return adheres_rule
+
+def update_characteristic_list():
+	#Read the current card
+	#Get the card characteristics by invoking get_card_characteristics()
+	#Invoke the map_card_characteristics() to get the corresponding numeric index into the card characteristic list.
+	#Append the characteristics list with the index of the current card.
+	board_state = parse_board_state()
+	curr = board_state['curr']
+	card_characteristics = get_card_characteristics(curr)
