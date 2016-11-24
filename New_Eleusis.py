@@ -392,7 +392,6 @@ def parse_board_state():
 		#2 elements present, initialize prev & prev2
 		prev2 = board_state[0]
 		prev = board_state[1]
-		curr = '7H'
 		#Check if 1 or 2 cards are played based on the rule generated.
 		#Return the legal board state.
 		#Based on the rule curr, prev and prev2 will be initialized. 
