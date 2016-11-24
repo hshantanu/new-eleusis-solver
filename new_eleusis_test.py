@@ -204,13 +204,14 @@ class TestNewEleusis(unittest.TestCase):
 ##                                  is_royal(current), notf(is_royal(current)))"""))
 
     def test_evaluate_rules(self):
-        cards1 = ("3D", "7D", "AH")
+        cards1 = ("3D", "7D", "AH", "6D")
         cards2 = ("3D", "7S", "AC")
         cards3 = ("4H", "5H", "KH")
         
         # Red must follow black
         self.assertTrue(parse("""or(equal(color(previous), R),
                                  equal(color(current), R))""").evaluate(cards1))
+
         self.assertTrue(Tree(orf,
              Tree(equal, Tree(color, "previous"), "R"),
              Tree(equal, Tree(color, "current"), "R") ).evaluate(cards1))
