@@ -544,14 +544,19 @@ def validate_rule(current_card):
     return
 
 def update_characteristic_list():
-	#Read the current card
-	#Get the card characteristics by invoking get_card_characteristics()
-	#Invoke the map_card_characteristics() to get the corresponding numeric index into the card characteristic list.
-	#Append the characteristics list with the index of the current card.
-	board_state = parse_board_state()
-	curr = board_state['curr']
+    #Read the current card
+    #Get the card characteristics by invoking get_card_characteristics()
+    #Invoke the map_card_characteristics() to get the corresponding numeric index into the card characteristic list.
+    #Append the characteristics list with the index of the current card.
+    board_state = parse_board_state()
+    curr = board_state['curr']
 
-	card_characteristics = get_card_characteristics(curr)
+    card_characteristics = get_card_characteristics(curr)
+
+    card_characteristics = get_card_characteristics(curr)
+    for characteristic in card_characteristics:
+        card_characteristic_index = map_card_characteristics(characteristic)
+        card_characteristic_index.append(len(board_state['legal_cards'] - 1))
 
 def get_card_from_characteristics(card_characteristics):
     #Iterate over each of the card characteristic from the input list and compose a matching card. 
