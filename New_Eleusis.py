@@ -430,14 +430,6 @@ def map_card_characteristic_to_property():
 	'''
 	return {1 : 'C1' , 2 : 'C2', 3: 'C3', 4: 'C4', 5: 'C5', 6: 'C6', 7: 'C7', 8: 'C8', 9: 'C9', 10: 'C10', 11: 'C11', 12: 'C12', 13: 'C13', 'red':'C14' , 'black': 'C15', 'diamond': 'C16' , 'heart':'C17', 'spade': 'C18', 'club': 'C19', 'even': 'C20', 'odd': 'C21', 'royal': 'C22' , 'not_royal': 'C23'}
 
-def update_characteristic_list():
-	#Read the current card
-	#Get the card characteristics by invoking get_card_characteristics()
-	#Invoke the map_card_characteristics() to get the corresponding numeric index into the card characteristic list.
-	#Append the characteristics list with the index of the current card.
-	board_state = parse_board_state()
-	curr = board_state['curr']
-	card_characteristics = get_card_characteristics(curr)
 
 def get_card_char_from_property(index='red'):
 
@@ -561,4 +553,6 @@ def update_characteristic_list():
 
 	card_characteristics = get_card_characteristics(curr)
 
-
+def get_card_from_characteristics(card_characteristics):
+    #Iterate over each of the card characteristic from the input list and compose a matching card. 
+    #This will be done by creating a card with first characteristic from the characteristic list and iteratively applying filters based on subsequent characteristics.
