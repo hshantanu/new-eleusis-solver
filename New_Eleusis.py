@@ -450,7 +450,7 @@ def map_card_characteristic_to_property(property):
     '''
         Return a mapping of all the card characterstic to the property
     '''
-    property_dict = {1 : 'C1' , 2 : 'C2', 3: 'C3', 4: 'C4', 5: 'C5', 6: 'C6', 7: 'C7', 8: 'C8', 9: 'C9', 10: 'C10', 11: 'C11', 12: 'C12', 13: 'C13', 'red':'C14' , 'black': 'C15', 'diamond': 'C16' , 'heart':'C17', 'spade': 'C18', 'club': 'C19', 'even': 'C20', 'odd': 'C21', 'royal': 'C22' , 'not_royal': 'C23'}
+    property_dict = {'1' : 'C1' , '2' : 'C2', '3': 'C3', '4': 'C4', '5': 'C5', '6': 'C6', '7': 'C7', '8': 'C8', '9': 'C9', '10': 'C10', '11': 'C11', '12': 'C12', '13': 'C13', 'red':'C14' , 'black': 'C15', 'diamond': 'C16' , 'heart':'C17', 'spade': 'C18', 'club': 'C19', 'even': 'C20', 'odd': 'C21', 'royal': 'C22' , 'not_royal': 'C23'}
     if property and property in property_dict:
         return property_dict[property]
     else:
@@ -498,13 +498,13 @@ def get_card_characteristics(current):
         card_char['suite'] = 'spade'		
 
     #Adding the number in the card dictionary
-    if card_num == "J":
-        card_num = 11
-    elif card_num == "Q":
-        card_num = 12
-    elif card_num == "K":
-        card_num = 13
-    card_char['number'] = card_num
+    if card_num == 'J':
+        card_num = '11'
+    elif card_num == 'Q':
+        card_num = '12'
+    elif card_num == 'K':
+        card_num = '13'
+    card_char[card_num] = card_num
 
     #Adding the even/odd property of the card in the char dictionary 
     card_num = int(card_num)
@@ -520,7 +520,7 @@ def initalize_characteristic_list():
 	'''
 		Intialize the characterstic list with zero values, which will be later used by update_card_characterstic
 	'''
-	return {'C1' : 0, 'C2':0, 'C3': 0, 'C4':0, 'C5':0, 'C6':0, 'C7':0, 'C8':0, 'C9': 0, 'C10': 0, 'C11': 0, 'C12': 0, 'C13': 0, 'C14' : 0, 'C15': 0, 'C16': 0, 'C17':0, 'C18':0, 'C19':0, 'C20':0, 'C21':0, 'C22': 0, 'C23':0}
+	return {'C1' : [], 'C2':[], 'C3': [], 'C4':[], 'C5':[], 'C6':[], 'C7':[], 'C8':[], 'C9': [], 'C10': [], 'C11': [], 'C12': [], 'C13': [], 'C14' : [], 'C15': [], 'C16': [], 'C17':[], 'C18':[], 'C19':[], 'C20':[], 'C21':[], 'C22': [], 'C23':[]}
 
 def initialize_variable_offset():
 	offset_list=[]
@@ -548,28 +548,35 @@ def initialize_variable_offset():
 		print "[Current,Previous1]:",offset_list
 		return offset_list
 
-def scan_and_rank_hypothesis(card_characteristic_list):
+def scan_and_rank_hypothesis():
     
     hypothesis_dict = {}
 	#get legal indices from the the board state
     board_state = parse_board_state()
     legal_cards = board_state['legal_cards']
     print legal_cards
+    characteristic_index_list = []
     for i in xrange(0, len(legal_cards)):
-        result = update_characteristic_list(legal_cards[i])
-        print 'result for ' + legal_cards[i] + ' ' + result
+        characteristic_index_list.append(update_characteristic_list(legal_cards[i]))
 
+    #Find corresponding char(C21) which has this index value
+    #Add these to possible hypothesis list
+    for i in xrange(2, len(characteristic_index_list)):
+        #Now we have individual chars in characteristic_index_list[i]
+        #Decide on how to formulate hypothesis
+        if tuple(characteristic_index_list[i-2:i]) in hypothesis_dict.keys():
+            hypothesis_dict[tuple(characteristic_index_list[i-2:i+1])] += 1
+        else:
+            hypothesis_dict[tuple(characteristic_index_list[i-2:i+1])] = 1
 
-	# prevSet = set(get_card_characteristics(board_state['prev']).values())
-	# prev2Set = set(get_card_characteristics(board_state['prev2']).values())
-	# currSet = set(get_card_characteristics(board_state['curr']).values())
+    print str(hypothesis_dict)
+
 	# intersecting_set= []
 	# print board_state
 	# #Considering curr, prev1 and prev2 being present
 	# for i in currSet.intersection(prevSet).intersection(prev2Set):
 	# 	intersecting_set.append(i)
 	# return intersecting_set			#To decide on the data structure for hypothesis.
-
 
 
 def scan_and_rank_rules():
@@ -594,17 +601,15 @@ def update_characteristic_list(current_card):
     #Get the card characteristics by invoking get_card_characteristics()
     #Invoke the map_card_characteristics() to get the corresponding numeric index into the card characteristic list.
     #Append the characteristics list with the index of the current card.
-
+    board_state = parse_board_state()
+    char_dict = initalize_characteristic_list()
     card_characteristics = get_card_characteristics(current_card)
-    temp_card_chars = []
-    print card_characteristics
     for characteristic in card_characteristics:
-        print characterstic
         card_characteristic_index = map_card_characteristic_to_property(card_characteristics[characteristic])
-        print card_characteristic_index
-        card_characteristic_index.append(len(board_state['legal_cards'] - 1))
-        temp_card_chars.append(card_characteristic_index)
-    return temp_card_chars
+        #char_dict[card_characteristic_index].append()
+        char_dict[card_characteristic_index].append(board_state['legal_cards'].index(current_card))
+
+    return card_characteristic_index
 
 def get_card_from_characteristics(card_characteristics):
     #Iterate over each of the card characteristic from the input list and compose a matching card. 
@@ -617,4 +622,4 @@ def play(card):
     #Return a boolean value based on the legality of the card. 
     return
 
-scan_and_rank_hypothesis(['C1', 'C2', 'C3'])
+scan_and_rank_hypothesis()
