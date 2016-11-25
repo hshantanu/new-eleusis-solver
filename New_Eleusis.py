@@ -436,8 +436,7 @@ def parse_illegal_indices():
 	#and prev, prev2 are immediately preceding legal ones. 
 	#Illegal tuples of length 3 are currently handled. To be extended to length of 2 & 1.
 	illegal_tuple_list = list()
-	#board_state = board_state()
-	board_state = [('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', []), ('7D',[]), ('9S', ['AS'])]
+	board_state = board_state()
 	for index, value in enumerate(board_state):
 		if value[1]:
 			illegal_index_list = value[1]
@@ -595,9 +594,6 @@ def validate_rule(current_card):
 	#return adheres_rule
     return
 
-def validate_and_refine_formulated_rule():
-	return
-
 def update_characteristic_list(current_card):
     #Read the current card
     #Get the card characteristics by invoking get_card_characteristics()
@@ -624,45 +620,37 @@ def play(card):
     #Return a boolean value based on the legality of the card. 
     return
 
-<<<<<<< HEAD
-scan_and_rank_hypothesis()
-=======
-#scan_and_rank_hypothesis(['C1', 'C2', 'C3'])
+#scan_and_rank_hypothesis()
+
 
 def validate_and_refine_formulated_rule():
+	
+	#@TODO: Update the code based on scan & rank hypothesis.
+	#@TODO: Return Part
+
 	#board_state = [('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', []), ('7D',[]), ('9S', ['AS'])]
 	
 	# Red must follow black
-	i = 0
-	except_list = []
+	exception_legal_list = []
+	exception_illegal_list = []
+
+	# Red must follow black
 	rule1 = Tree(orf, Tree(equal, Tree(color, 'previous'), 'R'), Tree(equal, Tree(color, 'current'), 'R'))
 
 	legal_card = ['10S', '3H', '6H', '7D','9S','7S']
-	illegal_cards = parse_illegal_indices() #in the format prev2,prev,curr
-	#[('3H', '6C', 'KS'), ('3H', '6C', '9C'), ('7D', '9S', 'AS')]
+	#illegal_cards = parse_illegal_indices() #in the format prev2,prev,curr
+	
+	illegal_cards = [('3H', '6C', 'KS'), ('3H', '6C', '9C'), ('7D', '9S', 'AS'), ('6H','7D','9S')]
 
 	while((i + 2) < len(legal_card)):
-		my_list = (legal_card[i],legal_card[i+1],legal_card[i+2])
-		#print my_list
-		if rule1.evaluate((my_list)) == False:
-			except_list.append(my_list)
+		my_legal_list = (legal_card[i],legal_card[i+1],legal_card[i+2])
+		if rule1.evaluate((my_legal_list)) == False:
+			exception_legal_list.append(my_legal_list)
 		i += 1
 
+	for tup in illegal_cards:
+		my_illegal_list = (tup[0], tup[1], tup[2])
+		if rule1.evaluate((my_illegal_list)) == True:
+			exception_illegal_list.append(my_illegal_list)
 
-	#print except_list
 	return
-
-	'''cards1 = ("3D", "7D", "AH", "6D")
-	#p = parse("iff(equal(color(previous), B), equal(color(current), R), True)")
-	#print p
-	rule = Tree(orf, Tree(equal, Tree(color, 'previous'), 'R'), Tree(equal, Tree(color, 'current'), 'R'))
-	print rule
-	val = rule.evaluate(("3D","7D","AH"))
-	p = parse("iff(equal(color(previous), B), equal(color(current), R), True)")
-	print rule
-	#val1 = p.evaluate(("3D","7D","AH"))
-	val1 = rule.evaluate(("3C","4C","AS"))
-	print val
-	print val1'''
-	#validate_and_refine_formulated_rule()
->>>>>>> 5513d6125c7f04d2e420dea44c2d56118cc5bed6
