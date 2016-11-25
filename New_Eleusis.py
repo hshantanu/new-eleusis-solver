@@ -335,7 +335,7 @@ class Tree:
 
 
 
-master_board_state = list()
+master_board_state = [('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', []), ('7D',[]), ('9S', ['AS'])]
 card_characteristic_list =[]
 board_state = ['9S','3H']
 rule_list={}
@@ -406,28 +406,30 @@ def initialize_negative_characteristic_list(card_characterstic_list):
 	characterstic_list.append(negative_characterstic_list[card_characterstic_list[2]])
 	return pick_random_card(characterstic_list)
 
-def board_state():
+def master_board_state_1():
     return master_board_state
 
 def parse_board_state():
-	board_state = board_state()
-	if len(board_state) == 2:
-		#2 elements present, initialize prev & prev2
-		prev2 = board_state[0]
-		prev = board_state[1]
-		#Check if 1 or 2 cards are played based on the rule generated.
-		#Return the legal board state.
-		#Based on the rule curr, prev and prev2 will be initialized. 
-	else:
-		curr_tuple = board_state[-1]
-		if curr_tuple[1]:
-			curr = curr_tuple[1][-1]
-		else:
-			curr = curr_tuple[0]
-		prev2, prev = prev, curr
-	legal_indices = [x for (x,y) in board_state]
-	return_dict = {'prev2':prev2, 'prev':prev, 'curr':curr, 'legal_indices':legal_indices}
-	return return_dict
+    board_state = master_board_state_1()
+    prev = ''
+    prev2 = ''
+    if len(board_state) == 2:
+    	#2 elements present, initialize prev & prev2
+    	prev2 = board_state[0]
+    	prev = board_state[1]
+    	#Check if 1 or 2 cards are played based on the rule generated.
+    	#Return the legal board state.
+    	#Based on the rule curr, prev and prev2 will be initialized. 
+    else:
+    	curr_tuple = board_state[-1]
+    	if curr_tuple[1]:
+    		curr = curr_tuple[1][-1]
+    	else:
+    		curr = curr_tuple[0]
+    	prev2, prev = prev, curr
+    legal_cards = [x for (x,y) in board_state]
+    return_dict = {'prev2':prev2, 'prev':prev, 'curr':curr, 'legal_cards':legal_cards}
+    return return_dict
 
 def parse_illegal_indices():
 	#This function returns list of tuples of length 3 representing curr as the illegal card, 
@@ -444,12 +446,15 @@ def parse_illegal_indices():
 
 	return illegal_tuple_list
 
-def map_card_characteristic_to_property():
-	'''
-		Return a mapping of all the card characterstic to the property
-	'''
-	return {1 : 'C1' , 2 : 'C2', 3: 'C3', 4: 'C4', 5: 'C5', 6: 'C6', 7: 'C7', 8: 'C8', 9: 'C9', 10: 'C10', 11: 'C11', 12: 'C12', 13: 'C13', 'red':'C14' , 'black': 'C15', 'diamond': 'C16' , 'heart':'C17', 'spade': 'C18', 'club': 'C19', 'even': 'C20', 'odd': 'C21', 'royal': 'C22' , 'not_royal': 'C23'}
-
+def map_card_characteristic_to_property(property):
+    '''
+        Return a mapping of all the card characterstic to the property
+    '''
+    property_dict = {1 : 'C1' , 2 : 'C2', 3: 'C3', 4: 'C4', 5: 'C5', 6: 'C6', 7: 'C7', 8: 'C8', 9: 'C9', 10: 'C10', 11: 'C11', 12: 'C12', 13: 'C13', 'red':'C14' , 'black': 'C15', 'diamond': 'C16' , 'heart':'C17', 'spade': 'C18', 'club': 'C19', 'even': 'C20', 'odd': 'C21', 'royal': 'C22' , 'not_royal': 'C23'}
+    if property and property in property_dict:
+        return property_dict[property]
+    else:
+        return property_dict
 
 def get_card_char_from_property(index):
 
@@ -463,8 +468,12 @@ def get_card_characteristics(current):
     royal = ['J', 'Q', 'K']
     card_char = {}
     #color = ""
-    card_num = current[0]
-    card_suite = current[1]
+    if len(current) == 2:
+        card_num = current[0]
+        card_suite = current[1]
+    elif len(current) == 3:
+        card_num = current[0]+current[1]
+        card_suite = current[2]
 
     #See if the card is royal is not
     if card_num in royal:
@@ -504,7 +513,8 @@ def get_card_characteristics(current):
     else:
         card_char['odd'] = 'odd'
 
-	return card_char
+    
+    return card_char
 
 def initalize_characteristic_list():
 	'''
@@ -538,20 +548,29 @@ def initialize_variable_offset():
 		print "[Current,Previous1]:",offset_list
 		return offset_list
 
-
-def scan_and_rank_hypothesis(board_state,card_characteristic_list):
-	hypothesis_dict = {}
+def scan_and_rank_hypothesis(card_characteristic_list):
+    
+    hypothesis_dict = {}
 	#get legal indices from the the board state
-	board_state = parse_board_state ()
-	prevSet = set(get_card_characteristics(board_state['prev']).values())
-	prev2Set = set(get_card_characteristics(board_state['prev2']).values())
-	currSet = set(get_card_characteristics(board_state['curr']).values())
-	intersecting_set= []
-	print board_state
-	#Considering curr, prev1 and prev2 being present
-	for i in currSet.intersection(prevSet).intersection(prev2Set):
-		intersecting_set.append(i)
-	return intersecting_set			#To decide on the data structure for hypothesis.
+    board_state = parse_board_state()
+    legal_cards = board_state['legal_cards']
+    print legal_cards
+    for i in xrange(0, len(legal_cards)):
+        result = update_characteristic_list(legal_cards[i])
+        print 'result for ' + legal_cards[i] + ' ' + result
+
+
+	# prevSet = set(get_card_characteristics(board_state['prev']).values())
+	# prev2Set = set(get_card_characteristics(board_state['prev2']).values())
+	# currSet = set(get_card_characteristics(board_state['curr']).values())
+	# intersecting_set= []
+	# print board_state
+	# #Considering curr, prev1 and prev2 being present
+	# for i in currSet.intersection(prevSet).intersection(prev2Set):
+	# 	intersecting_set.append(i)
+	# return intersecting_set			#To decide on the data structure for hypothesis.
+
+
 
 def scan_and_rank_rules():
 	# TODO function needs to be implemented
@@ -570,22 +589,32 @@ def validate_rule(current_card):
 def validate_and_refine_formulated_rule():
 	return
 
-def update_characteristic_list():
+def update_characteristic_list(current_card):
     #Read the current card
     #Get the card characteristics by invoking get_card_characteristics()
     #Invoke the map_card_characteristics() to get the corresponding numeric index into the card characteristic list.
     #Append the characteristics list with the index of the current card.
-    board_state = parse_board_state()
-    curr = board_state['curr']
 
-    card_characteristics = get_card_characteristics(curr)
-
-    card_characteristics = get_card_characteristics(curr)
+    card_characteristics = get_card_characteristics(current_card)
+    temp_card_chars = []
+    print card_characteristics
     for characteristic in card_characteristics:
-        card_characteristic_index = map_card_characteristics(characteristic)
+        print characterstic
+        card_characteristic_index = map_card_characteristic_to_property(card_characteristics[characteristic])
+        print card_characteristic_index
         card_characteristic_index.append(len(board_state['legal_cards'] - 1))
+        temp_card_chars.append(card_characteristic_index)
+    return temp_card_chars
 
 def get_card_from_characteristics(card_characteristics):
     #Iterate over each of the card characteristic from the input list and compose a matching card. 
     #This will be done by creating a card with first characteristic from the characteristic list and iteratively applying filters based on subsequent characteristics.
     return
+
+def play(card):
+    #Invoke validate_rule() which returns True/False if the current play is legal/illegal.
+    #Update the board_state by calling update_board_state()
+    #Return a boolean value based on the legality of the card. 
+    return
+
+scan_and_rank_hypothesis(['C1', 'C2', 'C3'])
