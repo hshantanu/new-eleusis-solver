@@ -436,7 +436,8 @@ def parse_illegal_indices():
 	#and prev, prev2 are immediately preceding legal ones. 
 	#Illegal tuples of length 3 are currently handled. To be extended to length of 2 & 1.
 	illegal_tuple_list = list()
-	board_state = board_state()
+	#board_state = board_state()
+	board_state = [('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', []), ('7D',[]), ('9S', ['AS'])]
 	for index, value in enumerate(board_state):
 		if value[1]:
 			illegal_index_list = value[1]
@@ -445,6 +446,7 @@ def parse_illegal_indices():
 				illegal_tuple_list.append(illegal_tuple)
 
 	return illegal_tuple_list
+#print parse_illegal_indices()
 
 def map_card_characteristic_to_property(property):
     '''
@@ -622,4 +624,45 @@ def play(card):
     #Return a boolean value based on the legality of the card. 
     return
 
+<<<<<<< HEAD
 scan_and_rank_hypothesis()
+=======
+#scan_and_rank_hypothesis(['C1', 'C2', 'C3'])
+
+def validate_and_refine_formulated_rule():
+	#board_state = [('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', []), ('7D',[]), ('9S', ['AS'])]
+	
+	# Red must follow black
+	i = 0
+	except_list = []
+	rule1 = Tree(orf, Tree(equal, Tree(color, 'previous'), 'R'), Tree(equal, Tree(color, 'current'), 'R'))
+
+	legal_card = ['10S', '3H', '6H', '7D','9S','7S']
+	illegal_cards = parse_illegal_indices() #in the format prev2,prev,curr
+	#[('3H', '6C', 'KS'), ('3H', '6C', '9C'), ('7D', '9S', 'AS')]
+
+	while((i + 2) < len(legal_card)):
+		my_list = (legal_card[i],legal_card[i+1],legal_card[i+2])
+		#print my_list
+		if rule1.evaluate((my_list)) == False:
+			except_list.append(my_list)
+		i += 1
+
+
+	#print except_list
+	return
+
+	'''cards1 = ("3D", "7D", "AH", "6D")
+	#p = parse("iff(equal(color(previous), B), equal(color(current), R), True)")
+	#print p
+	rule = Tree(orf, Tree(equal, Tree(color, 'previous'), 'R'), Tree(equal, Tree(color, 'current'), 'R'))
+	print rule
+	val = rule.evaluate(("3D","7D","AH"))
+	p = parse("iff(equal(color(previous), B), equal(color(current), R), True)")
+	print rule
+	#val1 = p.evaluate(("3D","7D","AH"))
+	val1 = rule.evaluate(("3C","4C","AS"))
+	print val
+	print val1'''
+	#validate_and_refine_formulated_rule()
+>>>>>>> 5513d6125c7f04d2e420dea44c2d56118cc5bed6
