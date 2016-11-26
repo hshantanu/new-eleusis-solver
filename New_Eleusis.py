@@ -437,11 +437,8 @@ def parse_illegal_indices():
 	#and prev, prev2 are immediately preceding legal ones. 
 	#Illegal tuples of length 3 are currently handled. To be extended to length of 2 & 1.
 	illegal_tuple_list = list()
-<<<<<<< Updated upstream
-	board_state = board_state()
-=======
 	board_state = master_board_state_1()
->>>>>>> Stashed changes
+
 	for index, value in enumerate(board_state):
 		if value[1]:
 			illegal_index_list = value[1]
@@ -617,8 +614,33 @@ def update_characteristic_list(current_card):
 def get_card_from_characteristics(card_characteristics):
     #Iterate over each of the card characteristic from the input list and compose a matching card. 
     #This will be done by creating a card with first characteristic from the characteristic list and iteratively applying filters based on subsequent characteristics.
+    numeric_tuple = ('A','2','3','4','5','6','7','8','9','10','J','Q','K')
+    suite_tuple = ('C','D','H','S')
+    if (card_characteristics):
+        if ('color' in card_characteristics and card_characteristics['color'] == 'Red') :
+            suite_tuple = ('D','H')
+        elif('color' in card_characteristics and card_characteristics['color'] == 'Black') :
+            suite_tuple = ('C','S')
+        else:
+            suite_tuple = ('C','D','H','S')
+        if ('suite' in card_characteristics):
+            suite_tuple = (card_characteristics['suite'])
+        if ('number' in card_characteristics):
+            numeric_tuple = (card_characteristics['number'])
 
-    return
+    if ('number' in card_characteristics and card_characteristics['number']) :
+        rank = str(card_characteristics['number'])
+    else:
+        rank = random.choice(numeric_tuple)
+    if ('suite' in card_characteristics and card_characteristics['suite']):
+        suit = random.choice( suite_tuple )
+    else:
+        suit = random.choice( suite_tuple ) 
+    
+    card = rank + suit
+    return card
+
+
 
 def play(card):
     #Invoke validate_rule() which returns True/False if the current play is legal/illegal.
@@ -725,4 +747,3 @@ def find_numeric_characteristic_relation(current_card, prev_card, prev2_card):
     numeric_relation_dic['prev_minus_prev2'] = value(prev_card) - value(prev2_card)
 
     return numeric_relation_dic;
-
