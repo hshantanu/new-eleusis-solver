@@ -215,25 +215,25 @@ def parse(s):
 
 
 def scientist():
-	parse_board_state()
-	initialize_variable_offset()
-	pick_random_card()
-	plays = 0
-	while plays <= 200:
-		#play(<card>)
-		parse_illegal_indices()
-		initalize_characteristic_list()
-		#TODO Please remove
-		characteristic_list = get_card_characteristics('7H')
-		# update_characteristic_list(characteristic_list)
-		map_card_characteristic_to_property()
-		# scan_and_rank_hypothesis()
-		scan_and_rank_rules()
-		validate_and_refine_formulated_rule()
-		# pick_next_random_card()
-		#validate_and_refine_formulated_rule()
-		#pick_next_negative_card()
-
+	# parse_board_state()
+	# initialize_variable_offset()
+	# pick_random_card()
+	# plays = 0
+	# while plays <= 200:
+	# 	#play(<card>)
+	# 	parse_illegal_indices()
+	# 	initalize_characteristic_list()
+	# 	#TODO Please remove
+	# 	characteristic_list = get_card_characteristics('7H')
+	# 	# update_characteristic_list(characteristic_list)
+	# 	map_card_characteristic_to_property()
+	# 	# scan_and_rank_hypothesis()
+	# 	scan_and_rank_rules()
+	# 	validate_and_refine_formulated_rule()
+	# 	# pick_next_random_card()
+	# 	#validate_and_refine_formulated_rule()
+	# 	#pick_next_negative_card()
+        return ''
 
 
 class Tree:
@@ -436,7 +436,11 @@ def parse_illegal_indices():
 	#and prev, prev2 are immediately preceding legal ones. 
 	#Illegal tuples of length 3 are currently handled. To be extended to length of 2 & 1.
 	illegal_tuple_list = list()
+<<<<<<< Updated upstream
 	board_state = board_state()
+=======
+	board_state = master_board_state_1()
+>>>>>>> Stashed changes
 	for index, value in enumerate(board_state):
 		if value[1]:
 			illegal_index_list = value[1]
@@ -620,9 +624,6 @@ def play(card):
     #Return a boolean value based on the legality of the card. 
     return
 
-#scan_and_rank_hypothesis()
-
-
 def validate_and_refine_formulated_rule():
 	
 	#@TODO: Update the code based on scan & rank hypothesis.
@@ -653,4 +654,32 @@ def validate_and_refine_formulated_rule():
 		if rule1.evaluate((my_illegal_list)) == True:
 			exception_illegal_list.append(my_illegal_list)
 
+	#print except_list
 	return
+
+
+def rule():
+    #return the current rule
+    return '';
+
+def score(board_state):
+    current_score = 0
+    play_counter = 0
+    board_state = parse_board_state()
+    illegal_index_list = parse_illegal_indices()
+
+    if board_state:
+        legal_cards = board_state['legal_cards'];
+    for card in legal_cards:
+        if play_counter >=20:
+            current_score +=1
+    current_score = current_score + 2*(len(illegal_index_list))
+    scientist_rule = scientist()
+    current_rule = rule()
+    if scientist_rule != current_rule:
+        current_score += 15
+        # TODO: Validate predicted rule using validate_rule method for the current rule
+        # TODO: Check if predicted rule conforms to the rule current 
+    return current_score
+
+
