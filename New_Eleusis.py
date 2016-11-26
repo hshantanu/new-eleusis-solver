@@ -630,7 +630,7 @@ def validate_and_refine_formulated_rule():
 
 	#board_state = [('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', []), ('7D',[]), ('9S', ['AS'])]
 	
-	# Red must follow black
+	i = 0
 	exception_legal_list = []
 	exception_illegal_list = []
 
