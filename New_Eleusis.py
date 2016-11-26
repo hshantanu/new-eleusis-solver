@@ -336,6 +336,7 @@ class Tree:
 
 
 master_board_state = [('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', []), ('7D',[]), ('9S', ['AS'])]
+predicted_rule = ''
 card_characteristic_list =[]
 board_state = ['9S','3H']
 rule_list={}
@@ -658,9 +659,11 @@ def validate_and_refine_formulated_rule():
 	return
 
 
+def setRule(ruleExp):
+    predicted_rule = ruleExp
 def rule():
     #return the current rule
-    return '';
+    return predicted_rule;
 
 def score(board_state):
     current_score = 0
