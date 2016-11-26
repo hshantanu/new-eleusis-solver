@@ -239,6 +239,24 @@ def scientist():
 	# 	#pick_next_negative_card()
         return ''
 
+	parse_board_state()
+	initialize_variable_offset()
+	pick_random_card()
+	plays = 0
+	while plays <= 200:
+		#play(<card>)
+		parse_illegal_indices()
+		initalize_characteristic_list()
+		#TODO Please remove
+		characteristic_list = get_card_characteristics('7H')
+		# update_characteristic_list(characteristic_list)
+		map_card_characteristic_to_property()
+		# scan_and_rank_hypothesis()
+		scan_and_rank_rules()
+		validate_and_refine_formulated_rule()
+		# pick_next_random_card()
+		#validate_and_refine_formulated_rule()
+		#pick_next_negative_card()
 
 class Tree:
 
@@ -338,10 +356,10 @@ class Tree:
 
 
 
-
 #master_board_state = [('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', []), ('7D',[]), ('9S', ['AS'])]
 master_board_state = [('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', []), ('7D',[]), ('9S', ['AS']), ('10S', []), ('3H', []), ('6C', []), ('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', [])]
 #master_board_state = [('7C', [])]
+
 master_board_state = [('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', []), ('7D',[]), ('9S', ['AS'])]
 predicted_rule = ''
 card_characteristic_list =[]
@@ -362,8 +380,6 @@ def pick_random_card():
 	suit = random.choice( ('C','D','H','S') )
 	card = rank + suit
 	return card
-
-
 
 def pick_random_card(card_characterstic_list):
 	'''
@@ -445,7 +461,6 @@ def parse_illegal_indices():
 	#Illegal tuples of length 3 are currently handled. To be extended to length of 2 & 1.
 	illegal_tuple_list = list()
 	board_state = master_board_state_1()
-
 	for index, value in enumerate(board_state):
 		if value[1]:
 			illegal_index_list = value[1]
@@ -600,14 +615,21 @@ def scan_and_rank_rules():
 	return ;
 
 def pick_next_negative_card(rule_list):
-	#top_rule=max(rule_list.iteritems(),key=operator.itemgetter(1))[0]
-	#return disproved_card
-    return
+	#TODO - Get the rank of the rule from the scan_and_rank_rule()	- Dependency
+	#Pick the top ranked rule
+	top_rule=max(rule_list.iteritems(),key=operator.itemgetter(1))[0]
+	#Get the first card from each top ranked rule and then find the intersecting list.
+	#If intersection set is not null then return a card which has max intersecting property by calling get_card_from_characteristic() - Dependency
+    return 
 
 def validate_rule(current_card):
-	#adheres_rule=check_if_conforms_rule(card)
-	#return adheres_rule
-    return
+	#Check if the current card adheres to the actual rule
+	#Create an instance of the rule by initializing the tree
+	#Check if the rule matches the rule by calling the evaluate function of the tree
+	#Return true if it does else return false
+	board_state= parse_board_state()
+	adheres_rule=rule.evaluate(tree, (prev2,prev1,current_card))
+    return adheres_rule
 
 def validate_and_refine_formulated_rule():
 	return
@@ -622,12 +644,16 @@ def update_characteristic_list(current_card, current_card_index, char_dict):
     card_characteristics = get_card_characteristics(current_card)
     for characteristic in card_characteristics:
         card_characteristic_index = map_card_characteristic_to_property(card_characteristics[characteristic])
+
         #char_dict[card_characteristic_index].append(board_state['legal_cards'].index(current_card))
         if current_card_index not in char_dict.keys():
             char_dict[current_card_index] = []
         char_dict[current_card_index].append(card_characteristic_index)
-
     return char_dict
+        #char_dict[card_characteristic_index].append()
+        char_dict[card_characteristic_index].append(board_state['legal_cards'].index(current_card))
+    return card_characteristic_index
+
 
 def get_card_from_characteristics(card_characteristics):
     # Format {'number': 9, 'suite': 'C', 'color': 'B'}
@@ -664,10 +690,12 @@ def get_card_from_characteristics(card_characteristics):
 
 
 def play(card):
-    #Invoke validate_rule() which returns True/False if the current play is legal/illegal.
-    #Update the board_state by calling update_board_state()
-    #Return a boolean value based on the legality of the card. 
-    return
+	#Invoke validate_rule() which returns True/False if the current play is legal/illegal.
+	#Update the board_state by calling update_board_state()
+	#Return a boolean value based on the legality of the card. 
+	card_legality = validate_rule(card)
+	update_board_state(board_state,card_legality,card)
+	return card_legality
 
 scan_and_rank_hypothesis()
 
@@ -695,7 +723,6 @@ def validate_and_refine_formulated_rule():
 		if rule1.evaluate((my_legal_list)) == False:
 			exception_legal_list.append(my_legal_list)
 		i += 1
-
 	for tup in illegal_cards:
 		my_illegal_list = (tup[0], tup[1], tup[2])
 		if rule1.evaluate((my_illegal_list)) == True:
@@ -703,20 +730,6 @@ def validate_and_refine_formulated_rule():
 
 	#print except_list
 	return
-
-	'''cards1 = ("3D", "7D", "AH", "6D")
-	#p = parse("iff(equal(color(previous), B), equal(color(current), R), True)")
-	#print p
-	rule = Tree(orf, Tree(equal, Tree(color, 'previous'), 'R'), Tree(equal, Tree(color, 'current'), 'R'))
-	print rule
-	val = rule.evaluate(("3D","7D","AH"))
-	p = parse("iff(equal(color(previous), B), equal(color(current), R), True)")
-	print rule
-	#val1 = p.evaluate(("3D","7D","AH"))
-	val1 = rule.evaluate(("3C","4C","AS"))
-	print val
-	print val1'''
-	#validate_and_refine_formulated_rule()
 
 def setRule(ruleExp):
     predicted_rule = ruleExp
@@ -782,3 +795,5 @@ def find_numeric_characteristic_relation(current_card, prev_card, prev2_card):
     numeric_relation_dic['prev_minus_prev2'] = value(prev_card) - value(prev2_card)
 
     return numeric_relation_dic;
+
+	#print except_list
