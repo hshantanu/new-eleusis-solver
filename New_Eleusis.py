@@ -1,4 +1,8 @@
 import random
+import operator
+import itertools
+from collections import OrderedDict
+
 
 # Trivial functions to be used in the important test functions
 # All require a nonempty string as the argument
@@ -335,7 +339,9 @@ class Tree:
 
 
 
-master_board_state = [('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', []), ('7D',[]), ('9S', ['AS'])]
+#master_board_state = [('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', []), ('7D',[]), ('9S', ['AS'])]
+master_board_state = [('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', []), ('7D',[]), ('9S', ['AS']), ('10S', []), ('3H', []), ('6C', []), ('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', [])]
+#master_board_state = [('7C', [])]
 card_characteristic_list =[]
 board_state = ['9S','3H']
 rule_list={}
@@ -476,7 +482,8 @@ def get_card_characteristics(current):
     elif len(current) == 3:
         card_num = current[0]+current[1]
         card_suite = current[2]
-
+    else:
+        print current
     #See if the card is royal is not
     if card_num in royal:
         card_char['royal'] = 'royal'
@@ -555,24 +562,29 @@ def scan_and_rank_hypothesis():
     hypothesis_dict = {}
 	#get legal indices from the the board state
     board_state = parse_board_state()
+
+    char_dict = {}
     legal_cards = board_state['legal_cards']
     print legal_cards
     characteristic_index_list = []
     for i in xrange(0, len(legal_cards)):
-        characteristic_index_list.append(update_characteristic_list(legal_cards[i]))
+        update_characteristic_list(legal_cards[i], i, char_dict)
 
-    #Find corresponding char(C21) which has this index value
-    #Add these to possible hypothesis list
-    for i in xrange(2, len(characteristic_index_list)):
+    for i in xrange(2, len(legal_cards)):
         #Now we have individual chars in characteristic_index_list[i]
         #Decide on how to formulate hypothesis
-        if tuple(characteristic_index_list[i-2:i]) in hypothesis_dict.keys():
-            hypothesis_dict[tuple(characteristic_index_list[i-2:i+1])] += 1
-        else:
-            hypothesis_dict[tuple(characteristic_index_list[i-2:i+1])] = 1
+        combined_char_indices_list = [char_dict[i], char_dict[i-1], char_dict[i-2]]
 
-    print str(hypothesis_dict)
-
+        for characteristic_tuple in itertools.product(*combined_char_indices_list):
+            #print 'Tuple: ' + str(characteristic_tuple)
+            if characteristic_tuple in hypothesis_dict.keys():
+                hypothesis_dict[characteristic_tuple] += 1
+            else:
+                hypothesis_dict[characteristic_tuple] = 1
+    
+    print max(hypothesis_dict.iteritems(), key=operator.itemgetter(1))[0]
+    ranked_hypothesis_dict = OrderedDict(sorted(hypothesis_dict.items(), key = lambda (key, value) : (value, key), reverse=True))
+    print str(ranked_hypothesis_dict)
 	# intersecting_set= []
 	# print board_state
 	# #Considering curr, prev1 and prev2 being present
@@ -598,20 +610,24 @@ def validate_rule(current_card):
 def validate_and_refine_formulated_rule():
 	return
 
-def update_characteristic_list(current_card):
+def update_characteristic_list(current_card, current_card_index, char_dict):
     #Read the current card
     #Get the card characteristics by invoking get_card_characteristics()
     #Invoke the map_card_characteristics() to get the corresponding numeric index into the card characteristic list.
     #Append the characteristics list with the index of the current card.
     board_state = parse_board_state()
-    char_dict = initalize_characteristic_list()
+    print 'Inside update_char: ' + current_card
+    
     card_characteristics = get_card_characteristics(current_card)
     for characteristic in card_characteristics:
         card_characteristic_index = map_card_characteristic_to_property(card_characteristics[characteristic])
-        #char_dict[card_characteristic_index].append()
-        char_dict[card_characteristic_index].append(board_state['legal_cards'].index(current_card))
+        #char_dict[card_characteristic_index].append(board_state['legal_cards'].index(current_card))
+        if current_card_index not in char_dict.keys():
+            char_dict[current_card_index] = []
+        char_dict[current_card_index].append(card_characteristic_index)
 
-    return card_characteristic_index
+    print str(char_dict)
+    return char_dict
 
 def get_card_from_characteristics(card_characteristics):
     #Iterate over each of the card characteristic from the input list and compose a matching card. 
@@ -624,10 +640,7 @@ def play(card):
     #Return a boolean value based on the legality of the card. 
     return
 
-<<<<<<< HEAD
 scan_and_rank_hypothesis()
-=======
-#scan_and_rank_hypothesis(['C1', 'C2', 'C3'])
 
 def validate_and_refine_formulated_rule():
 	#board_state = [('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', []), ('7D',[]), ('9S', ['AS'])]
@@ -665,4 +678,3 @@ def validate_and_refine_formulated_rule():
 	print val
 	print val1'''
 	#validate_and_refine_formulated_rule()
->>>>>>> 5513d6125c7f04d2e420dea44c2d56118cc5bed6
