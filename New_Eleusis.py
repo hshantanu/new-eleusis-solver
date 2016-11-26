@@ -2,7 +2,7 @@ import random
 import operator
 import itertools
 from collections import OrderedDict
-
+from itertools import combinations
 
 # Trivial functions to be used in the important test functions
 # All require a nonempty string as the argument
@@ -356,9 +356,11 @@ class Tree:
 
 
 
-master_board_state = [('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', []), ('7D',[]), ('9S', ['AS'])]
-#master_board_state = [('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', []), ('7D',[]), ('9S', ['AS']), ('10S', []), ('3H', []), ('6C', []), ('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', [])]
+#master_board_state = [('KS', []), ('9H', []), ('6C', ['KS', '9C']), ('JH', []), ('QD',[]), ('5S', ['AS'])]
+master_board_state = [('KH', []), ('9C', []), ('6D', ['KS', '9C']), ('JS', []), ('QD',[]), ('5C', ['AS'])]
+#master_board_state = [('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', []), ('7D',[]), ('9S', ['AS']), ('10S', []), ('3H', []), ('6C', []), ('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', []), ('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', []), ('7D',[]), ('9S', ['AS']), ('10S', []), ('3H', []), ('6C', []), ('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', []), ('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', []), ('7D',[]), ('9S', ['AS']), ('10S', []), ('3H', []), ('6C', []), ('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', []), ('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', []), ('7D',[]), ('9S', ['AS']), ('10S', []), ('3H', []), ('6C', []), ('9S', []), ('7H', []), ('6C', ['KS', '9C']), ('6H', []), ('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', []), ('7D',[]), ('9S', ['AS']), ('10S', []), ('3H', []), ('6C', []), ('JD', []), ('QC', []), ('KH', ['KS', '9C']), ('6S', [])]
 #master_board_state = [('7C', [])]
+#master_board_state = [('10S', []), ('10S', []), ('10S', []), ('10S', []), ('10S', [])]
 predicted_rule = ''
 card_characteristic_list =[]
 board_state = ['9S','3H']
@@ -455,19 +457,21 @@ def parse_board_state():
     return return_dict
 
 def parse_illegal_indices():
-	#This function returns list of tuples of length 3 representing curr as the illegal card, 
-	#and prev, prev2 are immediately preceding legal ones. 
-	#Illegal tuples of length 3 are currently handled. To be extended to length of 2 & 1.
-	illegal_tuple_list = list()
-	board_state = master_board_state_1()
-	for index, value in enumerate(board_state):
-		if value[1]:
-			illegal_index_list = value[1]
-			for elem in illegal_index_list:
-				illegal_tuple = (board_state[index - 1][0], value[0], elem)
-				illegal_tuple_list.append(illegal_tuple)
+    #This function returns list of tuples of length 3 representing curr as the illegal card, 
+    #and prev, prev2 are immediately preceding legal ones. 
+    #Illegal tuples of length 3 and 2 are currently handled.
+    illegal_tuple_list = list()
+    board_state = master_board_state_1()
+    for index, value in enumerate(board_state):
+        if value[1]:
+            illegal_index_list = value[1]
+            for elem in illegal_index_list:
+                illegal_tuple_length_three = (board_state[index - 1][0], value[0], elem)
+                illegal_tuple_list.append(illegal_tuple_length_three)
+                illegal_tuple_length_two = (value[0], elem)
+                illegal_tuple_list.append(illegal_tuple_length_two)
 
-	return illegal_tuple_list
+    return illegal_tuple_list
 #print parse_illegal_indices()
 
 def map_card_characteristic_to_property(property):
@@ -587,13 +591,15 @@ def scan_and_rank_hypothesis():
     board_state = parse_board_state()
 
     legal_cards = board_state['legal_cards']
-    print str(legal_cards)
+    #print str(legal_cards)
     characteristic_index_list = []
     for i in xrange(0, len(legal_cards)):
         update_characteristic_list(legal_cards[i], i, char_dict)
 
     weighted_property_dict = set_characteristic_weights()
     hypothesis_index_dict = {}
+    
+    mean = 0.0
     for i in xrange(2, len(legal_cards)):
         #Now we have individual chars in characteristic_index_list[i]
         #Decide on how to formulate hypothesis
@@ -610,11 +616,17 @@ def scan_and_rank_hypothesis():
                 hypothesis_dict[characteristic_tuple] += (weighted_property_dict[characteristic_tuple[0]]+weighted_property_dict[characteristic_tuple[1]]+weighted_property_dict[characteristic_tuple[2]])/3
             else:
                 hypothesis_dict[characteristic_tuple] = (weighted_property_dict[characteristic_tuple[0]]+weighted_property_dict[characteristic_tuple[1]]+weighted_property_dict[characteristic_tuple[2]])/3
+            mean += (weighted_property_dict[characteristic_tuple[0]]+weighted_property_dict[characteristic_tuple[1]]+weighted_property_dict[characteristic_tuple[2]])/3
+       # print len(hypothesis_dict)     
+        #print str(hypothesis_dict)
+        #print str(OrderedDict(sorted(hypothesis_dict.items(), key = lambda (key, value) : (value, key), reverse=True)))
+        
 
     for i in xrange(1, len(legal_cards)):
         #Now we have individual chars in characteristic_index_list[i]
         #Decide on how to formulate hypothesis
         combined_char_indices_list = [char_dict[i-1], char_dict[i]]
+
 
         for characteristic_tuple in itertools.product(*combined_char_indices_list):
             #print 'Tuple: ' + str(characteristic_tuple)
@@ -627,20 +639,37 @@ def scan_and_rank_hypothesis():
                 hypothesis_dict[characteristic_tuple] += (weighted_property_dict[characteristic_tuple[0]]+weighted_property_dict[characteristic_tuple[1]])/2
             else:
                 hypothesis_dict[characteristic_tuple] = (weighted_property_dict[characteristic_tuple[0]]+weighted_property_dict[characteristic_tuple[1]])/2
+            mean += (weighted_property_dict[characteristic_tuple[0]]+weighted_property_dict[characteristic_tuple[1]])/2
 
     
     ranked_hypothesis_dict = OrderedDict(sorted(hypothesis_dict.items(), key = lambda (key, value) : (value, key), reverse=True))
         
-    hypothesis_offset = 337
+    hypothesis_offset = len(ranked_hypothesis_dict)
+    mean_cutoff = mean/hypothesis_offset
     ranked_hypothesis_list = [] 
     for value in ranked_hypothesis_dict.iteritems():
-        if hypothesis_offset > 0 :
+        if value[1] > mean_cutoff :
             ranked_hypothesis_list.append(value)
         else:
             break
-        hypothesis_offset -= 1
 
-    #print str(hypothesis_index_dict)
+    #TODO eliminate conflicting hypothesis- ex: consecutive Royal/Black/Odd & Non-Royal/Red/Even. Check if already handled by pick_negative
+    #Using illegal cards to eliminate possible hypothesis
+    illegal_tuple_list = parse_illegal_indices()
+    #print str(illegal_tuple_list)
+
+    for elem in illegal_tuple_list:
+        if len(elem) > 2:
+            prev2_characteristics = elem[0]
+            prev = elem[1]
+            curr = elem[2]
+
+        else:
+            prev = elem[0]
+            curr = elem[1]
+
+    #print str(len(ranked_hypothesis_list)) + ' len: ' + str(hypothesis_offset)
+    #print str(ranked_hypothesis_list)
     return ranked_hypothesis_list, hypothesis_index_dict
 
 
@@ -649,12 +678,39 @@ def scan_and_rank_rules(ranked_hypothesis_list, hypothesis_index_dict):
     board_state = parse_board_state()
 
     legal_cards = board_state['legal_cards']
+    ranked_rules_dict = {}
+    pruned_ranked_hypothesis_list = ranked_hypothesis_list[0:10]
+    #print str(pruned_ranked_hypothesis_list[0][0])
+    pruned_hypothesis_list = []
+    for elem in pruned_ranked_hypothesis_list:
+        pruned_hypothesis_list.append(elem[0])
+    #print str(pruned_hypothesis_list)
+    # for comb in combinations(pruned_hypothesis_list, 3):
+    #     print 'combination: ' + str(comb)
+    #     print 'ranked dict: ' + str(ranked_rules_dict)
+    #     if comb in ranked_rules_dict:
+    #         ranked_rules_dict[comb] += 1
+    #         print 'ranked ' + str(ranked_rules_dict[comb])
+    #     else:
+    #         print 'Blah'
+    #         ranked_rules_dict[comb] = 1
+    #print str(ranked_rules_dict)
+    #print str(OrderedDict(sorted(ranked_rules_dict.items(), key = lambda (key, value) : (value, key), reverse=True)))
     #print str(set.intersection, (set(val) for val in hypothesis_index_dict.values()))
     # for i in xrange(2, len(legal_cards)):
-    #     for key, value in hypothesis_index_dict.iteritems():
-    #         print 'key: ' + str(key) + ' value: ' + str(value)
-    #         for tuple_elem in value:
-                
+    #     elem = tuple([x for x in hypothesis_index_dict if (i-2, i-1, i) in hypothesis_index_dict[x]])
+    #     print elem
+    #     #for j in xrange(, 1, -1):
+    #     for comb in combinations(elem, len(elem)-2):
+    #         if comb in ranked_rules_dict.keys():
+    #             ranked_rules_dict[comb] += 1
+    #         else:
+    #             ranked_rules_dict[comb] = 1
+        # for key, value in hypothesis_index_dict.iteritems():
+        #     print 'key: ' + str(key) + ' value: ' + str(value)
+        #     for tuple_elem in value:
+    # ranked_rules_dict = OrderedDict(sorted(ranked_rules_dict.items(), key = lambda (key, value) : (value, key), reverse=True))
+    # print str(ranked_rules_dict)
     #     combined_char_indices_list = [char_dict[i-2], char_dict[i-1], char_dict[i]]
         #[curr = C1, C2, C3, C10   prev = C3, C4, C5,C17, C20    prev2=C6, C8, C9]
         #C1, C3, C6 -- H1
