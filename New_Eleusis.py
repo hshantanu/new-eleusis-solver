@@ -363,6 +363,7 @@ predicted_rule = ''
 card_characteristic_list =[]
 board_state = ['9S','3H']
 rule_list={}
+char_dict={}
 
 # R => Red
 # B => Black
@@ -546,6 +547,13 @@ def initalize_characteristic_list():
 	'''
 	return {'C1' : [], 'C2':[], 'C3': [], 'C4':[], 'C5':[], 'C6':[], 'C7':[], 'C8':[], 'C9': [], 'C10': [], 'C11': [], 'C12': [], 'C13': [], 'C14' : [], 'C15': [], 'C16': [], 'C17':[], 'C18':[], 'C19':[], 'C20':[], 'C21':[], 'C22': [], 'C23':[]}
 
+def set_characteristic_weights():
+    ''' This has hard_coded Weights per card characteristic. Please do not touch. Things might fail!
+    '''
+    # {'1' : 'C1' , '2' : 'C2', '3': 'C3', '4': 'C4', '5': 'C5', '6': 'C6', '7': 'C7', '8': 'C8', '9': 'C9', '10': 'C10', '11': 'C11', '12': 'C12', '13': 'C13', 'red':'C14' , 'black': 'C15', 'diamond': 'C16' , 'heart':'C17', 'spade': 'C18', 'club': 'C19', 'even': 'C20', 'odd': 'C21', 'royal': 'C22' , 'not_royal': 'C23'}
+    weighted_property_dict = {'C1' : 0.92, 'C2':0.92, 'C3': 0.92, 'C4':0.92, 'C5':0.92, 'C6':0.92, 'C7':0.92, 'C8':0.92, 'C9': 0.92, 'C10': 0.92, 'C11': 0.92, 'C12': 0.92, 'C13': 0.92, 'C14' : 0.5, 'C15': 0.5, 'C16': 0.75, 'C17':0.75, 'C18':0.75, 'C19':0.75, 'C20':0.5, 'C21':0.5, 'C22': 0.77, 'C23':0.23}
+    return weighted_property_dict
+
 def initialize_variable_offset():
 	offset_list=[]
 	count=len(board_state)
@@ -578,28 +586,52 @@ def scan_and_rank_hypothesis():
 	#get legal indices from the the board state
     board_state = parse_board_state()
 
-    char_dict = {}
     legal_cards = board_state['legal_cards']
-
+    print str(legal_cards)
     characteristic_index_list = []
     for i in xrange(0, len(legal_cards)):
         update_characteristic_list(legal_cards[i], i, char_dict)
 
+    weighted_property_dict = set_characteristic_weights()
+    hypothesis_index_dict = {}
     for i in xrange(2, len(legal_cards)):
         #Now we have individual chars in characteristic_index_list[i]
         #Decide on how to formulate hypothesis
-        combined_char_indices_list = [char_dict[i], char_dict[i-1], char_dict[i-2]]
+        #Prev2, prev, curr
+        combined_char_indices_list = [char_dict[i-2], char_dict[i-1], char_dict[i]]
 
         for characteristic_tuple in itertools.product(*combined_char_indices_list):
             #print 'Tuple: ' + str(characteristic_tuple)
-            if characteristic_tuple in hypothesis_dict.keys():
-                hypothesis_dict[characteristic_tuple] += 1
+            if characteristic_tuple in hypothesis_index_dict.keys():
+                hypothesis_index_dict[characteristic_tuple].append((i-2, i-1, i))
             else:
-                hypothesis_dict[characteristic_tuple] = 1
+                hypothesis_index_dict[characteristic_tuple] = [(i-2, i-1, i)]
+            if characteristic_tuple in hypothesis_dict.keys():
+                hypothesis_dict[characteristic_tuple] += (weighted_property_dict[characteristic_tuple[0]]+weighted_property_dict[characteristic_tuple[1]]+weighted_property_dict[characteristic_tuple[2]])/3
+            else:
+                hypothesis_dict[characteristic_tuple] = (weighted_property_dict[characteristic_tuple[0]]+weighted_property_dict[characteristic_tuple[1]]+weighted_property_dict[characteristic_tuple[2]])/3
+
+    for i in xrange(1, len(legal_cards)):
+        #Now we have individual chars in characteristic_index_list[i]
+        #Decide on how to formulate hypothesis
+        combined_char_indices_list = [char_dict[i-1], char_dict[i]]
+
+        for characteristic_tuple in itertools.product(*combined_char_indices_list):
+            #print 'Tuple: ' + str(characteristic_tuple)
+            if characteristic_tuple in hypothesis_index_dict.keys():
+                hypothesis_index_dict[characteristic_tuple].append((i-1, i))
+            else:
+                hypothesis_index_dict[characteristic_tuple] = [(i-1, i)]
+
+            if characteristic_tuple in hypothesis_dict.keys():
+                hypothesis_dict[characteristic_tuple] += (weighted_property_dict[characteristic_tuple[0]]+weighted_property_dict[characteristic_tuple[1]])/2
+            else:
+                hypothesis_dict[characteristic_tuple] = (weighted_property_dict[characteristic_tuple[0]]+weighted_property_dict[characteristic_tuple[1]])/2
+
     
     ranked_hypothesis_dict = OrderedDict(sorted(hypothesis_dict.items(), key = lambda (key, value) : (value, key), reverse=True))
-    
-    hypothesis_offset = 10
+        
+    hypothesis_offset = 337
     ranked_hypothesis_list = [] 
     for value in ranked_hypothesis_dict.iteritems():
         if hypothesis_offset > 0 :
@@ -608,16 +640,40 @@ def scan_and_rank_hypothesis():
             break
         hypothesis_offset -= 1
 
-    print str(ranked_hypothesis_list)
-    return ranked_hypothesis_list
+    #print str(hypothesis_index_dict)
+    return ranked_hypothesis_list, hypothesis_index_dict
 
 
-def scan_and_rank_rules(ranked_hypothesis_list):
+def scan_and_rank_rules(ranked_hypothesis_list, hypothesis_index_dict):
 	# TODO function needs to be implemented
-    for value in ranked_hypothesis_list.iteritems():
-        
+    board_state = parse_board_state()
+
+    legal_cards = board_state['legal_cards']
+    #print str(set.intersection, (set(val) for val in hypothesis_index_dict.values()))
+    # for i in xrange(2, len(legal_cards)):
+    #     for key, value in hypothesis_index_dict.iteritems():
+    #         print 'key: ' + str(key) + ' value: ' + str(value)
+    #         for tuple_elem in value:
+                
+    #     combined_char_indices_list = [char_dict[i-2], char_dict[i-1], char_dict[i]]
+        #[curr = C1, C2, C3, C10   prev = C3, C4, C5,C17, C20    prev2=C6, C8, C9]
+        #C1, C3, C6 -- H1
+        #C1, C3, C8 -- H2
+        #C1, C3, C9 -- H3
+        #C3, C3, C6 -- H4
+        #H1 & H2 & H3 & H4
+        #H1 & H2 & H3
+        #H1 & H2
+        #H1
+        #H2
+        #H3
+        # for elem in itertools.product(*combined_char_indices_list): 
+        #     print str(elem)
+            
+
+
            
-	return
+    return
 
 def pick_next_negative_card(rule_list):
 	#TODO - Get the rank of the rule from the scan_and_rank_rule()	- Dependency
@@ -690,6 +746,9 @@ def play(card):
 	return card_legality
 
 #scan_and_rank_rules(scan_and_rank_hypothesis())
+
+ranked_hypothesis_list, hypothesis_index_dict = scan_and_rank_hypothesis()
+scan_and_rank_rules(ranked_hypothesis_list, hypothesis_index_dict)
 
 
 def validate_and_refine_formulated_rule():
