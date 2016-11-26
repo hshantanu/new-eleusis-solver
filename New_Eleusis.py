@@ -617,6 +617,7 @@ def update_characteristic_list(current_card):
 def get_card_from_characteristics(card_characteristics):
     #Iterate over each of the card characteristic from the input list and compose a matching card. 
     #This will be done by creating a card with first characteristic from the characteristic list and iteratively applying filters based on subsequent characteristics.
+
     return
 
 def play(card):
@@ -624,6 +625,7 @@ def play(card):
     #Update the board_state by calling update_board_state()
     #Return a boolean value based on the legality of the card. 
     return
+
 
 def validate_and_refine_formulated_rule():
 	
@@ -661,6 +663,7 @@ def validate_and_refine_formulated_rule():
 
 def setRule(ruleExp):
     predicted_rule = ruleExp
+
 def rule():
     #return the current rule
     return predicted_rule;
@@ -685,4 +688,41 @@ def score(board_state):
         # TODO: Check if predicted rule conforms to the rule current 
     return current_score
 
+def find_numeric_characteristic_relation(current_card, prev_card, prev2_card):
+    numeric_relation_dic = {}
+    if (equal(current_card, prev_card)):
+        numeric_relation_dic['current_equal_prev'] = True
+    if (equal(current_card, prev2_card)):
+        numeric_relation_dic['current_equal_prev2'] = True
+    if (equal(prev_card, prev2_card)):
+        numeric_relation_dic['prev_equal_prev2'] = True
+
+    # greater relation
+    if (greater(current_card, prev_card)):
+        numeric_relation_dic['current_greater_prev'] = True
+    if (greater(current_card, prev2_card)):
+        numeric_relation_dic['current_greater_prev2'] = True
+    if (greater(prev_card, prev2_card)):
+        numeric_relation_dic['prev_greater_prev2'] = True
+
+    # less relation
+    if (less(current_card, prev_card)):
+        numeric_relation_dic['current_less_prev'] = True
+    if (less(current_card, prev2_card)):
+        numeric_relation_dic['current_less_prev2'] = True
+    if (less(prev_card, prev2_card)):
+        numeric_relation_dic['prev_less_prev2'] = True
+
+
+    # adds relation
+    numeric_relation_dic['current_adds_prev'] = value(current_card) + value(prev_card)
+    numeric_relation_dic['current_adds_prev2'] = value(current_card) + value(prev2_card)
+    numeric_relation_dic['prev_adds_prev2'] = value(prev_card) + value(prev2_card)
+
+    # minus relation
+    numeric_relation_dic['current_minus_prev'] = value(current_card) - value(prev_card)
+    numeric_relation_dic['current_minus_prev2'] = value(current_card) - value(prev2_card)
+    numeric_relation_dic['prev_minus_prev2'] = value(prev_card) - value(prev2_card)
+
+    return numeric_relation_dic;
 
