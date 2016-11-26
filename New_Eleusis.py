@@ -359,11 +359,6 @@ class Tree:
 #master_board_state = [('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', []), ('7D',[]), ('9S', ['AS'])]
 master_board_state = [('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', []), ('7D',[]), ('9S', ['AS']), ('10S', []), ('3H', []), ('6C', []), ('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', [])]
 #master_board_state = [('7C', [])]
-<<<<<<< HEAD
-=======
-
-master_board_state = [('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', []), ('7D',[]), ('9S', ['AS'])]
->>>>>>> c07cb398d472dcd5b09259cdeedc3f8b2dcd4034
 predicted_rule = ''
 card_characteristic_list =[]
 board_state = ['9S','3H']
