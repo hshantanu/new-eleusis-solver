@@ -342,7 +342,6 @@ class Tree:
 #master_board_state = [('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', []), ('7D',[]), ('9S', ['AS'])]
 master_board_state = [('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', []), ('7D',[]), ('9S', ['AS']), ('10S', []), ('3H', []), ('6C', []), ('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', [])]
 #master_board_state = [('7C', [])]
-master_board_state = [('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', []), ('7D',[]), ('9S', ['AS'])]
 predicted_rule = ''
 card_characteristic_list =[]
 board_state = ['9S','3H']
@@ -567,7 +566,7 @@ def scan_and_rank_hypothesis():
 
     char_dict = {}
     legal_cards = board_state['legal_cards']
-    print legal_cards
+
     characteristic_index_list = []
     for i in xrange(0, len(legal_cards)):
         update_characteristic_list(legal_cards[i], i, char_dict)
@@ -584,20 +583,27 @@ def scan_and_rank_hypothesis():
             else:
                 hypothesis_dict[characteristic_tuple] = 1
     
-    print max(hypothesis_dict.iteritems(), key=operator.itemgetter(1))[0]
     ranked_hypothesis_dict = OrderedDict(sorted(hypothesis_dict.items(), key = lambda (key, value) : (value, key), reverse=True))
-    print str(ranked_hypothesis_dict)
-	# intersecting_set= []
-	# print board_state
-	# #Considering curr, prev1 and prev2 being present
-	# for i in currSet.intersection(prevSet).intersection(prev2Set):
-	# 	intersecting_set.append(i)
-	# return intersecting_set			#To decide on the data structure for hypothesis.
+    
+    hypothesis_offset = 10
+    ranked_hypothesis_list = [] 
+    for value in ranked_hypothesis_dict.iteritems():
+        if hypothesis_offset > 0 :
+            ranked_hypothesis_list.append(value)
+        else:
+            break
+        hypothesis_offset -= 1
+
+    print str(ranked_hypothesis_list)
+    return ranked_hypothesis_list
 
 
-def scan_and_rank_rules():
+def scan_and_rank_rules(ranked_hypothesis_list):
 	# TODO function needs to be implemented
-	return ;
+    for value in ranked_hypothesis_list.iteritems():
+        
+           
+	return
 
 def pick_next_negative_card(rule_list):
 	#top_rule=max(rule_list.iteritems(),key=operator.itemgetter(1))[0]
@@ -669,7 +675,8 @@ def play(card):
     #Return a boolean value based on the legality of the card. 
     return
 
-scan_and_rank_hypothesis()
+scan_and_rank_rules(scan_and_rank_hypothesis())
+
 
 def validate_and_refine_formulated_rule():
 	
