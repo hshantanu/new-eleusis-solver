@@ -356,8 +356,8 @@ class Tree:
 
 
 
-#master_board_state = [('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', []), ('7D',[]), ('9S', ['AS'])]
-master_board_state = [('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', []), ('7D',[]), ('9S', ['AS']), ('10S', []), ('3H', []), ('6C', []), ('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', [])]
+master_board_state = [('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', []), ('7D',[]), ('9S', ['AS'])]
+#master_board_state = [('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', []), ('7D',[]), ('9S', ['AS']), ('10S', []), ('3H', []), ('6C', []), ('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', [])]
 #master_board_state = [('7C', [])]
 predicted_rule = ''
 card_characteristic_list =[]
@@ -625,16 +625,7 @@ def pick_next_negative_card(rule_list):
 	top_rule=max(rule_list.iteritems(),key=operator.itemgetter(1))[0]
 	#Get the first card from each top ranked rule and then find the intersecting list.
 	#If intersection set is not null then return a card which has max intersecting property by calling get_card_from_characteristic() - Dependency
-    return 
-
-def validate_rule(current_card):
-	#Check if the current card adheres to the actual rule
-	#Create an instance of the rule by initializing the tree
-	#Check if the rule matches the rule by calling the evaluate function of the tree
-	#Return true if it does else return false
-	board_state= parse_board_state()
-	adheres_rule=rule.evaluate(tree, (prev2,prev1,current_card))
-    return adheres_rule
+    #return 
 
 def validate_and_refine_formulated_rule():
 	return
@@ -698,7 +689,7 @@ def play(card):
 	update_board_state(board_state,card_legality,card)
 	return card_legality
 
-scan_and_rank_rules(scan_and_rank_hypothesis())
+#scan_and_rank_rules(scan_and_rank_hypothesis())
 
 
 def validate_and_refine_formulated_rule():
@@ -798,4 +789,20 @@ def find_numeric_characteristic_relation(current_card, prev_card, prev2_card):
 
     return numeric_relation_dic;
 
-	#print except_list
+def validate_card():
+	#Output: Return True/False, if the current card conforms to the actual rule.
+	#board_state = [('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', []), ('7D',[]), ('9S', ['AS'])]
+
+	#board_state = parse_board_state() ==> Gives error atm
+
+	#This is the actual rule which the rule function should return
+	# Red must follow black
+	rule1 = Tree(orf, Tree(equal, Tree(color, 'previous'), 'R'), Tree(equal, Tree(color, 'current'), 'R'))
+
+	#fetch from legal list
+	curr = 'AD'
+	prev1 = '9S'
+	prev2 = '7D'
+	#legal_card = ['10S', '3H', '6H', '7D','9S','7S']
+
+	return rule1.evaluate((prev2,prev1,curr))	
