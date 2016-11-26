@@ -219,25 +219,25 @@ def parse(s):
 
 
 def scientist():
-	parse_board_state()
-	initialize_variable_offset()
-	pick_random_card()
-	plays = 0
-	while plays <= 200:
-		#play(<card>)
-		parse_illegal_indices()
-		initalize_characteristic_list()
-		#TODO Please remove
-		characteristic_list = get_card_characteristics('7H')
-		# update_characteristic_list(characteristic_list)
-		map_card_characteristic_to_property()
-		# scan_and_rank_hypothesis()
-		scan_and_rank_rules()
-		validate_and_refine_formulated_rule()
-		# pick_next_random_card()
-		#validate_and_refine_formulated_rule()
-		#pick_next_negative_card()
-
+	# parse_board_state()
+	# initialize_variable_offset()
+	# pick_random_card()
+	# plays = 0
+	# while plays <= 200:
+	# 	#play(<card>)
+	# 	parse_illegal_indices()
+	# 	initalize_characteristic_list()
+	# 	#TODO Please remove
+	# 	characteristic_list = get_card_characteristics('7H')
+	# 	# update_characteristic_list(characteristic_list)
+	# 	map_card_characteristic_to_property()
+	# 	# scan_and_rank_hypothesis()
+	# 	scan_and_rank_rules()
+	# 	validate_and_refine_formulated_rule()
+	# 	# pick_next_random_card()
+	# 	#validate_and_refine_formulated_rule()
+	# 	#pick_next_negative_card()
+        return ''
 
 
 class Tree:
@@ -339,9 +339,14 @@ class Tree:
 
 
 
+<<<<<<< HEAD
 #master_board_state = [('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', []), ('7D',[]), ('9S', ['AS'])]
 master_board_state = [('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', []), ('7D',[]), ('9S', ['AS']), ('10S', []), ('3H', []), ('6C', []), ('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', [])]
 #master_board_state = [('7C', [])]
+=======
+master_board_state = [('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', []), ('7D',[]), ('9S', ['AS'])]
+predicted_rule = ''
+>>>>>>> 4005eb7a08cacbc422fe8efb6cab75619aafca69
 card_characteristic_list =[]
 board_state = ['9S','3H']
 rule_list={}
@@ -442,8 +447,8 @@ def parse_illegal_indices():
 	#and prev, prev2 are immediately preceding legal ones. 
 	#Illegal tuples of length 3 are currently handled. To be extended to length of 2 & 1.
 	illegal_tuple_list = list()
-	#board_state = board_state()
-	board_state = [('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', []), ('7D',[]), ('9S', ['AS'])]
+	board_state = master_board_state_1()
+
 	for index, value in enumerate(board_state):
 		if value[1]:
 			illegal_index_list = value[1]
@@ -630,9 +635,38 @@ def update_characteristic_list(current_card, current_card_index, char_dict):
     return char_dict
 
 def get_card_from_characteristics(card_characteristics):
+    # Format {'number': 9, 'suite': 'C', 'color': 'B'}
+    # Format {'suite': 'C', 'color': 'B'}
+    # Format {'number': 9}
     #Iterate over each of the card characteristic from the input list and compose a matching card. 
     #This will be done by creating a card with first characteristic from the characteristic list and iteratively applying filters based on subsequent characteristics.
-    return
+    numeric_tuple = ('A','2','3','4','5','6','7','8','9','10','J','Q','K')
+    suite_tuple = ('C','D','H','S')
+    if (card_characteristics):
+        if ('color' in card_characteristics and card_characteristics['color'] == 'Red') :
+            suite_tuple = ('D','H')
+        elif('color' in card_characteristics and card_characteristics['color'] == 'Black') :
+            suite_tuple = ('C','S')
+        else:
+            suite_tuple = ('C','D','H','S')
+        if ('suite' in card_characteristics):
+            suite_tuple = (card_characteristics['suite'])
+        if ('number' in card_characteristics):
+            numeric_tuple = (card_characteristics['number'])
+
+    if ('number' in card_characteristics and card_characteristics['number']) :
+        rank = str(card_characteristics['number'])
+    else:
+        rank = random.choice(numeric_tuple)
+    if ('suite' in card_characteristics and card_characteristics['suite']):
+        suit = random.choice( suite_tuple )
+    else:
+        suit = random.choice( suite_tuple ) 
+    
+    card = rank + suit
+    return card
+
+
 
 def play(card):
     #Invoke validate_rule() which returns True/False if the current play is legal/illegal.
@@ -643,24 +677,34 @@ def play(card):
 scan_and_rank_hypothesis()
 
 def validate_and_refine_formulated_rule():
+	
+	#@TODO: Update the code based on scan & rank hypothesis.
+	#@TODO: Return Part
+
 	#board_state = [('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', []), ('7D',[]), ('9S', ['AS'])]
 	
-	# Red must follow black
 	i = 0
-	except_list = []
+	exception_legal_list = []
+	exception_illegal_list = []
+
+	# Red must follow black
 	rule1 = Tree(orf, Tree(equal, Tree(color, 'previous'), 'R'), Tree(equal, Tree(color, 'current'), 'R'))
 
 	legal_card = ['10S', '3H', '6H', '7D','9S','7S']
-	illegal_cards = parse_illegal_indices() #in the format prev2,prev,curr
-	#[('3H', '6C', 'KS'), ('3H', '6C', '9C'), ('7D', '9S', 'AS')]
+	#illegal_cards = parse_illegal_indices() #in the format prev2,prev,curr
+	
+	illegal_cards = [('3H', '6C', 'KS'), ('3H', '6C', '9C'), ('7D', '9S', 'AS'), ('6H','7D','9S')]
 
 	while((i + 2) < len(legal_card)):
-		my_list = (legal_card[i],legal_card[i+1],legal_card[i+2])
-		#print my_list
-		if rule1.evaluate((my_list)) == False:
-			except_list.append(my_list)
+		my_legal_list = (legal_card[i],legal_card[i+1],legal_card[i+2])
+		if rule1.evaluate((my_legal_list)) == False:
+			exception_legal_list.append(my_legal_list)
 		i += 1
 
+	for tup in illegal_cards:
+		my_illegal_list = (tup[0], tup[1], tup[2])
+		if rule1.evaluate((my_illegal_list)) == True:
+			exception_illegal_list.append(my_illegal_list)
 
 	#print except_list
 	return
@@ -678,3 +722,68 @@ def validate_and_refine_formulated_rule():
 	print val
 	print val1'''
 	#validate_and_refine_formulated_rule()
+
+def setRule(ruleExp):
+    predicted_rule = ruleExp
+
+def rule():
+    #return the current rule
+    return predicted_rule;
+
+def score(board_state):
+    current_score = 0
+    play_counter = 0
+    board_state = parse_board_state()
+    illegal_index_list = parse_illegal_indices()
+
+    if board_state:
+        legal_cards = board_state['legal_cards'];
+    for card in legal_cards:
+        if play_counter >=20:
+            current_score +=1
+    current_score = current_score + 2*(len(illegal_index_list))
+    scientist_rule = scientist()
+    current_rule = rule()
+    if scientist_rule != current_rule:
+        current_score += 15
+        # TODO: Validate predicted rule using validate_rule method for the current rule
+        # TODO: Check if predicted rule conforms to the rule current 
+    return current_score
+
+def find_numeric_characteristic_relation(current_card, prev_card, prev2_card):
+    numeric_relation_dic = {}
+    if (equal(current_card, prev_card)):
+        numeric_relation_dic['current_equal_prev'] = True
+    if (equal(current_card, prev2_card)):
+        numeric_relation_dic['current_equal_prev2'] = True
+    if (equal(prev_card, prev2_card)):
+        numeric_relation_dic['prev_equal_prev2'] = True
+
+    # greater relation
+    if (greater(current_card, prev_card)):
+        numeric_relation_dic['current_greater_prev'] = True
+    if (greater(current_card, prev2_card)):
+        numeric_relation_dic['current_greater_prev2'] = True
+    if (greater(prev_card, prev2_card)):
+        numeric_relation_dic['prev_greater_prev2'] = True
+
+    # less relation
+    if (less(current_card, prev_card)):
+        numeric_relation_dic['current_less_prev'] = True
+    if (less(current_card, prev2_card)):
+        numeric_relation_dic['current_less_prev2'] = True
+    if (less(prev_card, prev2_card)):
+        numeric_relation_dic['prev_less_prev2'] = True
+
+
+    # adds relation
+    numeric_relation_dic['current_adds_prev'] = value(current_card) + value(prev_card)
+    numeric_relation_dic['current_adds_prev2'] = value(current_card) + value(prev2_card)
+    numeric_relation_dic['prev_adds_prev2'] = value(prev_card) + value(prev2_card)
+
+    # minus relation
+    numeric_relation_dic['current_minus_prev'] = value(current_card) - value(prev_card)
+    numeric_relation_dic['current_minus_prev2'] = value(current_card) - value(prev2_card)
+    numeric_relation_dic['prev_minus_prev2'] = value(prev_card) - value(prev2_card)
+
+    return numeric_relation_dic;
