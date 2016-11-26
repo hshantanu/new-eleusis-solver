@@ -339,14 +339,11 @@ class Tree:
 
 
 
-<<<<<<< HEAD
 #master_board_state = [('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', []), ('7D',[]), ('9S', ['AS'])]
 master_board_state = [('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', []), ('7D',[]), ('9S', ['AS']), ('10S', []), ('3H', []), ('6C', []), ('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', [])]
 #master_board_state = [('7C', [])]
-=======
 master_board_state = [('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', []), ('7D',[]), ('9S', ['AS'])]
 predicted_rule = ''
->>>>>>> 4005eb7a08cacbc422fe8efb6cab75619aafca69
 card_characteristic_list =[]
 board_state = ['9S','3H']
 rule_list={}
@@ -621,7 +618,6 @@ def update_characteristic_list(current_card, current_card_index, char_dict):
     #Invoke the map_card_characteristics() to get the corresponding numeric index into the card characteristic list.
     #Append the characteristics list with the index of the current card.
     board_state = parse_board_state()
-    print 'Inside update_char: ' + current_card
     
     card_characteristics = get_card_characteristics(current_card)
     for characteristic in card_characteristics:
@@ -631,7 +627,6 @@ def update_characteristic_list(current_card, current_card_index, char_dict):
             char_dict[current_card_index] = []
         char_dict[current_card_index].append(card_characteristic_index)
 
-    print str(char_dict)
     return char_dict
 
 def get_card_from_characteristics(card_characteristics):
