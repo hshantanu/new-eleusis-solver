@@ -612,6 +612,9 @@ def update_characteristic_list(current_card):
     return card_characteristic_index
 
 def get_card_from_characteristics(card_characteristics):
+    # Format {'number': 9, 'suite': 'C', 'color': 'B'}
+    # Format {'suite': 'C', 'color': 'B'}
+    # Format {'number': 9}
     #Iterate over each of the card characteristic from the input list and compose a matching card. 
     #This will be done by creating a card with first characteristic from the characteristic list and iteratively applying filters based on subsequent characteristics.
     numeric_tuple = ('A','2','3','4','5','6','7','8','9','10','J','Q','K')
