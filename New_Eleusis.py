@@ -573,7 +573,7 @@ def initialize_variable_offset():
 	elif count is 1:
 		curr = board_state[-1]
 		offset_list.append(curr)
-		print "[Current]: ",offset_list
+		print "[Current]: ",offset_def scan_and_rank_hypothesis():list
 	elif count is 0:
 		print 'Board empty'
 	elif count is 2:
