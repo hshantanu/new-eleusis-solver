@@ -493,6 +493,13 @@ def map_card_characteristic_to_property(prop):
     # 	if char == prop:
     #     	return val
 
+def map_card_characteristic_to_value(prop):
+	# This function returns a value for key in the dictionary
+	property_dict = {'1' : 'C1' , '2' : 'C2', '3': 'C3', '4': 'C4', '5': 'C5', '6': 'C6', '7': 'C7', '8': 'C8', '9': 'C9', '10': 'C10', '11': 'C11', '12': 'C12', '13': 'C13', 'red':'C14' , 'black': 'C15', 'diamond': 'C16' , 'heart':'C17', 'spade': 'C18', 'club': 'C19', 'even': 'C20', 'odd': 'C21', 'royal': 'C22' , 'not_royal': 'C23'}
+
+	for val,char in property_dict.iteritems():
+		if char == prop:
+			return val
 
 
 def get_card_char_from_property(index):
@@ -1067,26 +1074,26 @@ def create_tree(hypothesis = ['C14','C15']):
 		#h1 = h1[1:]
 		#print h1
 		#print type(h1)
-		h1 = map_card_characteristic_to_property(h1)
+		h1 = map_card_characteristic_to_value(h1)
 		#print h1
 		#h2 = hypothesis[1]
 		#h2 = int(h2[1:])
 		h2 = hypothesis[1]
-		h2 = map_card_characteristic_to_property(h2)
+		h2 = map_card_characteristic_to_value(h2)
 	elif len(hypothesis) == 3:
 		h1 = hypothesis[0]
 		#h1 = int(h1[1:])
-		h1 = map_card_characteristic_to_property(h1)
+		h1 = map_card_characteristic_to_value(h1)
 		#h2 = hypothesis[1]
 		#h2 = int(h2[1:])
 		h2 = hypothesis[1]
-		h2 = map_card_characteristic_to_property(h2)
+		h2 = map_card_characteristic_to_value(h2)
 		#h3 = hypothesis[2]
 		#h3 = int(h3[1:])
 		h3 = hypothesis[2]
-		h3 = map_card_characteristic_to_property(h3)
+		h3 = map_card_characteristic_to_value(h3)
 	
-	#print h1
+	#print h1, h2
 
 	rule1 = Tree(orf, Tree(equal, Tree(color, 'previous'), 'R'), Tree(equal, Tree(color, 'current'), 'R'))
 
