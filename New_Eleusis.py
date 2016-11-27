@@ -226,7 +226,7 @@ def scientist():
 	# while plays <= 200:
 	# 	#play(<card>)
 	# 	parse_illegal_indices()
-	# 	initalize_characteristic_list()
+	# 	initalize_characteristic_list()ia
 	# 	#TODO Please remove
 	# 	characteristic_list = get_card_characteristics('7H')
 	# 	# update_characteristic_list(characteristic_list)
