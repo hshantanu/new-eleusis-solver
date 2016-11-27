@@ -627,7 +627,6 @@ def scan_and_rank_hypothesis():
             if characteristic_tuple in hypothesis_index_dict.keys():
                 hypothesis_index_dict[characteristic_tuple].append((i-2, i-1, i))
             else:
-                print str(characteristic_tuple)
                 hypothesis_index_dict[characteristic_tuple] = [(i-2, i-1, i)]
             if characteristic_tuple in hypothesis_dict.keys():
                 hypothesis_occurrence_count[characteristic_tuple] += 1
