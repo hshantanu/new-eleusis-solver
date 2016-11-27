@@ -308,8 +308,10 @@ class Tree:
         """Evaluate this tree with the given card values"""
         def subeval(expr):
             if expr.__class__.__name__ == "Tree":
+            	#print('Tree')
                 return expr.evaluate(cards)
             else:
+            	#print('Tree2')
                 if expr == "current":
                     return current
                 elif expr == "previous":
@@ -320,6 +322,7 @@ class Tree:
                     return expr
         try:
             (previous2, previous, current) = cards
+            #print('here')
             f = self.root
             if f not in functions:
                 return f
@@ -474,15 +477,21 @@ def parse_illegal_indices():
     return illegal_tuple_list
 #print parse_illegal_indices()
 
-def map_card_characteristic_to_property(property):
+def map_card_characteristic_to_property(prop):
     '''
         Return a mapping of all the card characterstic to the property
     '''
     property_dict = {'1' : 'C1' , '2' : 'C2', '3': 'C3', '4': 'C4', '5': 'C5', '6': 'C6', '7': 'C7', '8': 'C8', '9': 'C9', '10': 'C10', '11': 'C11', '12': 'C12', '13': 'C13', 'red':'C14' , 'black': 'C15', 'diamond': 'C16' , 'heart':'C17', 'spade': 'C18', 'club': 'C19', 'even': 'C20', 'odd': 'C21', 'royal': 'C22' , 'not_royal': 'C23'}
-    if property and property in property_dict:
-        return property_dict[property]
+    '''if property in property_dict:
+        return property_dict.
     else:
-        return property_dict
+        return property_dict   '''
+    #property_dict.get(prop, None)
+    for val,char in property_dict.iteritems():
+    	if char == prop:
+        	return val
+
+
 
 def get_card_char_from_property(index):
 
@@ -832,8 +841,8 @@ def play(card):
 
 #scan_and_rank_rules(scan_and_rank_hypothesis())
 
-ranked_hypothesis_list, hypothesis_index_dict = scan_and_rank_hypothesis()
-scan_and_rank_rules(ranked_hypothesis_list, hypothesis_index_dict)
+#ranked_hypothesis_list, hypothesis_index_dict = scan_and_rank_hypothesis()
+#scan_and_rank_rules(ranked_hypothesis_list, hypothesis_index_dict)
 
 
 def validate_and_refine_formulated_rule():
@@ -850,9 +859,21 @@ def validate_and_refine_formulated_rule():
 	# Red must follow black
 	rule1 = Tree(orf, Tree(equal, Tree(color, 'previous'), 'R'), Tree(equal, Tree(color, 'current'), 'R'))
 
+	#Even must follow Odd test
+	rule2 = Tree(orf, Tree(even, 'previous'), Tree(even,'current'))
+
+	#Alternate the sequence even odd
+	rule3 = Tree(orf, Tree(andf, Tree(odd, 'previous'), Tree(even,'current')), Tree(andf, Tree(even, 'previous'), Tree(odd,'current')))
+
 	legal_card = ['10S', '3H', '6H', '7D','9S','7S']
-	#illegal_cards = parse_illegal_indices() #in the format prev2,prev,curr
 	
+	legal_card2 = ['8S','7H','6S']
+	print rule2.evaluate((legal_card2))
+
+	legal_card3 = ['6C','5C','7C']
+	print rule3.evaluate((legal_card3))
+
+	#illegal_cards = parse_illegal_indices() #in the format prev2,prev,curr
 	illegal_cards = [('3H', '6C', 'KS'), ('3H', '6C', '9C'), ('7D', '9S', 'AS'), ('6H','7D','9S')]
 
 	while((i + 2) < len(legal_card)):
@@ -865,8 +886,8 @@ def validate_and_refine_formulated_rule():
 		if rule1.evaluate((my_illegal_list)) == True:
 			exception_illegal_list.append(my_illegal_list)
 
-	#print except_list
 	return
+validate_and_refine_formulated_rule()
 
 def setRule(ruleExp):
     predicted_rule = ruleExp
@@ -948,5 +969,64 @@ def validate_card():
 	prev1 = '9S'
 	prev2 = '7D'
 	#legal_card = ['10S', '3H', '6H', '7D','9S','7S']
-
 	return rule1.evaluate((prev2,prev1,curr))	
+
+def create_tree(hypothesis = ['C14','C15']):
+
+	# {'1' : 'C1' , '2' : 'C2', '3': 'C3', '4': 'C4', '5': 'C5', '6': 'C6', '7': 'C7', '8': 'C8', '9': 'C9', '10': 'C10', '11': 'C11', '12': 'C12', '13': 'C13', 'red':'C14' , 'black': 'C15', 'diamond': 'C16' , 'heart':'C17', 'spade': 'C18', 'club': 'C19', 'even': 'C20', 'odd': 'C21', 'royal': 'C22' , 'not_royal': 'C23'}
+	flag = False
+	for val in hypothesis:
+		num = int(val[1:])
+		if num > 10:
+			flag = True
+			break
+	#@TODO
+	#if flag == True:
+		# Calls Rahul's method for numeric rules
+	#map_card_characteristic_to_property
+
+	if len(hypothesis) == 2:
+		h1 = hypothesis[0]
+		#h1 = h1[1:]
+		#print h1
+		#print type(h1)
+		h1 = map_card_characteristic_to_property(h1)
+		#print h1
+		#h2 = hypothesis[1]
+		#h2 = int(h2[1:])
+		h2 = hypothesis[1]
+		h2 = map_card_characteristic_to_property(h2)
+	elif len(hypothesis) == 3:
+		h1 = hypothesis[0]
+		#h1 = int(h1[1:])
+		h1 = map_card_characteristic_to_property(h1)
+		#h2 = hypothesis[1]
+		#h2 = int(h2[1:])
+		h2 = hypothesis[1]
+		h2 = map_card_characteristic_to_property(h2)
+		#h3 = hypothesis[2]
+		#h3 = int(h3[1:])
+		h3 = hypothesis[2]
+		h3 = map_card_characteristic_to_property(h3)
+	
+	#print h1
+
+	rule1 = Tree(orf, Tree(equal, Tree(color, 'previous'), 'R'), Tree(equal, Tree(color, 'current'), 'R'))
+
+	#Even must follow Odd test
+	rule2 = Tree(orf, Tree(even, 'previous'), Tree(even,'current'))
+
+	#Alternate the sequence even odd
+	rule3 = Tree(orf, Tree(andf, Tree(odd, 'previous'), Tree(even,'current')), Tree(andf, Tree(even, 'previous'), Tree(odd,'current')))
+
+	#my_rule = Tree(andf, Tree(equal, Tree(value,'current'), '10'), Tree(equal, Tree(suit,'current'), 'S'))
+	my_rule = Tree(andf, Tree(andf, Tree(equal, Tree(value,'current'), '13'), Tree(equal, Tree(suit,'current'), 'S')), Tree(is_royal,'current'))
+	my_list = ['KS','KS','KS']
+
+	#print my_rule.evaluate((my_list))
+
+	#print rule3.evaluate((legal_card3))
+ 
+
+
+create_tree()
