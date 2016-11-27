@@ -787,10 +787,10 @@ def scan_and_rank_rules(ranked_hypothesis, hypothesis_index_dict):
                             occurrence_flag = True
                 if occurrence_flag:
                     if tuple_elem in pruned_ranked_hypothesis_dict:
-                        pruned_ranked_hypothesis_dict[tuple_elem] += accumulated_weight
+                        pruned_ranked_hypothesis_dict[tuple_elem] += accumulated_weight/3
                     else:
-                        pruned_ranked_hypothesis_dict[tuple_elem] = accumulated_weight
-                    mean += accumulated_weight
+                        pruned_ranked_hypothesis_dict[tuple_elem] = accumulated_weight/3
+                    mean += accumulated_weight/3
 
         elif len(tuple_elem) == 2:
             for i in xrange(2, len(legal_cards)):
@@ -812,10 +812,10 @@ def scan_and_rank_rules(ranked_hypothesis, hypothesis_index_dict):
                             occurrence_flag = True
                 if occurrence_flag:
                     if tuple_elem in pruned_ranked_hypothesis_dict:
-                        pruned_ranked_hypothesis_dict[tuple_elem] += accumulated_weight
+                        pruned_ranked_hypothesis_dict[tuple_elem] += accumulated_weight/2
                     else:
-                        pruned_ranked_hypothesis_dict[tuple_elem] = accumulated_weight
-                    mean += accumulated_weight
+                        pruned_ranked_hypothesis_dict[tuple_elem] = accumulated_weight/2
+                    mean += accumulated_weight/2
 
     pruned_ranked_hypothesis_dict = OrderedDict(sorted(pruned_ranked_hypothesis_dict.items(), key = lambda (key, value) : (value, key), reverse=True))
     #print str(pruned_ranked_hypothesis_dict)
