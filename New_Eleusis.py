@@ -360,8 +360,10 @@ class Tree:
 
 
 #master_board_state = [('KS', []), ('9H', []), ('6C', ['KS', '9C']), ('JH', []), ('QD',[]), ('5S', ['AS'])]
-master_board_state = [('KH', []), ('9C', []), ('6D', ['KS', '9C']), ('JS', []), ('QD',[]), ('5C', ['AS'])]
+#master_board_state = [('KH', []), ('9C', []), ('6D', ['KS', '9C']), ('JS', []), ('QD',[]), ('5C', ['AS'])]
 #master_board_state = [('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', []), ('7D',[]), ('9S', ['AS']), ('10S', []), ('3H', []), ('6C', []), ('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', []), ('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', []), ('7D',[]), ('9S', ['AS']), ('10S', []), ('3H', []), ('6C', []), ('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', []), ('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', []), ('7D',[]), ('9S', ['AS']), ('10S', []), ('3H', []), ('6C', []), ('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', []), ('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', []), ('7D',[]), ('9S', ['AS']), ('10S', []), ('3H', []), ('6C', []), ('9S', []), ('7H', []), ('6C', ['KS', '9C']), ('6H', []), ('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', []), ('7D',[]), ('9S', ['AS']), ('10S', []), ('3H', []), ('6C', []), ('JD', []), ('QC', []), ('KH', ['KS', '9C']), ('6S', [])]
+#master_board_state = [('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', []), ('7D',[]), ('9S', ['AS'])]
+master_board_state = [('QS', []), ('4D', []), ('5C', ['KS', '9C']), ('10H', []), ('8C',[]), ('9H', ['AS'])]
 #master_board_state = [('7C', [])]
 #master_board_state = [('10S', []), ('10S', []), ('10S', []), ('10S', []), ('10S', [])]
 predicted_rule = ''
@@ -502,7 +504,7 @@ def get_card_char_from_property(index):
 def get_card_characteristics(current):
     #color, suite, number, even/odd, royal
 
-    royal = ['J', 'Q', 'K']
+    royal = ['A', 'J', 'Q', 'K']
     card_char = {}
     #color = ""
     if len(current) == 2:
@@ -537,12 +539,15 @@ def get_card_characteristics(current):
         card_char['suite'] = 'spade'		
 
     #Adding the number in the card dictionary
-    if card_num == 'J':
+    if card_num == 'A':
+        card_num = '1'
+    elif card_num == 'J':
         card_num = '11'
     elif card_num == 'Q':
         card_num = '12'
     elif card_num == 'K':
         card_num = '13'
+
     card_char[card_num] = card_num
 
     #Adding the even/odd property of the card in the char dictionary 
@@ -608,6 +613,7 @@ def scan_and_rank_hypothesis():
 
     weighted_property_dict = set_characteristic_weights()
     hypothesis_index_dict = {}
+    hypothesis_occurrence_count = {}
     
     mean = 0.0
     for i in xrange(2, len(legal_cards)):
@@ -623,14 +629,17 @@ def scan_and_rank_hypothesis():
             else:
                 hypothesis_index_dict[characteristic_tuple] = [(i-2, i-1, i)]
             if characteristic_tuple in hypothesis_dict.keys():
-                hypothesis_dict[characteristic_tuple] += (weighted_property_dict[characteristic_tuple[0]]+weighted_property_dict[characteristic_tuple[1]]+weighted_property_dict[characteristic_tuple[2]])/3
+                hypothesis_occurrence_count[characteristic_tuple] += 1
+                hypothesis_dict[characteristic_tuple] += ((weighted_property_dict[characteristic_tuple[0]]+weighted_property_dict[characteristic_tuple[1]]+weighted_property_dict[characteristic_tuple[2]])/3)*hypothesis_occurrence_count[characteristic_tuple]
             else:
                 hypothesis_dict[characteristic_tuple] = (weighted_property_dict[characteristic_tuple[0]]+weighted_property_dict[characteristic_tuple[1]]+weighted_property_dict[characteristic_tuple[2]])/3
+                hypothesis_occurrence_count[characteristic_tuple] = 1
             mean += (weighted_property_dict[characteristic_tuple[0]]+weighted_property_dict[characteristic_tuple[1]]+weighted_property_dict[characteristic_tuple[2]])/3
        # print len(hypothesis_dict)     
         #print str(hypothesis_dict)
         #print str(OrderedDict(sorted(hypothesis_dict.items(), key = lambda (key, value) : (value, key), reverse=True)))
         
+    hypothesis_occurrence_count = {}
 
     for i in xrange(1, len(legal_cards)):
         #Now we have individual chars in characteristic_index_list[i]
@@ -645,8 +654,10 @@ def scan_and_rank_hypothesis():
                 hypothesis_index_dict[characteristic_tuple] = [(i-1, i)]
 
             if characteristic_tuple in hypothesis_dict.keys():
-                hypothesis_dict[characteristic_tuple] += (weighted_property_dict[characteristic_tuple[0]]+weighted_property_dict[characteristic_tuple[1]])/2
+                hypothesis_occurrence_count[characteristic_tuple] += 1
+                hypothesis_dict[characteristic_tuple] += ((weighted_property_dict[characteristic_tuple[0]]+weighted_property_dict[characteristic_tuple[1]])/2)*hypothesis_occurrence_count[characteristic_tuple]
             else:
+                hypothesis_occurrence_count[characteristic_tuple] = 1
                 hypothesis_dict[characteristic_tuple] = (weighted_property_dict[characteristic_tuple[0]]+weighted_property_dict[characteristic_tuple[1]])/2
             mean += (weighted_property_dict[characteristic_tuple[0]]+weighted_property_dict[characteristic_tuple[1]])/2
 
@@ -655,10 +666,10 @@ def scan_and_rank_hypothesis():
         
     hypothesis_offset = len(ranked_hypothesis_dict)
     mean_cutoff = mean/hypothesis_offset
-    ranked_hypothesis_list = {} 
+    ranked_hypothesis = {} 
     for value in ranked_hypothesis_dict.iteritems():
         if value[1] > mean_cutoff :
-            ranked_hypothesis_list[value[0]] = value[1]
+            ranked_hypothesis[value[0]] = value[1]
         else:
             break
 
@@ -678,83 +689,151 @@ def scan_and_rank_hypothesis():
             # print(curr + ' ' + prev + ' ' + prev2)
             combined_char_indices_list = [get_card_mapping_characterstic(prev2), get_card_mapping_characterstic(prev), get_card_mapping_characterstic(curr)]
 
+        hypothesis_occurrence_count = {}
+        
         for characteristic_tuple in itertools.product(*combined_char_indices_list):
             if(len(characteristic_tuple)>2):
-                if characteristic_tuple in ranked_hypothesis_list.keys():
-                    ranked_hypothesis_list[characteristic_tuple] -= 1-(weighted_property_dict[characteristic_tuple[0]]+weighted_property_dict[characteristic_tuple[1]]+weighted_property_dict[characteristic_tuple[2]])/3
+                if characteristic_tuple in ranked_hypothesis.keys():
+                    if characteristic_tuple in hypothesis_occurrence_count:
+                        hypothesis_occurrence_count[characteristic_tuple] += 1
+                    else:
+                        hypothesis_occurrence_count[characteristic_tuple] = 1
+                    ranked_hypothesis[characteristic_tuple] -= ((weighted_property_dict[characteristic_tuple[0]]+weighted_property_dict[characteristic_tuple[1]]+weighted_property_dict[characteristic_tuple[2]])/3)*hypothesis_occurrence_count[characteristic_tuple]
+
         else:
             prev = elem[0]
             curr = elem[1]
 
+            hypothesis_occurrence_count = {}
             combined_char_indices_list = [get_card_mapping_characterstic(prev), get_card_mapping_characterstic(curr)]
             for characteristic_tuple in itertools.product(*combined_char_indices_list):
                 if ((len(characteristic_tuple)>1) and (len(characteristic_tuple)<=2)):
-                    if characteristic_tuple in ranked_hypothesis_list.keys():
-                        ranked_hypothesis_list[characteristic_tuple] -= 1-(weighted_property_dict[characteristic_tuple[0]]+weighted_property_dict[characteristic_tuple[1]])/2
+                    if characteristic_tuple in ranked_hypothesis.keys():
+                        if characteristic_tuple in hypothesis_occurrence_count:
+                            hypothesis_occurrence_count[characteristic_tuple] += 1
+                        else:
+                            hypothesis_occurrence_count[characteristic_tuple] = 1
+                        ranked_hypothesis[characteristic_tuple] -= ((weighted_property_dict[characteristic_tuple[0]]+weighted_property_dict[characteristic_tuple[1]])/2)*hypothesis_occurrence_count[characteristic_tuple]
+
+    ranked_hypothesis = OrderedDict(sorted(ranked_hypothesis.items(), key = lambda (key, value) : (value, key), reverse=True))
+    # #print str(len(ranked_hypothesis)) + ' len: ' + str(hypothesis_offset)
+    #print str(ranked_hypothesis)
+    return ranked_hypothesis, hypothesis_index_dict
 
 
-    #print str(len(ranked_hypothesis_list)) + ' len: ' + str(hypothesis_offset)
-    print str(ranked_hypothesis_list)
-    return ranked_hypothesis_list, hypothesis_index_dict
-
-
-def scan_and_rank_rules(ranked_hypothesis_list, hypothesis_index_dict):
+def scan_and_rank_rules(ranked_hypothesis, hypothesis_index_dict):
 	# TODO function needs to be implemented
     board_state = parse_board_state()
-
+    weighted_property_dict = set_characteristic_weights()
     legal_cards = board_state['legal_cards']
-    ranked_rules_dict = {}
-    pruned_ranked_hypothesis_list = ranked_hypothesis_list[0:10]
-    #print str(pruned_ranked_hypothesis_list[0][0])
-    pruned_hypothesis_list = []
-    for elem in pruned_ranked_hypothesis_list:
-        pruned_hypothesis_list.append(elem[0])
-    #print str(pruned_hypothesis_list)
-    # for comb in combinations(pruned_hypothesis_list, 3):
-    #     print 'combination: ' + str(comb)
-    #     print 'ranked dict: ' + str(ranked_rules_dict)
-    #     if comb in ranked_rules_dict:
-    #         ranked_rules_dict[comb] += 1
-    #         print 'ranked ' + str(ranked_rules_dict[comb])
-    #     else:
-    #         print 'Blah'
-    #         ranked_rules_dict[comb] = 1
-    #print str(ranked_rules_dict)
-    #print str(OrderedDict(sorted(ranked_rules_dict.items(), key = lambda (key, value) : (value, key), reverse=True)))
-    #print str(set.intersection, (set(val) for val in hypothesis_index_dict.values()))
-    # for i in xrange(2, len(legal_cards)):
-    #     elem = tuple([x for x in hypothesis_index_dict if (i-2, i-1, i) in hypothesis_index_dict[x]])
-    #     print elem
-    #     #for j in xrange(, 1, -1):
-    #     for comb in combinations(elem, len(elem)-2):
-    #         if comb in ranked_rules_dict.keys():
-    #             ranked_rules_dict[comb] += 1
-    #         else:
-    #             ranked_rules_dict[comb] = 1
-        # for key, value in hypothesis_index_dict.iteritems():
-        #     print 'key: ' + str(key) + ' value: ' + str(value)
-        #     for tuple_elem in value:
-    # ranked_rules_dict = OrderedDict(sorted(ranked_rules_dict.items(), key = lambda (key, value) : (value, key), reverse=True))
-    # print str(ranked_rules_dict)
-    #     combined_char_indices_list = [char_dict[i-2], char_dict[i-1], char_dict[i]]
-        #[curr = C1, C2, C3, C10   prev = C3, C4, C5,C17, C20    prev2=C6, C8, C9]
-        #C1, C3, C6 -- H1
-        #C1, C3, C8 -- H2
-        #C1, C3, C9 -- H3
-        #C3, C3, C6 -- H4
-        #H1 & H2 & H3 & H4
-        #H1 & H2 & H3
-        #H1 & H2
-        #H1
-        #H2
-        #H3
-        # for elem in itertools.product(*combined_char_indices_list): 
-        #     print str(elem)
-            
+    ranked_rules_list = []
+    for value in ranked_hypothesis.iteritems():
+        ranked_rules_list.append(value[0])
+    pruned_ranked_hypothesis = ranked_rules_list[0:10]
+    
+    pruned_ranked_hypothesis_list = []
+    for comb in combinations(pruned_ranked_hypothesis, 3):
+        #print 'combination: ' + str(comb)
+        pruned_ranked_hypothesis_list.append(comb)
 
 
-           
-    return
+    for comb in combinations(pruned_ranked_hypothesis, 2):
+        #print 'combination: ' + str(comb)
+        pruned_ranked_hypothesis_list.append(comb)        
+    
+    #print str(len(pruned_ranked_hypothesis_list))
+    pruned_ranked_hypothesis_dict = {}
+    mean = 0.0
+    for tuple_elem in pruned_ranked_hypothesis_list:
+        if len(tuple_elem) == 3:
+            for i in xrange(2, len(legal_cards)):
+                occurrence_flag = False
+                accumulated_weight = 0.0
+                if (len(tuple_elem[0])==3 and (tuple_elem[0][0] in get_card_mapping_characterstic(legal_cards[i-2])) and (tuple_elem[0][1] in get_card_mapping_characterstic(legal_cards[i-1])) and (tuple_elem[0][2] in get_card_mapping_characterstic(legal_cards[i]))):
+                    accumulated_weight += (weighted_property_dict[tuple_elem[0][0]] + weighted_property_dict[tuple_elem[0][1]] + weighted_property_dict[tuple_elem[0][2]])/3
+                    if (len(tuple_elem[1])==3 and (tuple_elem[1][0] in get_card_mapping_characterstic(legal_cards[i-2])) and (tuple_elem[1][1] in get_card_mapping_characterstic(legal_cards[i-1])) and (tuple_elem[1][2] in get_card_mapping_characterstic(legal_cards[i]))):
+                        accumulated_weight += (weighted_property_dict[tuple_elem[1][0]] + weighted_property_dict[tuple_elem[1][1]] + weighted_property_dict[tuple_elem[1][2]])/3
+                        if (len(tuple_elem[2])==3 and (tuple_elem[2][0] in get_card_mapping_characterstic(legal_cards[i-2])) and (tuple_elem[2][1] in get_card_mapping_characterstic(legal_cards[i-1])) and (tuple_elem[2][2] in get_card_mapping_characterstic(legal_cards[i]))):                    
+                            accumulated_weight += (weighted_property_dict[tuple_elem[2][0]] + weighted_property_dict[tuple_elem[2][1]] + weighted_property_dict[tuple_elem[2][2]])/3
+                            occurrence_flag = True
+                        elif (len(tuple_elem[2])==2 and (tuple_elem[2][0] in get_card_mapping_characterstic(legal_cards[i-1])) and (tuple_elem[2][1] in get_card_mapping_characterstic(legal_cards[i]))):
+                            accumulated_weight += (weighted_property_dict[tuple_elem[2][0]] + weighted_property_dict[tuple_elem[2][1]])/2
+                            occurrence_flag = True
+                    elif (len(tuple_elem[1])==2 and (tuple_elem[1][0] in get_card_mapping_characterstic(legal_cards[i-1])) and (tuple_elem[1][1] in get_card_mapping_characterstic(legal_cards[i]))):
+                        accumulated_weight += (weighted_property_dict[tuple_elem[1][0]] + weighted_property_dict[tuple_elem[1][1]])/2                        
+                        if (len(tuple_elem[2])==3 and (tuple_elem[2][0] in get_card_mapping_characterstic(legal_cards[i-2])) and (tuple_elem[2][1] in get_card_mapping_characterstic(legal_cards[i-1])) and (tuple_elem[2][2] in get_card_mapping_characterstic(legal_cards[i]))):                    
+                            accumulated_weight += (weighted_property_dict[tuple_elem[2][0]] + weighted_property_dict[tuple_elem[2][1]] + weighted_property_dict[tuple_elem[2][2]])/3
+                            occurrence_flag = True
+                        elif (len(tuple_elem[2])==2 and (tuple_elem[2][0] in get_card_mapping_characterstic(legal_cards[i-1])) and (tuple_elem[2][1] in get_card_mapping_characterstic(legal_cards[i]))):
+                            accumulated_weight += (weighted_property_dict[tuple_elem[2][0]] + weighted_property_dict[tuple_elem[2][1]])/2
+                            occurrence_flag = True
+                elif (len(tuple_elem[0])==2 and (tuple_elem[0][0] in get_card_mapping_characterstic(legal_cards[i-1])) and (tuple_elem[0][1] in get_card_mapping_characterstic(legal_cards[i]))):
+                    accumulated_weight += (weighted_property_dict[tuple_elem[1][0]] + weighted_property_dict[tuple_elem[1][1]])/2
+                    if (len(tuple_elem[1])==3 and (tuple_elem[1][0] in get_card_mapping_characterstic(legal_cards[i-2])) and (tuple_elem[1][1] in get_card_mapping_characterstic(legal_cards[i-1])) and (tuple_elem[1][2] in get_card_mapping_characterstic(legal_cards[i]))):
+                        accumulated_weight += (weighted_property_dict[tuple_elem[1][0]] + weighted_property_dict[tuple_elem[1][1]] + weighted_property_dict[tuple_elem[1][2]])/3
+                        if (len(tuple_elem[2])==3 and (tuple_elem[2][0] in get_card_mapping_characterstic(legal_cards[i-2])) and (tuple_elem[2][1] in get_card_mapping_characterstic(legal_cards[i-1])) and (tuple_elem[2][2] in get_card_mapping_characterstic(legal_cards[i]))):                    
+                            accumulated_weight += (weighted_property_dict[tuple_elem[2][0]] + weighted_property_dict[tuple_elem[2][1]] + weighted_property_dict[tuple_elem[2][2]])/3
+                            occurrence_flag = True
+                        elif (len(tuple_elem[2])==2 and (tuple_elem[2][0] in get_card_mapping_characterstic(legal_cards[i-1])) and (tuple_elem[2][1] in get_card_mapping_characterstic(legal_cards[i]))):
+                            accumulated_weight += (weighted_property_dict[tuple_elem[2][0]] + weighted_property_dict[tuple_elem[2][1]])/2
+                            occurrence_flag = True
+                    elif (len(tuple_elem[1])==2 and (tuple_elem[1][0] in get_card_mapping_characterstic(legal_cards[i-1])) and (tuple_elem[1][1] in get_card_mapping_characterstic(legal_cards[i]))):
+                        accumulated_weight += (weighted_property_dict[tuple_elem[1][0]] + weighted_property_dict[tuple_elem[1][1]])/2                        
+                        if (len(tuple_elem[2])==3 and (tuple_elem[2][0] in get_card_mapping_characterstic(legal_cards[i-2])) and (tuple_elem[2][1] in get_card_mapping_characterstic(legal_cards[i-1])) and (tuple_elem[2][2] in get_card_mapping_characterstic(legal_cards[i]))):                    
+                            accumulated_weight += (weighted_property_dict[tuple_elem[2][0]] + weighted_property_dict[tuple_elem[2][1]] + weighted_property_dict[tuple_elem[2][2]])/3
+                            occurrence_flag = True
+                        elif (len(tuple_elem[2])==2 and (tuple_elem[2][0] in get_card_mapping_characterstic(legal_cards[i-1])) and (tuple_elem[2][1] in get_card_mapping_characterstic(legal_cards[i]))):
+                            accumulated_weight += (weighted_property_dict[tuple_elem[2][0]] + weighted_property_dict[tuple_elem[2][1]])/2
+                            occurrence_flag = True
+                if occurrence_flag:
+                    if tuple_elem in pruned_ranked_hypothesis_dict:
+                        pruned_ranked_hypothesis_dict[tuple_elem] += accumulated_weight
+                    else:
+                        pruned_ranked_hypothesis_dict[tuple_elem] = accumulated_weight
+                    mean += accumulated_weight
+
+        elif len(tuple_elem) == 2:
+            for i in xrange(2, len(legal_cards)):
+                if (len(tuple_elem[0])==3 and (tuple_elem[0][0] in get_card_mapping_characterstic(legal_cards[i-2])) and (tuple_elem[0][1] in get_card_mapping_characterstic(legal_cards[i-1])) and (tuple_elem[0][2] in get_card_mapping_characterstic(legal_cards[i]))):
+                    accumulated_weight += (weighted_property_dict[tuple_elem[0][0]] + weighted_property_dict[tuple_elem[0][1]] + weighted_property_dict[tuple_elem[0][2]])/3
+                    if (len(tuple_elem[1])==3 and (tuple_elem[1][0] in get_card_mapping_characterstic(legal_cards[i-2])) and (tuple_elem[1][1] in get_card_mapping_characterstic(legal_cards[i-1])) and (tuple_elem[1][2] in get_card_mapping_characterstic(legal_cards[i]))):
+                            accumulated_weight += (weighted_property_dict[tuple_elem[1][0]] + weighted_property_dict[tuple_elem[1][1]] + weighted_property_dict[tuple_elem[1][2]])/3
+                            occurrence_flag = True
+                    elif (len(tuple_elem[1])==2 and (tuple_elem[1][0] in get_card_mapping_characterstic(legal_cards[i-1])) and (tuple_elem[1][1] in get_card_mapping_characterstic(legal_cards[i]))):
+                            accumulated_weight += (weighted_property_dict[tuple_elem[1][0]] + weighted_property_dict[tuple_elem[1][1]])/2
+                            occurrence_flag = True
+                elif (len(tuple_elem[0])==2 and (tuple_elem[0][0] in get_card_mapping_characterstic(legal_cards[i-1])) and (tuple_elem[0][1] in get_card_mapping_characterstic(legal_cards[i]))):
+                    accumulated_weight += (weighted_property_dict[tuple_elem[0][0]] + weighted_property_dict[tuple_elem[0][1]])/2
+                    if (len(tuple_elem[1])==3 and (tuple_elem[1][0] in get_card_mapping_characterstic(legal_cards[i-2])) and (tuple_elem[1][1] in get_card_mapping_characterstic(legal_cards[i-1])) and (tuple_elem[1][2] in get_card_mapping_characterstic(legal_cards[i]))):
+                            accumulated_weight += (weighted_property_dict[tuple_elem[1][0]] + weighted_property_dict[tuple_elem[1][1]] + weighted_property_dict[tuple_elem[1][2]])/3
+                            occurrence_flag = True
+                    elif (len(tuple_elem[1])==2 and (tuple_elem[1][0] in get_card_mapping_characterstic(legal_cards[i-1])) and (tuple_elem[1][1] in get_card_mapping_characterstic(legal_cards[i]))):
+                            accumulated_weight += (weighted_property_dict[tuple_elem[1][0]] + weighted_property_dict[tuple_elem[1][1]])/2
+                            occurrence_flag = True
+                if occurrence_flag:
+                    if tuple_elem in pruned_ranked_hypothesis_dict:
+                        pruned_ranked_hypothesis_dict[tuple_elem] += accumulated_weight
+                    else:
+                        pruned_ranked_hypothesis_dict[tuple_elem] = accumulated_weight
+                    mean += accumulated_weight
+
+    pruned_ranked_hypothesis_dict = OrderedDict(sorted(pruned_ranked_hypothesis_dict.items(), key = lambda (key, value) : (value, key), reverse=True))
+    #print str(pruned_ranked_hypothesis_dict)
+    #print len(pruned_ranked_hypothesis_dict)
+    hypothesis_offset = len(pruned_ranked_hypothesis_dict)
+    mean_cutoff = mean/hypothesis_offset
+    pr_ranked_hypothesis = {} 
+    for value in pruned_ranked_hypothesis_dict.iteritems():
+        if value[1] > mean_cutoff :
+            pr_ranked_hypothesis[value[0]] = value[1]
+        else:
+            break
+
+    pr_ranked_hypothesis = OrderedDict(sorted(pr_ranked_hypothesis.items(), key = lambda (key, value) : (value, key), reverse=True))
+    print str(pr_ranked_hypothesis)
+    print len(pr_ranked_hypothesis)
+
+    return pr_ranked_hypothesis
 
 def pick_next_negative_card(rule_list):
 	#TODO - Get the rank of the rule from the scan_and_rank_rule()	- Dependency
@@ -764,8 +843,6 @@ def pick_next_negative_card(rule_list):
 	#If intersection set is not null then return a card which has max intersecting property by calling get_card_from_characteristic() - Dependency
     #return 
 
-def validate_and_refine_formulated_rule():
-	return
 
 def update_characteristic_list(current_card, current_card_index, char_dict):
     #Read the current card
