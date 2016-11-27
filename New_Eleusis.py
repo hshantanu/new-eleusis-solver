@@ -505,6 +505,7 @@ def get_card_characteristics(current):
     else:
         print current
     #See if the card is royal is not
+
     if card_num in royal:
         card_char['royal'] = 'royal'
     else:
@@ -627,7 +628,6 @@ def scan_and_rank_hypothesis():
         #Decide on how to formulate hypothesis
         combined_char_indices_list = [char_dict[i-1], char_dict[i]]
 
-
         for characteristic_tuple in itertools.product(*combined_char_indices_list):
             #print 'Tuple: ' + str(characteristic_tuple)
             if characteristic_tuple in hypothesis_index_dict.keys():
@@ -670,24 +670,18 @@ def scan_and_rank_hypothesis():
             combined_char_indices_list = [get_card_mapping_characterstic(prev2), get_card_mapping_characterstic(prev), get_card_mapping_characterstic(curr)]
 
         for characteristic_tuple in itertools.product(*combined_char_indices_list):
-            
-            if characteristic_tuple in ranked_hypothesis_list.keys():
-                ranked_hypothesis_list[characteristic_tuple] += 1-(weighted_property_dict[characteristic_tuple[0]]+weighted_property_dict[characteristic_tuple[1]]+weighted_property_dict[characteristic_tuple[2]])/3
-            else:
-                ranked_hypothesis_list[characteristic_tuple] = 1-(weighted_property_dict[characteristic_tuple[0]]+weighted_property_dict[characteristic_tuple[1]]+weighted_property_dict[characteristic_tuple[2]])/3
+            if(len(characteristic_tuple)>2):
+                if characteristic_tuple in ranked_hypothesis_list.keys():
+                    ranked_hypothesis_list[characteristic_tuple] -= 1-(weighted_property_dict[characteristic_tuple[0]]+weighted_property_dict[characteristic_tuple[1]]+weighted_property_dict[characteristic_tuple[2]])/3
         else:
             prev = elem[0]
             curr = elem[1]
-            print('illegal_cards' + curr)
-            print(curr + ' ' + prev )
-            combined_char_indices_list = [get_card_mapping_characterstic(prev), get_card_mapping_characterstic(char_dict[i])]
-            for characteristic_tuple in itertools.product(*combined_char_indices_list):
-            #print 'Tuple: ' + str(characteristic_tuple)
 
-                if characteristic_tuple in ranked_hypothesis_list.keys():
-                    ranked_hypothesis_list[characteristic_tuple] += 1-(weighted_property_dict[characteristic_tuple[0]]+weighted_property_dict[characteristic_tuple[1]])/2
-                else:
-                    ranked_hypothesis_list[characteristic_tuple] = 1-(weighted_property_dict[characteristic_tuple[0]]+weighted_property_dict[characteristic_tuple[1]])/2
+            combined_char_indices_list = [get_card_mapping_characterstic(prev), get_card_mapping_characterstic(curr)]
+            for characteristic_tuple in itertools.product(*combined_char_indices_list):
+                if ((len(characteristic_tuple)>1) and (len(characteristic_tuple)<=2)):
+                    if characteristic_tuple in ranked_hypothesis_list.keys():
+                        ranked_hypothesis_list[characteristic_tuple] -= 1-(weighted_property_dict[characteristic_tuple[0]]+weighted_property_dict[characteristic_tuple[1]])/2
 
 
     #print str(len(ranked_hypothesis_list)) + ' len: ' + str(hypothesis_offset)
