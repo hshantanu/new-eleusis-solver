@@ -484,14 +484,14 @@ def map_card_characteristic_to_property(prop):
         Return a mapping of all the card characterstic to the property
     '''
     property_dict = {'1' : 'C1' , '2' : 'C2', '3': 'C3', '4': 'C4', '5': 'C5', '6': 'C6', '7': 'C7', '8': 'C8', '9': 'C9', '10': 'C10', '11': 'C11', '12': 'C12', '13': 'C13', 'red':'C14' , 'black': 'C15', 'diamond': 'C16' , 'heart':'C17', 'spade': 'C18', 'club': 'C19', 'even': 'C20', 'odd': 'C21', 'royal': 'C22' , 'not_royal': 'C23'}
-    '''if property in property_dict:
-        return property_dict.
+    if prop in property_dict:
+        return property_dict[prop]
     else:
-        return property_dict   '''
-    #property_dict.get(prop, None)
-    for val,char in property_dict.iteritems():
-    	if char == prop:
-        	return val
+        return property_dict 
+    # property_dict.get(prop, None)
+    # for val,char in property_dict.iteritems():
+    # 	if char == prop:
+    #     	return val
 
 
 
@@ -627,6 +627,7 @@ def scan_and_rank_hypothesis():
             if characteristic_tuple in hypothesis_index_dict.keys():
                 hypothesis_index_dict[characteristic_tuple].append((i-2, i-1, i))
             else:
+                print str(characteristic_tuple)
                 hypothesis_index_dict[characteristic_tuple] = [(i-2, i-1, i)]
             if characteristic_tuple in hypothesis_dict.keys():
                 hypothesis_occurrence_count[characteristic_tuple] += 1
@@ -918,8 +919,8 @@ def play(card):
 
 #scan_and_rank_rules(scan_and_rank_hypothesis())
 
-#ranked_hypothesis_list, hypothesis_index_dict = scan_and_rank_hypothesis()
-#scan_and_rank_rules(ranked_hypothesis_list, hypothesis_index_dict)
+ranked_hypothesis_list, hypothesis_index_dict = scan_and_rank_hypothesis()
+scan_and_rank_rules(ranked_hypothesis_list, hypothesis_index_dict)
 
 
 def validate_and_refine_formulated_rule():
