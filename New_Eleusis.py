@@ -646,30 +646,52 @@ def scan_and_rank_hypothesis():
         
     hypothesis_offset = len(ranked_hypothesis_dict)
     mean_cutoff = mean/hypothesis_offset
-    ranked_hypothesis_list = [] 
+    ranked_hypothesis_list = {} 
     for value in ranked_hypothesis_dict.iteritems():
         if value[1] > mean_cutoff :
-            ranked_hypothesis_list.append(value)
+            ranked_hypothesis_list[value[0]] = value[1]
         else:
             break
+
+    
 
     #TODO eliminate conflicting hypothesis- ex: consecutive Royal/Black/Odd & Non-Royal/Red/Even. Check if already handled by pick_negative
     #Using illegal cards to eliminate possible hypothesis
     illegal_tuple_list = parse_illegal_indices()
-    #print str(illegal_tuple_list)
-
+    # print str(illegal_tuple_list)
+    # print(master_board_state)
     for elem in illegal_tuple_list:
         if len(elem) > 2:
-            prev2_characteristics = elem[0]
+            prev2 = elem[0]
             prev = elem[1]
             curr = elem[2]
+            # print('illegal_cards: ' + curr)
+            # print(curr + ' ' + prev + ' ' + prev2)
+            combined_char_indices_list = [get_card_mapping_characterstic(prev2), get_card_mapping_characterstic(prev), get_card_mapping_characterstic(curr)]
 
+        for characteristic_tuple in itertools.product(*combined_char_indices_list):
+            
+            if characteristic_tuple in ranked_hypothesis_list.keys():
+                ranked_hypothesis_list[characteristic_tuple] += 1-(weighted_property_dict[characteristic_tuple[0]]+weighted_property_dict[characteristic_tuple[1]]+weighted_property_dict[characteristic_tuple[2]])/3
+            else:
+                ranked_hypothesis_list[characteristic_tuple] = 1-(weighted_property_dict[characteristic_tuple[0]]+weighted_property_dict[characteristic_tuple[1]]+weighted_property_dict[characteristic_tuple[2]])/3
         else:
             prev = elem[0]
             curr = elem[1]
+            print('illegal_cards' + curr)
+            print(curr + ' ' + prev )
+            combined_char_indices_list = [get_card_mapping_characterstic(prev), get_card_mapping_characterstic(char_dict[i])]
+            for characteristic_tuple in itertools.product(*combined_char_indices_list):
+            #print 'Tuple: ' + str(characteristic_tuple)
+
+                if characteristic_tuple in ranked_hypothesis_list.keys():
+                    ranked_hypothesis_list[characteristic_tuple] += 1-(weighted_property_dict[characteristic_tuple[0]]+weighted_property_dict[characteristic_tuple[1]])/2
+                else:
+                    ranked_hypothesis_list[characteristic_tuple] = 1-(weighted_property_dict[characteristic_tuple[0]]+weighted_property_dict[characteristic_tuple[1]])/2
+
 
     #print str(len(ranked_hypothesis_list)) + ' len: ' + str(hypothesis_offset)
-    #print str(ranked_hypothesis_list)
+    print str(ranked_hypothesis_list)
     return ranked_hypothesis_list, hypothesis_index_dict
 
 
@@ -759,6 +781,19 @@ def update_characteristic_list(current_card, current_card_index, char_dict):
         char_dict[current_card_index].append(card_characteristic_index)
     return char_dict
 
+def get_card_mapping_characterstic(current_card):
+    #Read the current card
+    #Get the card characteristics by invoking get_card_characteristics()
+    #Invoke the map_card_characteristics() to get the corresponding numeric index into the card characteristic list.
+    #Append the characteristics list with the index of the current card.
+    
+    card_characteristics = get_card_characteristics(current_card)
+    card_characteristic_list = []
+    for characteristic in card_characteristics:
+        card_characteristic_index = map_card_characteristic_to_property(card_characteristics[characteristic])
+        card_characteristic_list.append(card_characteristic_index)
+    return card_characteristic_list
+
 def get_card_from_characteristics(card_characteristics):
     # Format {'number': 9, 'suite': 'C', 'color': 'B'}
     # Format {'suite': 'C', 'color': 'B'}
@@ -794,10 +829,10 @@ def get_card_from_characteristics(card_characteristics):
 
 
 def play(card):
-	#Invoke validate_rule() which returns True/False if the current play is legal/illegal.
+	#Invoke validate_card() which returns True/False if the current play is legal/illegal.
 	#Update the board_state by calling update_board_state()
 	#Return a boolean value based on the legality of the card. 
-	card_legality = validate_rule(card)
+	card_legality = validate_card(card)
 	update_board_state(board_state,card_legality,card)
 	return card_legality
 
