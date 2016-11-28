@@ -239,25 +239,6 @@ def scientist():
 		#pick_next_negative_card()
         return ''
 
-	parse_board_state()
-	initialize_variable_offset()
-	pick_random_card()
-	plays = 0
-	while plays <= 200:
-		#play(<card>)
-		parse_illegal_indices()
-		initalize_characteristic_list()
-		#TODO Please remove
-		characteristic_list = get_card_characteristics('7H')
-		# update_characteristic_list(characteristic_list)
-		map_card_characteristic_to_property()
-		# scan_and_rank_hypothesis()
-		scan_and_rank_rules()
-		validate_and_refine_formulated_rule()
-		# pick_next_random_card()
-		#validate_and_refine_formulated_rule()
-		#pick_next_negative_card()
-
 class Tree:
 
     def __init__(self, root, first=None, second=None, third=None):
@@ -1238,4 +1219,4 @@ def create_tree(rule_list):
  
 
 
-create_tree()
+#create_tree()
