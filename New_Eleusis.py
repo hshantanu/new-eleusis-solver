@@ -218,30 +218,6 @@ def parse(s):
 	return parse2(list(scan(s)), 0)[0]
 
 
-def scientist():
-	parse_board_state()
-	initialize_variable_offset()
-	pick_random_card()
-	plays = 0
-	while plays <= 200:
-		#play(<card>)
-		parse_illegal_indices()
-		initalize_characteristic_list()
-		#TODO Please remove
-		# characteristic_list = get_card_characteristics('7H')
-		# update_characteristic_list(characteristic_list)
-		# map_card_characteristic_to_property(characteristic_list)
-		ranked_hypothesis, hypothesis_index_dict = scan_and_rank_hypothesis()
-		pr_ranked_hypothesis = scan_and_rank_rules(ranked_hypothesis, hypothesis_index_dict)
-		top_rule = pr_ranked_hypothesis.popitem()
-
-		#Create Tree for each rule in pr_ranked_hypothesis and pass to validate
-		#validate_and_refine_formulated_rule()
-		# pick_next_random_card()
-		#validate_and_refine_formulated_rule()
-		#pick_next_negative_card()
-		return ''
-
 class Tree:
 
 	def __init__(self, root, first=None, second=None, third=None):
@@ -807,6 +783,8 @@ def pick_negative_random(card_characterstic_list):
 	color_mapping = {'R': 'D,H', 'B': 'S,C'}
 	face_value_mapping = {'A': '1', 'J':'11', 'Q':'12', 'K': '13' }
 	royal_card = {'J', 'Q', 'K'}
+	numeric_characterstic = {'A':False,'2':False,'3':False,'4':False,'5':False,'6':False,'7':False,'8':False,'9':False,'10':False,'J':False,'Q':False,'K':False}
+	suit_characterstic = {'C':False,'S':False,'D':False,'H':False}
 	if (card_characterstic_list):
 		# number 
 		if ('number' in card_characterstic_list):
@@ -1053,8 +1031,6 @@ def play(card):
 #scan_and_rank_rules(scan_and_rank_hypothesis())
 
 # ranked_hypothesis_list, hypothesis_index_dict = scan_and_rank_hypothesis()
-scientist()
-
 
 def validate_and_refine_formulated_rule():
 	
@@ -1238,4 +1214,33 @@ def create_tree(rule):
 
 	return transformed_rule
 
-print create_tree((('C14', 'C19', 'C14'), ('C14', 'C15', 'C17')))
+#print create_tree((('C14', 'C19', 'C14'), ('C14', 'C15', 'C17')))
+
+def scientist():
+	parse_board_state()
+	initialize_variable_offset()
+	pick_random_card()
+	plays = 0
+	while plays <= 200:
+		#play(<card>)
+		parse_illegal_indices()
+		initalize_characteristic_list()
+		#TODO Please remove
+		# characteristic_list = get_card_characteristics('7H')
+		# update_characteristic_list(characteristic_list)
+		# map_card_characteristic_to_property(characteristic_list)
+		ranked_hypothesis, hypothesis_index_dict = scan_and_rank_hypothesis()
+		pr_ranked_hypothesis = scan_and_rank_rules(ranked_hypothesis, hypothesis_index_dict)
+		top_rule = pr_ranked_hypothesis.popitem()
+		print 'Top Rule: ' + str(top_rule[0])
+		#Create Tree for each rule in pr_ranked_hypothesis and pass to validate
+		print str(create_tree(top_rule[0]))
+		#validate_and_refine_formulated_rule()
+		# pick_next_random_card()
+		#validate_and_refine_formulated_rule()
+		print 'Negative Card: ' + str(pick_next_negative_card(top_rule[0]))
+	
+
+	return ''
+
+scientist()
