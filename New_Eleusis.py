@@ -219,24 +219,24 @@ def parse(s):
 
 
 def scientist():
-	# parse_board_state()
-	# initialize_variable_offset()
-	# pick_random_card()
-	# plays = 0
-	# while plays <= 200:
-	# 	#play(<card>)
-	# 	parse_illegal_indices()
-	# 	initalize_characteristic_list()ia
-	# 	#TODO Please remove
-	# 	characteristic_list = get_card_characteristics('7H')
-	# 	# update_characteristic_list(characteristic_list)
-	# 	map_card_characteristic_to_property()
-	# 	# scan_and_rank_hypothesis()
-	# 	scan_and_rank_rules()
-	# 	validate_and_refine_formulated_rule()
-	# 	# pick_next_random_card()
-	# 	#validate_and_refine_formulated_rule()
-	# 	#pick_next_negative_card()
+	parse_board_state()
+	initialize_variable_offset()
+	pick_random_card()
+	plays = 0
+	while plays <= 200:
+		#play(<card>)
+		parse_illegal_indices()
+		initalize_characteristic_list()
+		#TODO Please remove
+		characteristic_list = get_card_characteristics('7H')
+		# update_characteristic_list(characteristic_list)
+		map_card_characteristic_to_property()
+		ranked_hypothesis, hypothesis_index_dict = scan_and_rank_hypothesis()
+		pr_ranked_hypothesis = scan_and_rank_rules(ranked_hypothesis, hypothesis_index_dict)
+		validate_and_refine_formulated_rule(pr_ranked_hypothesis)
+		# pick_next_random_card()
+		#validate_and_refine_formulated_rule()
+		#pick_next_negative_card()
         return ''
 
 	parse_board_state()
@@ -308,10 +308,8 @@ class Tree:
         """Evaluate this tree with the given card values"""
         def subeval(expr):
             if expr.__class__.__name__ == "Tree":
-            	#print('Tree')
                 return expr.evaluate(cards)
             else:
-            	#print('Tree2')
                 if expr == "current":
                     return current
                 elif expr == "previous":
@@ -322,7 +320,6 @@ class Tree:
                     return expr
         try:
             (previous2, previous, current) = cards
-            #print('here')
             f = self.root
             if f not in functions:
                 return f
@@ -488,10 +485,6 @@ def map_card_characteristic_to_property(prop):
         return property_dict[prop]
     else:
         return property_dict 
-    # property_dict.get(prop, None)
-    # for val,char in property_dict.iteritems():
-    # 	if char == prop:
-    #     	return val
 
 def map_card_characteristic_to_value(prop):
 	# This function returns a value for key in the dictionary
@@ -609,7 +602,7 @@ def initialize_variable_offset():
 def scan_and_rank_hypothesis():
     
     hypothesis_dict = {}
-	#get legal indices from the the board state
+    #get legal indices from the the board state
     board_state = parse_board_state()
 
     legal_cards = board_state['legal_cards']
@@ -729,61 +722,10 @@ def scan_and_rank_hypothesis():
 
 
 def scan_and_rank_rules(ranked_hypothesis, hypothesis_index_dict):
-	# TODO function needs to be implemented
+    # TODO function needs to be implemented
     board_state = parse_board_state()
     weighted_property_dict = set_characteristic_weights()
     legal_cards = board_state['legal_cards']
-<<<<<<< HEAD
-    ranked_rules_dict = {}
-    pruned_ranked_hypothesis_list = ranked_hypothesis_list[0:10]
-    #print str(pruned_ranked_hypothesis_list[0][0])
-    pruned_hypothesis_list = []
-    for elem in pruned_ranked_hypothesis_list:
-        pruned_hypothesis_list.append(elem[0])
-    #print str(pruned_hypothesis_list)
-    # for comb in combinations(pruned_hypothesis_list, 3):
-    #     print 'combination: ' + str(comb)
-    #     print 'ranked dict: ' + str(ranked_rules_dict)
-    #     if comb in ranked_rules_dict:
-    #         ranked_rules_dict[comb] += 1
-    #         print 'ranked ' + str(ranked_rules_dict[comb])
-    #     else:
-    #         print 'Blah'
-    #         ranked_rules_dict[comb] = 1
-    #print str(ranked_rules_dict)
-    #print str(OrderedDict(sorted(ranked_rules_dict.items(), key = lambda (key, value) : (value, key), reverse=True)))
-    #print str(set.intersection, (set(val) for val in hypothesis_index_dict.values()))
-    # for i in xrange(2, len(legal_cards)):
-    #     elem = tuple([x for x in hypothesis_index_dict if (i-2, i-1, i) in hypothesis_index_dict[x]])
-    #     print elem
-    #     #for j in xrange(, 1, -1):
-    #     for comb in combinations(elem, len(elem)-2):
-    #         if comb in ranked_rules_dict.keys():
-    #             ranked_rules_dict[comb] += 1
-    #         else:
-    #             ranked_rules_dict[comb] = 1
-        # for key, value in hypothesis_index_dict.iteritems():
-        #     print 'key: ' + str(key) + ' value: ' + str(value)
-        #     for tuple_elem in value:
-    # ranked_rules_dict = OrderedDict(sorted(ranked_rules_dict.items(), key = lambda (key, value) : (value, key), reverse=True))
-    # print str(ranked_rules_dict)
-    #     combined_char_indices_list = [char_dict[i-2], char_dict[i-1], char_dict[i]]
-        #[curr = C1, C2, C3, C10   prev = C3, C4, C5,C17, C20    prev2=C6, C8, C9]
-        #C1, C3, C6 -- H1
-        #C1, C3, C8 -- H2
-        #C1, C3, C9 -- H3
-        #C3, C3, C6 -- H4
-        #H1 & H2 & H3 & H4
-        #H1 & H2 & H3
-        #H1 & H2
-        #H1
-        #H2
-        #H3
-        # for elem in itertools.product(*combined_char_indices_list): 
-        #     print str(elem)
-         
-    return
-=======
     ranked_rules_list = []
     for value in ranked_hypothesis.iteritems():
         ranked_rules_list.append(value[0])
@@ -892,7 +834,7 @@ def scan_and_rank_rules(ranked_hypothesis, hypothesis_index_dict):
     print len(pr_ranked_hypothesis)
 
     return pr_ranked_hypothesis
->>>>>>> 25c81e32df19760a9743b44d6b802096797e58bc
+
 
 def pick_next_negative_card():
 	#Rule values have been hard-coded. Have to be fetched using scan_and_rank_rule
@@ -998,7 +940,6 @@ def any_parity(parity,royal):
 
     
 
-<<<<<<< HEAD
 def royal_number(royal_index):
     if royal_index is '11':
         return 'J'
@@ -1034,8 +975,7 @@ def pick_negative_intersecting_card(negative_property_list,negative_property_cha
     elif 'royal' in negative_property_char_list and 'suite' in negative_property_char_list:
         return negative_property_list[negative_property_char_list.index('royal')] + any_suite()
 pick_next_negative_card()
-=======
->>>>>>> 25c81e32df19760a9743b44d6b802096797e58bc
+
 
 def update_characteristic_list(current_card, current_card_index, char_dict):
     #Read the current card
@@ -1239,7 +1179,7 @@ def validate_card():
 	#legal_card = ['10S', '3H', '6H', '7D','9S','7S']
 	return rule1.evaluate((prev2,prev1,curr))	
 
-def create_tree(hypothesis = ['C14','C15']):
+def create_tree(rule_list):
 
 	# {'1' : 'C1' , '2' : 'C2', '3': 'C3', '4': 'C4', '5': 'C5', '6': 'C6', '7': 'C7', '8': 'C8', '9': 'C9', '10': 'C10', '11': 'C11', '12': 'C12', '13': 'C13', 'red':'C14' , 'black': 'C15', 'diamond': 'C16' , 'heart':'C17', 'spade': 'C18', 'club': 'C19', 'even': 'C20', 'odd': 'C21', 'royal': 'C22' , 'not_royal': 'C23'}
 	flag = False
@@ -1290,6 +1230,7 @@ def create_tree(hypothesis = ['C14','C15']):
 	#my_rule = Tree(andf, Tree(equal, Tree(value,'current'), '10'), Tree(equal, Tree(suit,'current'), 'S'))
 	my_rule = Tree(andf, Tree(andf, Tree(equal, Tree(value,'current'), '13'), Tree(equal, Tree(suit,'current'), 'S')), Tree(is_royal,'current'))
 	my_list = ['KS','KS','KS']
+
 
 	#print my_rule.evaluate((my_list))
 
