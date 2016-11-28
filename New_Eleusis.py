@@ -419,7 +419,7 @@ def update_board_state(board_state,flag,current_card):
 
 def initialize_negative_characteristic_list(card_characterstic_list):
 	# mapping of negative character
-	negative_characterstic_list = {'Black':'Red','Red':'Black', 'C':'H,D' , 'S' : 'H,D', 'H': 'S,C', 'D': 'S,C'}
+	negative_characterstic_list = {'Black':'Red','Red':'Black', 'C':'H,D,S' , 'S' : 'H,D,C', 'H': 'S,C,D', 'D': 'S,C,H', 'Even':'Odd'}
 	if (not card_characterstic_list):
 		print('Characterstic list empty')
 		return None
@@ -725,22 +725,148 @@ def scan_and_rank_rules(ranked_hypothesis_list, hypothesis_index_dict):
         #H3
         # for elem in itertools.product(*combined_char_indices_list): 
         #     print str(elem)
-            
-
-
-           
+         
     return
 
-def pick_next_negative_card(rule_list):
-	#TODO - Get the rank of the rule from the scan_and_rank_rule()	- Dependency
-	#Pick the top ranked rule
-	top_rule=max(rule_list.iteritems(),key=operator.itemgetter(1))[0]
-	#Get the first card from each top ranked rule and then find the intersecting list.
-	#If intersection set is not null then return a card which has max intersecting property by calling get_card_from_characteristic() - Dependency
-    #return 
+def pick_next_negative_card():
+	#Rule values have been hard-coded. Have to be fetched using scan_and_rank_rule
+	#rule_list= scan_and_rank_rule()
+	rule_list =[(('C14','C15','C23'),1),(('C23','C17'),4),(('C7','C15','C12'),3)]
+	rule_dict = dict(rule_list)
+	print "Rule dict",rule_dict
+	top_rule=max(rule_dict.iteritems(),key=operator.itemgetter(1))[0]
+		
+	print "Top Rule",top_rule
 
-def validate_and_refine_formulated_rule():
-	return
+	#{'1' : 'C1' , '2' : 'C2', '3': 'C3', '4': 'C4', '5': 'C5', '6': 'C6', '7': 'C7', '8': 'C8', '9': 'C9', '10': 'C10', '11': 'C11', '12': 'C12', '13': 'C13', 'red':'C14' , 'black': 'C15', 'diamond': 'C16' , 'heart':'C17', 'spade': 'C18', 'club': 'C19', 'even': 'C20', 'odd': 'C21', 'royal': 'C22' , 'not_royal': 'C23'}
+	number_list =['C1','C2','C3','C4','C5','C6','C7','C8','C9','C10','C11','C12','C13']
+	color_list =['C14','C15']
+	suite_list = ['C16','C17','C18','C19']
+	parity_list = ['C20','C21']
+	royal_list =['C22','C23']
+
+	negative_property_list =[]
+	negative_property_char_list =[]
+	for i in xrange(len(top_rule)):
+		if top_rule[i] in number_list:
+			while((random.choice(number_list))!=(top_rule[i])):
+				negative_card_property = random.choice(number_list)
+				print "Number List negative",negative_card_property[1]
+				negative_property_list.append(negative_card_property[1])
+				negative_property_char_list.append('numeric')
+				break
+		if top_rule[i] in suite_list:
+			while((random.choice(suite_list))!=(top_rule[i])):
+				negative_card_property = random.choice(suite_list)
+				if negative_card_property is 'C16':
+					negative_property_list.append('D')
+				elif negative_card_property is 'C17':
+					negative_property_list.append('H')
+				elif negative_card_property is 'C18':
+					negative_property_list.append('S')
+				elif negative_card_property is 'C18':
+					negative_property_list.append('C')
+				print "Suite List negative",negative_card_property
+				negative_property_char_list.append('suite')
+				break
+		if top_rule[i] in parity_list:
+			if top_rule[i] in 'C21':
+				negative_property_list.append('even')
+			elif top_rule[i] in 'C20':
+				negative_property_list.append('odd')
+			negative_property_char_list.append('parity')
+		if top_rule[i] in royal_list:
+			if top_rule[i] in 'C22':
+				negative_property_list.append(random.choice(['A','2','3','4','5','6','7','8','9','10']))
+			elif top_rule[i] in 'C23':
+				negative_property_list.append(random.choice(['J','Q','K']))
+			negative_property_char_list.append('royal')
+		if top_rule[i] in color_list:
+			if top_rule[i] in 'C14':
+				negative_property_list.append(any_color('black'))
+			elif top_rule[i] in 'C15':
+				negative_property_list.append(any_color('red'))
+			negative_property_char_list.append('color')
+	print "Negative Property card",negative_property_list
+	print "Negative property characteristics", negative_property_char_list
+	card =pick_negative_intersecting_card(negative_property_list,negative_property_char_list)
+	print card
+
+def any_suite():
+    return random.choice(['H','S','C','D'])
+
+def any_color(color):
+    if 'red' in color:
+        return random.choice(['H','D'])
+    elif 'black' in color:
+        return random.choice(['C','S'])
+
+def any_parity(parity,royal):
+    print parity
+    if royal is 'any':
+        if 'odd' in parity:
+            royal_index= random.choice(['1','3','5','7','9','11','13'])
+            if royal_index is '1' or royal_index is '11' or royal_index is '13':
+                return royal_number(royal_index)
+            else:
+                return royal_index
+        elif 'even' in parity:
+            royal_index= random.choice(['2','4','6','8','10','12'])
+            if royal_index is '12':
+                return royal_number(royal_index)
+            else:
+                return royal_index
+    elif royal is 'royal':
+        if 'odd' in parity:
+            royal_index= random.choice(['J','K'])
+            return royal_index
+        elif 'even' in parity:
+            return 'Q'
+    elif royal is 'not_royal':
+        if 'odd' in parity:
+            royal_index= random.choice(['1','3','5','7','9'])
+            return royal_index
+        elif 'even' in parity:
+            royal_index= random.choice(['2','4','6','8','10'])
+            return royal_index
+
+    
+
+def royal_number(royal_index):
+    if royal_index is '11':
+        return 'J'
+    elif royal_index is '13':
+        return 'K'
+    elif royal_index is '1':
+        return 'A'
+    elif royal_index is '12':
+        return 'Q'
+def any_number():
+    return random.choice(['A','2','3','4','5','6','7','8','9','10','J','Q','K'])
+def pick_negative_intersecting_card(negative_property_list,negative_property_char_list):
+    if 'numeric' in negative_property_char_list and 'suite' in negative_property_char_list:
+        suite=any_suite()
+        return negative_property_list[negative_property_char_list.index('numeric')] + negative_property_list[negative_property_char_list.index('suite')]
+    elif 'numeric' in negative_property_char_list and 'color' in negative_property_char_list:
+        color=any_color(negative_property_list[negative_property_char_list.index('color')])
+        return negative_property_list[negative_property_char_list.index('numeric')] + negative_property_list[negative_property_char_list.index('color')]
+    elif 'numeric' in negative_property_char_list and 'parity' in negative_property_char_list:
+        return any_parity(negative_property_list[negative_property_char_list.index('parity')],'any') +any_suite()
+    elif 'numeric' in negative_property_char_list and 'royal' in negative_property_char_list:
+        return negative_property_list[negative_property_char_list.index('royal')] +any_suite()
+    elif 'color' in negative_property_char_list and 'parity' in negative_property_char_list:
+        return any_parity(negative_property_list[negative_property_char_list.index('parity')],'any') +negative_property_list[negative_property_char_list.index('color')]
+    elif 'color' in negative_property_char_list and 'royal' in negative_property_char_list:
+        return negative_property_list[negative_property_char_list.index('royal')] + negative_property_list[negative_property_char_list.index('color')]
+    elif 'color' in negative_property_char_list and 'suite' in negative_property_char_list:
+        return any_number() + negative_property_list[negative_property_char_list.index('suite')]
+    elif 'parity' in negative_property_char_list and 'royal' in negative_property_char_list:
+        return any_parity(negative_property_list[negative_property_char_list.index('parity')],'royal') + any_suite()
+    elif 'parity' in negative_property_char_list and 'suite' in negative_property_char_list:
+        return any_parity(negative_property_list[negative_property_char_list.index('parity')],'any') + negative_property_list[negative_property_char_list.index('suite')]
+    elif 'royal' in negative_property_char_list and 'suite' in negative_property_char_list:
+        return negative_property_list[negative_property_char_list.index('royal')] + any_suite()
+pick_next_negative_card()
 
 def update_characteristic_list(current_card, current_card_index, char_dict):
     #Read the current card
@@ -790,8 +916,6 @@ def get_card_from_characteristics(card_characteristics):
     
     card = rank + suit
     return card
-
-
 
 def play(card):
 	#Invoke validate_rule() which returns True/False if the current play is legal/illegal.
