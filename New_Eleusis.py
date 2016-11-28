@@ -12,7 +12,7 @@ def is_suit(s):
     return s in "CDHS"
 
 def is_color(s):
-    """Test if parameter is one of Black or Red"""
+    """Test if parameter is one of Black or R"""
     return s in "BR"
 
 def is_value(s):
@@ -228,16 +228,18 @@ def scientist():
 		parse_illegal_indices()
 		initalize_characteristic_list()
 		#TODO Please remove
-		characteristic_list = get_card_characteristics('7H')
+		# characteristic_list = get_card_characteristics('7H')
 		# update_characteristic_list(characteristic_list)
-		map_card_characteristic_to_property()
+		# map_card_characteristic_to_property(characteristic_list)
 		ranked_hypothesis, hypothesis_index_dict = scan_and_rank_hypothesis()
 		pr_ranked_hypothesis = scan_and_rank_rules(ranked_hypothesis, hypothesis_index_dict)
+		top_rule = pr_ranked_hypothesis.popitem()
+
 		#Create Tree for each rule in pr_ranked_hypothesis and pass to validate
         validate_and_refine_formulated_rule()
 		# pick_next_random_card()
 		#validate_and_refine_formulated_rule()
-		#pick_next_negative_card()
+		# pick_next_negative_card()
         return ''
 
 class Tree:
@@ -351,7 +353,7 @@ board_state = ['9S','3H']
 rule_list={}
 char_dict={}
 
-# R => Red
+# R => R
 # B => Black
 # C => Club
 # D => Diamond
@@ -363,27 +365,6 @@ suit_characterstic = ['C','S','D','H']
 def pick_random_card():
 	rank = random.choice( ('A','2','3','4','5','6','7','8','9','10','J','Q','K') )
 	suit = random.choice( ('C','D','H','S') )
-	card = rank + suit
-	return card
-
-def pick_random_card(card_characterstic_list):
-	'''
-	 Pick a random card using the card characterstic list given in the input
-	'''
-	if (card_characterstic_list):
-		card_number = card_characterstic_list['numeric_characterstic']
-		if(len(card_characterstic_list['suit_characterstic'])==1):
-			card_suit = card_characterstic_list['suit_characterstic']
-		else:
-			# case when multiple card characterstic are present for example getting negative card
-			card_suit = card_characterstic_list['suit_characterstic'].split(',')
-		# TODO need to handle removing color
-		# TODO And removing royal card
-
-		numeric_characterstic.remove(card_number) # remove the number
-		suit_characterstic.remove(card_suit) # remove the suit as we dont want a random card with the same suit
-	rank = random.choice( numeric_characterstic )
-	suit = random.choice( suit_characterstic )
 	card = rank + suit
 	return card
 
@@ -403,7 +384,7 @@ def update_board_state(board_state,flag,current_card):
 
 def initialize_negative_characteristic_list(card_characterstic_list):
 	# mapping of negative character
-	negative_characterstic_list = {'Black':'Red','Red':'Black', 'C':'H,D,S' , 'S' : 'H,D,C', 'H': 'S,C,D', 'D': 'S,C,H', 'Even':'Odd'}
+	negative_characterstic_list = {'Black':'R','R':'Black', 'C':'H,D,S' , 'S' : 'H,D,C', 'H': 'S,C,D', 'D': 'S,C,H', 'Even':'Odd'}
 	if (not card_characterstic_list):
 		print('Characterstic list empty')
 		return None
@@ -462,7 +443,7 @@ def map_card_characteristic_to_property(prop):
     '''
         Return a mapping of all the card characterstic to the property
     '''
-    property_dict = {'1' : 'C1' , '2' : 'C2', '3': 'C3', '4': 'C4', '5': 'C5', '6': 'C6', '7': 'C7', '8': 'C8', '9': 'C9', '10': 'C10', '11': 'C11', '12': 'C12', '13': 'C13', 'red':'C14' , 'black': 'C15', 'diamond': 'C16' , 'heart':'C17', 'spade': 'C18', 'club': 'C19', 'even': 'C20', 'odd': 'C21', 'royal': 'C22' , 'not_royal': 'C23'}
+    property_dict = {'1' : 'C1' , '2' : 'C2', '3': 'C3', '4': 'C4', '5': 'C5', '6': 'C6', '7': 'C7', '8': 'C8', '9': 'C9', '10': 'C10', '11': 'C11', '12': 'C12', '13': 'C13', 'R':'C14' , 'B': 'C15', 'D': 'C16' , 'H':'C17', 'S': 'C18', 'C': 'C19', 'even': 'C20', 'odd': 'C21', 'royal': 'C22' , 'not_royal': 'C23'}
     if prop in property_dict:
         return property_dict[prop]
     else:
@@ -470,10 +451,11 @@ def map_card_characteristic_to_property(prop):
 
 def map_card_characteristic_to_value(prop):
 	# This function returns a value for key in the dictionary
-	property_dict = {'1' : 'C1' , '2' : 'C2', '3': 'C3', '4': 'C4', '5': 'C5', '6': 'C6', '7': 'C7', '8': 'C8', '9': 'C9', '10': 'C10', '11': 'C11', '12': 'C12', '13': 'C13', 'red':'C14' , 'black': 'C15', 'diamond': 'C16' , 'heart':'C17', 'spade': 'C18', 'club': 'C19', 'even': 'C20', 'odd': 'C21', 'royal': 'C22' , 'not_royal': 'C23'}
+	property_dict = {'1' : 'C1' , '2' : 'C2', '3': 'C3', '4': 'C4', '5': 'C5', '6': 'C6', '7': 'C7', '8': 'C8', '9': 'C9', '10': 'C10', '11': 'C11', '12': 'C12', '13': 'C13', 'R':'C14' , 'B': 'C15', 'D': 'C16' , 'H':'C17', 'S': 'C18', 'C': 'C19', 'even': 'C20', 'odd': 'C21', 'royal': 'C22' , 'not_royal': 'C23'}
 
-	for val,char in property_dict.iteritems():
-		if char == prop:
+	for val in property_dict:
+
+		if property_dict[val] == prop:
 			return val
 
 
@@ -657,7 +639,7 @@ def scan_and_rank_hypothesis():
 
     
 
-    #TODO eliminate conflicting hypothesis- ex: consecutive Royal/Black/Odd & Non-Royal/Red/Even. Check if already handled by pick_negative
+    #TODO eliminate conflicting hypothesis- ex: consecutive Royal/Black/Odd & Non-Royal/R/Even. Check if already handled by pick_negative
     #Using illegal cards to eliminate possible hypothesis
     illegal_tuple_list = parse_illegal_indices()
     # print str(illegal_tuple_list)
@@ -812,8 +794,8 @@ def scan_and_rank_rules(ranked_hypothesis, hypothesis_index_dict):
             break
 
     pr_ranked_hypothesis = OrderedDict(sorted(pr_ranked_hypothesis.items(), key = lambda (key, value) : (value, key), reverse=True))
-    print str(pr_ranked_hypothesis)
-    print len(pr_ranked_hypothesis)
+    # print str(pr_ranked_hypothesis)
+    # print len(pr_ranked_hypothesis)
 
     return pr_ranked_hypothesis
 
@@ -1038,7 +1020,7 @@ def get_card_from_characteristics(card_characteristics):
     numeric_tuple = ('A','2','3','4','5','6','7','8','9','10','J','Q','K')
     suite_tuple = ('C','D','H','S')
     if (card_characteristics):
-        if ('color' in card_characteristics and card_characteristics['color'] == 'Red') :
+        if ('color' in card_characteristics and card_characteristics['color'] == 'R') :
             suite_tuple = ('D','H')
         elif('color' in card_characteristics and card_characteristics['color'] == 'Black') :
             suite_tuple = ('C','S')
@@ -1071,8 +1053,8 @@ def play(card):
 
 #scan_and_rank_rules(scan_and_rank_hypothesis())
 
-ranked_hypothesis_list, hypothesis_index_dict = scan_and_rank_hypothesis()
-scan_and_rank_rules(ranked_hypothesis_list, hypothesis_index_dict)
+# ranked_hypothesis_list, hypothesis_index_dict = scan_and_rank_hypothesis()
+scientist()
 
 
 def validate_and_refine_formulated_rule():
@@ -1086,7 +1068,7 @@ def validate_and_refine_formulated_rule():
 	exception_legal_list = []
 	exception_illegal_list = []
 
-	# Red must follow black
+	# R must follow black
 	rule1 = Tree(orf, Tree(equal, Tree(color, 'previous'), 'R'), Tree(equal, Tree(color, 'current'), 'R'))
 
 	#Even must follow Odd test
@@ -1191,7 +1173,7 @@ def validate_card():
 	#board_state = parse_board_state() ==> Gives error atm
 
 	#This is the actual rule which the rule function should return
-	# Red must follow black
+	# R must follow black
 	rule1 = Tree(orf, Tree(equal, Tree(color, 'previous'), 'R'), Tree(equal, Tree(color, 'current'), 'R'))
 
 	#fetch from legal list
