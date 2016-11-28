@@ -233,7 +233,8 @@ def scientist():
 		map_card_characteristic_to_property()
 		ranked_hypothesis, hypothesis_index_dict = scan_and_rank_hypothesis()
 		pr_ranked_hypothesis = scan_and_rank_rules(ranked_hypothesis, hypothesis_index_dict)
-		validate_and_refine_formulated_rule(pr_ranked_hypothesis)
+		#Create Tree for each rule in pr_ranked_hypothesis and pass to validate
+        validate_and_refine_formulated_rule()
 		# pick_next_random_card()
 		#validate_and_refine_formulated_rule()
 		#pick_next_negative_card()
@@ -1160,19 +1161,22 @@ def validate_card():
 	#legal_card = ['10S', '3H', '6H', '7D','9S','7S']
 	return rule1.evaluate((prev2,prev1,curr))	
 
-def create_tree(rule_list):
+def create_tree(rule):
 
 	# {'1' : 'C1' , '2' : 'C2', '3': 'C3', '4': 'C4', '5': 'C5', '6': 'C6', '7': 'C7', '8': 'C8', '9': 'C9', '10': 'C10', '11': 'C11', '12': 'C12', '13': 'C13', 'red':'C14' , 'black': 'C15', 'diamond': 'C16' , 'heart':'C17', 'spade': 'C18', 'club': 'C19', 'even': 'C20', 'odd': 'C21', 'royal': 'C22' , 'not_royal': 'C23'}
-	flag = False
-	for val in hypothesis:
-		num = int(val[1:])
-		if num > 10:
-			flag = True
-			break
+	# flag = False
+	# for val in hypothesis:
+	# 	num = int(val[1:])
+	# 	if num > 10:
+	# 		flag = True
+	# 		break
 	#@TODO
 	#if flag == True:
 		# Calls Rahul's method for numeric rules
 	#map_card_characteristic_to_property
+
+    for hypothesis in rule:
+        #Form an AND of each hypothesis
 
 	if len(hypothesis) == 2:
 		h1 = hypothesis[0]
