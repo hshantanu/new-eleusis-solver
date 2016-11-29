@@ -487,14 +487,11 @@ def rule():
 def score(scientist_rule):
     current_score = 0
     player_won = False
-    print 'Master Board State: ' + str(get_master_board_state())
-    print 'legal cards length: ' + str(len(parse_board_state()['legal_cards']))
     illegal_cards = parse_illegal_indices()
     illegal_counter = 0
     for elem in illegal_cards:
         if len(elem) == 2:
             illegal_counter += 1
-    print 'illegal cards length: ' + str(illegal_counter)
 
     free_counter = 0
     for elem in master_board_state:
@@ -508,8 +505,6 @@ def score(scientist_rule):
 
     current_rule = rule()
     if str(scientist_rule) != str(current_rule):
-        print 'Scientist: ' + str(scientist_rule)
-        print 'Current: ' + str(current_rule)
         current_score += 15
         # TODO: Validate predicted rule using validate_rule method for the current rule
         # TODO: Check if predicted rule conforms to the rule current 
