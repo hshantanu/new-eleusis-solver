@@ -329,16 +329,14 @@ board_state = ['9S','3H']
 rule_list={}
 char_dict={}
 
-# R => R
-# B => B
-# C => C
-# D => D
-# H => Hearts
-# S => S
+
 numeric_characterstic = ['A','2','3','4','5','6','7','8','9','10','J','Q','K']
 suit_characterstic = ['C','S','D','H']
 
 def pick_random_card():
+    '''
+      This function picks a random card based in the suit and numeric characterstic
+    '''
 	rank = random.choice( ('A','2','3','4','5','6','7','8','9','10','J','Q','K') )
 	suit = random.choice( ('C','D','H','S') )
 	card = rank + suit
@@ -347,7 +345,6 @@ def pick_random_card():
 def update_board_state(board_state,flag,current_card):
 	#We can also try using the global board state directly without passing it each time.
 	#global board_state
-
 	#If the card is valid, append it at the end of the board state with an empty list.
 	board_state = board_state
 	if flag == True:
@@ -359,7 +356,9 @@ def update_board_state(board_state,flag,current_card):
 	return board_state
 
 def initialize_negative_characteristic_list(card_characterstic_list):
-	# mapping of negative character
+	'''
+      This function intializes a negative characterstic list and picks a random card
+    '''
 	negative_characterstic_list = {'B':'R','R':'B', 'C':'H,D,S' , 'S' : 'H,D,C', 'H': 'S,C,D', 'D': 'S,C,H', 'Even':'Odd'}
 	if (not card_characterstic_list):
 		print('Characterstic list empty')
@@ -376,6 +375,9 @@ def master_board_state_1():
 	return master_board_state
 
 def parse_board_state():
+    '''
+      This function parses the board state and returns a dictionary of legal cards along with current, previous, previous2 cards
+    '''
 	board_state = master_board_state_1()
 	prev = ''
 	prev2 = ''
@@ -398,9 +400,10 @@ def parse_board_state():
 	return return_dict
 
 def parse_illegal_indices():
-	#This function returns list of tuples of length 3 representing curr as the illegal card, 
-	#and prev, prev2 are immediately preceding legal ones. 
-	#Illegal tuples of length 3 and 2 are currently handled.
+	'''This function returns list of tuples of length 3 representing curr as the illegal card, 
+	and prev, prev2 are immediately preceding legal ones. 
+	Illegal tuples of length 3 and 2 are currently handled. 
+    '''
 	illegal_tuple_list = list()
 	board_state = master_board_state_1()
 	for index, value in enumerate(board_state):
@@ -413,11 +416,10 @@ def parse_illegal_indices():
 				illegal_tuple_list.append(illegal_tuple_length_two)
 
 	return illegal_tuple_list
-#print parse_illegal_indices()
 
 def map_card_characteristic_to_property(prop):
     '''
-        Return a mapping of all the card characterstic to the property
+        Returns a mapping of value to characterstic and reads a certain property and returns it characterstic
     '''
     property_dict = {'1' : 'C1' , '2' : 'C2', '3': 'C3', '4': 'C4', '5': 'C5', '6': 'C6', '7': 'C7', '8': 'C8', '9': 'C9', '10': 'C10', '11': 'C11', '12': 'C12', '13': 'C13', 'R':'C14' , 'B': 'C15', 'D': 'C16' , 'H':'C17', 'S': 'C18', 'C': 'C19', 'even': 'C20', 'odd': 'C21', 'royal': 'C22' , 'not_royal': 'C23'}
     if prop in property_dict:
@@ -426,8 +428,9 @@ def map_card_characteristic_to_property(prop):
         return property_dict 
 
 def map_card_characteristic_to_value(prop):
-	
-	# This function returns a value for key in the dictionary
+	'''
+      This function returns the value associated with a characterstic
+    '''
 	property_dict = {'1' : 'C1' , '2' : 'C2', '3': 'C3', '4': 'C4', '5': 'C5', '6': 'C6', '7': 'C7', '8': 'C8', '9': 'C9', '10': 'C10', '11': 'C11', '12': 'C12', '13': 'C13', 'R':'C14' , 'B': 'C15', 'D': 'C16' , 'H':'C17', 'S': 'C18', 'C': 'C19', 'even': 'C20', 'odd': 'C21', 'royal': 'C22' , 'not_royal': 'C23'}
 
 	for val in property_dict:
@@ -436,14 +439,18 @@ def map_card_characteristic_to_value(prop):
 
 
 def get_card_char_from_property(index):
-
+    '''
+      This function returns a card characterstic usign the property
+    '''
 	card_char_prop = map_card_characteristic_to_property();
 	property = card_char_prop.get(index)
 	return property
 
 def get_card_characteristics(current):
+    '''
+     This function return a list of all the characterstic associated with the current card
+    '''
 	#color, suite, number, even/odd, royal
-
 	royal = ['A', 'J', 'Q', 'K']
 	card_char = {}
 	#color = ""
@@ -507,13 +514,16 @@ def initalize_characteristic_list():
 	return {'C1' : [], 'C2':[], 'C3': [], 'C4':[], 'C5':[], 'C6':[], 'C7':[], 'C8':[], 'C9': [], 'C10': [], 'C11': [], 'C12': [], 'C13': [], 'C14' : [], 'C15': [], 'C16': [], 'C17':[], 'C18':[], 'C19':[], 'C20':[], 'C21':[], 'C22': [], 'C23':[]}
 
 def set_characteristic_weights():
-	''' This has hard_coded Weights per card characteristic. Please do not touch. Things might fail!
+	''' 
+      This function assigns a weighted probability for each card characterstic
 	'''
-	# {'1' : 'C1' , '2' : 'C2', '3': 'C3', '4': 'C4', '5': 'C5', '6': 'C6', '7': 'C7', '8': 'C8', '9': 'C9', '10': 'C10', '11': 'C11', '12': 'C12', '13': 'C13', 'R':'C14' , 'B': 'C15', 'D': 'C16' , 'H':'C17', 'S': 'C18', 'C': 'C19', 'even': 'C20', 'odd': 'C21', 'royal': 'C22' , 'not_royal': 'C23'}
 	weighted_property_dict = {'C1' : 0.92, 'C2':0.92, 'C3': 0.92, 'C4':0.92, 'C5':0.92, 'C6':0.92, 'C7':0.92, 'C8':0.92, 'C9': 0.92, 'C10': 0.92, 'C11': 0.92, 'C12': 0.92, 'C13': 0.92, 'C14' : 0.5, 'C15': 0.5, 'C16': 0.75, 'C17':0.75, 'C18':0.75, 'C19':0.75, 'C20':0.5, 'C21':0.5, 'C22': 0.77, 'C23':0.23}
 	return weighted_property_dict
 
 def initialize_variable_offset():
+    '''
+     This function returns the current, previous, previous2 card
+    '''
 	offset_list=[]
 	count=len(board_state)
 	print count
@@ -891,6 +901,11 @@ def pick_negative_random(card_characterstic_list):
 		return card
 
 def pick_next_negative_card(rule_list):
+    '''
+     This returns a negative card associated with the top rule by using an intersection of the
+     card characterstics of the top rule. If there is no intersection found we just return a
+     random card
+    '''
 	intersection_rule_list = []
 	numbers = []
 	colors = []
@@ -960,10 +975,11 @@ def pick_next_negative_card(rule_list):
 	return pick_negative_random(card_characterstic_list)
 
 def update_characteristic_list(current_card, current_card_index, char_dict):
-	#Read the current card
-	#Get the card characteristics by invoking get_card_characteristics()
-	#Invoke the map_card_characteristics() to get the corresponding numeric index into the card characteristic list.
-	#Append the characteristics list with the index of the current card.
+	'''Read the current card
+	 Get the card characteristics by invoking get_card_characteristics()
+	 Invoke the map_card_characteristics() to get the corresponding numeric index into the card characteristic list.
+	Append the characteristics list with the index of the current card.
+    '''
 	board_state = parse_board_state()
 	
 	card_characteristics = get_card_characteristics(current_card)
@@ -977,11 +993,11 @@ def update_characteristic_list(current_card, current_card_index, char_dict):
 	return char_dict
 
 def get_card_mapping_characterstic(current_card):
-	#Read the current card
-	#Get the card characteristics by invoking get_card_characteristics()
-	#Invoke the map_card_characteristics() to get the corresponding numeric index into the card characteristic list.
-	#Append the characteristics list with the index of the current card.
-	
+	'''Read the current card
+	 Get the card characteristics by invoking get_card_characteristics()
+	 Invoke the map_card_characteristics() to get the corresponding numeric index into the card characteristic list.
+	 Append the characteristics list with the index of the current card.
+     '''
 	card_characteristics = get_card_characteristics(current_card)
 	card_characteristic_list = []
 	for characteristic in card_characteristics:
@@ -990,6 +1006,9 @@ def get_card_mapping_characterstic(current_card):
 	return card_characteristic_list
 
 def get_card_from_characteristics(card_characteristics):
+    '''
+     This function returns a valid card based on the characterstic specified in the parameter
+    '''
     # Format {'number': 9, 'suite': 'C', 'color': 'B'}
     # Format {'suite': 'C', 'color': 'B'}
     # Format {'number': 9}
@@ -1022,6 +1041,10 @@ def get_card_from_characteristics(card_characteristics):
     return card
 
 def play(card):
+    '''
+     This function plays a card and validates the card and then updates the board state with the new card 
+     based on whether the card is legal or not
+    '''
 	#Invoke validate_card() which returns True/False if the current play is legal/illegal.
 	#Update the board_state by calling update_board_state()
 	#Return a boolean value based on the legality of the card. 
@@ -1230,13 +1253,22 @@ def validate_and_refine_formulated_rule(rule_list = [(Tree(orf, Tree(equal, Tree
 
 
 def setRule(ruleExp):
+    '''
+     This function set the predicted rule variable as the rule exp passed as parameter
+    '''
 	predicted_rule = ruleExp
 
 def rule():
+    '''
+     This function returns the current rule
+    '''
 	#return the current rule
 	return predicted_rule;
 
 def score(board_state):
+    '''
+     This function returns a score associated with the current board state
+    '''
 	current_score = 0
 	play_counter = 0
 	board_state = parse_board_state()
@@ -1257,6 +1289,9 @@ def score(board_state):
 	return current_score
 
 def find_numeric_characteristic_relation(current_card, prev_card, prev2_card):
+    '''
+     This function defines a numeric relation between a sliding window of current, prev, prev2 cards
+    '''
 	numeric_relation_dic = {}
 	if (equal(current_card, prev_card)):
 		numeric_relation_dic['current_equal_prev'] = True
@@ -1312,11 +1347,17 @@ def validate_card():
 	return rule1.evaluate((prev2,prev1,curr))	
 
 def map_characteristic_value_to_characteristic_property(characteristic_value):
+    '''
+     This function returns a mapping of the characterstic value to the property
+    '''
 	characteristic_value_to_characteristic_property_dict = {'R':color, 'B':color, 'S':suit, 'C':suit, 'H':suit, 'D':suit, '1': value, '2': value, '3': value, '4': value, '5': value, '6': value, '7': value, '8': value, '9': value, '10': value}
 	return characteristic_value_to_characteristic_property_dict[characteristic_value]    
 
 def create_tree(rule):
-
+    '''
+     This function converts the internal mapping of characterstic values eg C1,C2 to a tree format which 
+     can be easily validated using the evaluate function
+    '''
 	#TODO - Handle numeric relations during hypothesis transformation. Will be done by invoking find_characteristic_numeric_relation
 
 	triple_tree_characteristic_list = ['R', 'B', 'S', 'C', 'H', 'D', 'value']
@@ -1367,9 +1408,9 @@ def create_tree(rule):
 
 	return transformed_rule
 
-#print create_tree((('C14', 'C19', 'C14'), ('C14', 'C15', 'C17')))
 
 def scientist():
+
 	parse_board_state()
 	initialize_variable_offset()
 	pick_random_card()
