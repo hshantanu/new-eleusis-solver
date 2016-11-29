@@ -1,3 +1,12 @@
+# Team Name: Guess My Rule! 
+
+# Members: 
+# Vipin Pillai
+# Sailakshmi Pisupati
+# Rahul Raghavan
+# Shantanu Hirlekar
+
+
 import random
 import operator
 import itertools
