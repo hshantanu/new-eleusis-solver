@@ -356,71 +356,25 @@ def play(card):
     #Invoke validate_card() which returns True/False if the current play is legal/illegal.
     #Update the board_state by calling update_board_state()
     #Return a boolean value based on the legality of the card. 
-    print str(get_master_board_state())
     card_legality = True
     if len(get_master_board_state()) < 3:
-        print card
         update_board_state(get_master_board_state(),card_legality,card) 
     else:
         card_legality = validate_card(card)
-        print 'card_legality: ' + str(card_legality)
         update_board_state(get_master_board_state(),card_legality,card)
     return card_legality
 
-#scan_and_rank_rules(scan_and_rank_hypothesis())
 
-# ranked_hypothesis_list, hypothesis_index_dict = scan_and_rank_hypothesis()
-
-def validate_and_refine_formulated_rule(rule_list = [(Tree(orf, Tree(equal, Tree(color, 'previous'), 'R'), Tree(equal, Tree(color, 'current'), 'R'))),(Tree(orf, Tree(even, 'previous'), Tree(even,'current'))),(Tree(orf, Tree(andf, Tree(odd, 'previous'), Tree(even,'current')), Tree(andf, Tree(even, 'previous'), Tree(odd,'current'))))]):
-
-    '''
-    1. get_card_mapping_characterstic() ==> 
-    2. combined_char_indices_list = [get_card_mapping_characterstic(tuple[0]), get_card_mapping_characterstic(tuple[1]), char_dict[i]]
-
-        for characteristic_tuple in itertools.product(*combined_char_indices_list):
-            #print 'Tuple: ' + str(characteristic_tuple)
-            if characteristic_tuple in hypothesis_index_dict.keys():
-                hypothesis_index_dict[characteristic_tuple].append((i-2, i-1, i))
-            else:
-                hypothesis_index_dict[characteristic_tuple] = [(i-2, i-1, i)]
-            if characteristic_tuple in hypothesis_dict.keys():
-                hypothesis_occurrence_count[characteristic_tuple] += 1
-                hypothesis_dict[characteristic_tuple] += ((weighted_property_dict[characteristic_tuple[0]]+weighted_property_dict[characteristic_tuple[1]]+weighted_property_dict[characteristic_tuple[2]])/3)*hypothesis_occurrence_count[characteristic_tuple]
-            else:
-                hypothesis_dict[characteristic_tuple] = (weighted_property_dict[characteristic_tuple[0]]+weighted_property_dict[characteristic_tuple[1]]+weighted_property_dict[characteristic_tuple[2]])/3
-                hypothesis_occurrence_count[characteristic_tuple] = 1
-            mean += (weighted_property_dict[characteristic_tuple[0]]+weighted_property_dict[characteristic_tuple[1]]+weighted_property_dict[characteristic_tuple[2]])/3
-    '''
-    
-    #board_state = [('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', []), ('7D',[]), ('9S', ['AS'])]
+def validate_and_refine_formulated_rule(rule_list): 
     
     i = 0   
     exception_legal = {}
     exception_illegal = {}
-    # Red must follow black
-    #rule1 = Tree(orf, Tree(equal, Tree(color, 'previous'), 'R'), Tree(equal, Tree(color, 'current'), 'R'))
-    #print rule1.evaluate(['6H', '7D', '9S'])
-    #Even must follow Odd test
-    '''rule2 = Tree(orf, Tree(even, 'previous'), Tree(even,'current'))
-
-    #Alternate the sequence even odd
-    rule3 = Tree(orf, Tree(andf, Tree(odd, 'previous'), Tree(even,'current')), Tree(andf, Tree(even, 'previous'), Tree(odd,'current')))
-
-    legal_card = ['10S', '3H', '6H', '7D','9S','7S']
+    exception_list = {} 
     
-    legal_card2 = ['8S','7H','6S']
-    print rule2.evaluate((legal_card2))
-
-    legal_card3 = ['6C','5C','7C']
-    print rule3.evaluate((legal_card3))'''
-
-    
-    #legal_card = ['10S', '3H', '6H', '7D','9S','7S']
     legal_card = parse_board_state()
     legal_card = legal_card['legal_cards']
-    #print legal_card
-    #legal_card = ['10S','3H']
-    #illegal_cards = [('3H', '6C', 'KS'), ('3H', '6C', '9C'), ('7D', '9S', 'AS'), ('6H','7D','9S')]
+    
     illegal_cards = parse_illegal_indices()
 
     for rule in rule_list:
@@ -428,28 +382,22 @@ def validate_and_refine_formulated_rule(rule_list = [(Tree(orf, Tree(equal, Tree
             my_legal_list = (legal_card[i],legal_card[i+1],legal_card[i+2])
             if rule.evaluate((my_legal_list)) == False:
                 if rule in exception_legal:
-                    exception_legal[rule].append(my_legal_list)
+                    exception_list[rule].append(my_legal_list)
                 else:
-                    exception_legal[rule] = [my_legal_list]
+                    exception_list[rule] = [my_legal_list]
             i += 1
 
         for tup in illegal_cards:
             if len(tup) > 2:
                 my_illegal_list = (tup[0], tup[1], tup[2])
                 if rule.evaluate((my_illegal_list)) == True:
-                    if rule in exception_illegal:
-                        exception_illegal[rule].append(my_illegal_list)
+                    if rule in exception_list:
+                        exception_list[rule].append(my_illegal_list)
                     else:
-                        exception_illegal[rule] = [my_illegal_list]
+                        exception_list[rule] = [my_illegal_list]
 
-    legal_exceptions_list = exception_legal.values() #The legal exceptions values for a rule
-    illegal_exceptions_list = exception_illegal.values() #The illegal exceptions values for a rule
-
-    #print str(legal_exceptions_list) + "legal!!"
-    #print illegal_exceptions_list
-    #print exception_legal
-    #print exception_illegal
-
+    exceptions = exception_list.values()
+    
     #property_dict = {'1' : 'C1' , '2' : 'C2', '3': 'C3', '4': 'C4', '5': 'C5', '6': 'C6', '7': 'C7', '8': 'C8', '9': 'C9', '10': 'C10', '11': 'C11', '12': 'C12', '13': 'C13', 'red':'C14' , 'black': 'C15', 'diamond': 'C16' , 'heart':'C17', 'spade': 'C18', 'club': 'C19', 'even': 'C20', 'odd': 'C21', 'royal': 'C22' , 'not_royal': 'C23'}
     hypothesis_index_dict = {}
     hypothesis_dict = {}
@@ -457,8 +405,8 @@ def validate_and_refine_formulated_rule(rule_list = [(Tree(orf, Tree(equal, Tree
     hypothesis_occurrence_count = {}
     mean = 0.0
 
-    if len(legal_exceptions_list) > 0:
-        for tup in legal_exceptions_list:
+    if len(exceptions) > 0:
+        for tup in exceptions:
             for val in tup:
                 combined_char_indices_list = [get_card_mapping_characterstic(val[0]), get_card_mapping_characterstic(val[1]), get_card_mapping_characterstic(val[2])]
                 for characteristic_tuple in itertools.product(*combined_char_indices_list):
@@ -474,7 +422,7 @@ def validate_and_refine_formulated_rule(rule_list = [(Tree(orf, Tree(equal, Tree
                         hypothesis_occurrence_count[characteristic_tuple] = 1
                     mean += (weighted_property_dict[characteristic_tuple[0]]+weighted_property_dict[characteristic_tuple[1]]+weighted_property_dict[characteristic_tuple[2]]) / 3
         
-        for tup in legal_exceptions_list:
+        for tup in exceptions:
             for val in tup:     
                 hypothesis_occurrence_count = {}
                 combined_char_indices_list = [get_card_mapping_characterstic(val[1]), get_card_mapping_characterstic(val[2])]
@@ -492,80 +440,26 @@ def validate_and_refine_formulated_rule(rule_list = [(Tree(orf, Tree(equal, Tree
                         hypothesis_dict[characteristic_tuple] = (weighted_property_dict[characteristic_tuple[0]]+weighted_property_dict[characteristic_tuple[1]])/2
                     mean += (weighted_property_dict[characteristic_tuple[0]]+weighted_property_dict[characteristic_tuple[1]])/2
         
+    
         ranked_hypothesis_dict = OrderedDict(sorted(hypothesis_dict.items(), key = lambda (key, value) : (value, key), reverse=True))
+
         hypothesis_offset = len(ranked_hypothesis_dict)
         mean_cutoff = mean/hypothesis_offset
         ranked_hypothesis = {} 
         for value in ranked_hypothesis_dict.iteritems():
-            if value[1] > mean_cutoff:
+            if value[1] > mean_cutoff :
                 ranked_hypothesis[value[0]] = value[1]
             else:
                 break
-        #print ranked_hypothesis_dict
+        ranked_hypothesis = OrderedDict(sorted(ranked_hypothesis.items(), key = lambda (key, value) : (value, key), reverse=True))
+
     else:
         print "Legal exception list is NULL!!"
-    
 
-
-    print '=======================================Illegal======================================================================='
-    hypothesis_index_dict = {}
-    hypothesis_dict = {}
-    weighted_property_dict = set_characteristic_weights()
-    hypothesis_occurrence_count = {}
-    ranked_hypothesis_dict = {}
-    mean = 0.0
-
-    if len(illegal_exceptions_list) > 0:
-        for tup in illegal_exceptions_list:
-            for val in tup:
-                combined_char_indices_list = [get_card_mapping_characterstic(val[0]), get_card_mapping_characterstic(val[1]), get_card_mapping_characterstic(val[2])]
-                for characteristic_tuple in itertools.product(*combined_char_indices_list):
-                    if characteristic_tuple in hypothesis_index_dict.keys():
-                        hypothesis_index_dict[characteristic_tuple].append((val[2],val[1],val[0]))
-                    else:
-                        hypothesis_index_dict[characteristic_tuple] = [(val[2],val[1],val[0])]
-                    if characteristic_tuple in hypothesis_dict.keys():
-                        hypothesis_occurrence_count[characteristic_tuple] += 1
-                        hypothesis_dict[characteristic_tuple] += ((weighted_property_dict[characteristic_tuple[0]]+weighted_property_dict[characteristic_tuple[1]]+weighted_property_dict[characteristic_tuple[2]])/3)*hypothesis_occurrence_count[characteristic_tuple]
-                    else:
-                        hypothesis_dict[characteristic_tuple] = (weighted_property_dict[characteristic_tuple[0]]+weighted_property_dict[characteristic_tuple[1]]+weighted_property_dict[characteristic_tuple[2]])/3
-                        hypothesis_occurrence_count[characteristic_tuple] = 1
-                    mean += (weighted_property_dict[characteristic_tuple[0]]+weighted_property_dict[characteristic_tuple[1]]+weighted_property_dict[characteristic_tuple[2]]) / 3
-        
-        for tup in legal_exceptions_list:
-            for val in tup:     
-                hypothesis_occurrence_count = {}
-                combined_char_indices_list = [get_card_mapping_characterstic(val[1]), get_card_mapping_characterstic(val[2])]
-                for characteristic_tuple in itertools.product(*combined_char_indices_list):
-                    if characteristic_tuple in hypothesis_index_dict.keys():
-                        hypothesis_index_dict[characteristic_tuple].append((val[2], val[1]))
-                    else:
-                        hypothesis_index_dict[characteristic_tuple] = [(val[2], val[1])]
-
-                    if characteristic_tuple in hypothesis_dict.keys():
-                        hypothesis_occurrence_count[characteristic_tuple] += 1
-                        hypothesis_dict[characteristic_tuple] += ((weighted_property_dict[characteristic_tuple[0]]+weighted_property_dict[characteristic_tuple[1]])/2)*hypothesis_occurrence_count[characteristic_tuple]
-                    else:
-                        hypothesis_occurrence_count[characteristic_tuple] = 1
-                        hypothesis_dict[characteristic_tuple] = (weighted_property_dict[characteristic_tuple[0]]+weighted_property_dict[characteristic_tuple[1]])/2
-                    mean += (weighted_property_dict[characteristic_tuple[0]]+weighted_property_dict[characteristic_tuple[1]])/2
-        
-        ranked_hypothesis_dict = OrderedDict(sorted(hypothesis_dict.items(), key = lambda (key, value) : (value, key), reverse=True))
-        hypothesis_offset = len(ranked_hypothesis_dict)
-        mean_cutoff = mean/hypothesis_offset
-        ranked_hypothesis = {} 
-        for value in ranked_hypothesis_dict.iteritems():
-            if value[1] > mean_cutoff:
-                ranked_hypothesis[value[0]] = value[1]
-            else:
-                break
+    if(ranked_hypothesis.items()[0][1]) > 1:
+        return True
     else:
-        print "Illegal exception list is NULL!!"
-        
-    return
-    
-    #print ranked_hypothesis_dict
-
+        return False
 
 def setRule(ruleExp):
     '''
@@ -757,19 +651,14 @@ def scientist(prev2, prev, curr):
     initalize_characteristic_list()
     loop_start_time = time.time()
     while play_counter <= 200:
-        print '------------------Current Counter----------------' + str(play_counter)
+        print 'Playing next card: ' + str(current_card)
         play(current_card)
-        print 'current card: ' + current_card
  
         if play_counter < 15:
             current_card = pick_random_card()
         else:
-            start_time = time.time()
             ranked_hypothesis = scan_and_rank_hypothesis(get_three_length_hypothesis_flag())
-            print("---scan_and_rank_hypothesis:  %s seconds ---" % (time.time() - start_time))
-            start_time = time.time()
             pr_ranked_hypothesis = scan_and_rank_rules(ranked_hypothesis)
-            print("---scan_and_rank_rules:  %s seconds ---" % (time.time() - start_time))
             top_rule = pr_ranked_hypothesis.popitem()[0]
             if top_rule in top_rule_confidence:
                 top_rule_confidence[top_rule] += 1
@@ -777,9 +666,8 @@ def scientist(prev2, prev, curr):
                     break
             else:
                 top_rule_confidence[top_rule] = 1
-            print '----------------TOP Rule: ' + str(top_rule)
             current_card = pick_next_negative_card(top_rule)
-            
+            print 'Current Predicted Rule: ' + str(create_tree(top_rule))
             # #Create Tree for each rule in pr_ranked_hypothesis and pass to validate
             # print str(create_tree(top_rule[0]))
             # #validate_and_refine_formulated_rule()
@@ -787,7 +675,6 @@ def scientist(prev2, prev, curr):
             # #validate_and_refine_formulated_rule()
             # print 'Negative Card: ' + str(current_card)
 
-    print("==================================Scientist Run time---:  %s seconds ---" % (time.time() - loop_start_time))
     return create_tree(top_rule)
 
 
