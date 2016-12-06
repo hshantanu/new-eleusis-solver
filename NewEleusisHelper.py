@@ -10,11 +10,12 @@
 import random
 import operator
 import itertools
+import time
 from collections import OrderedDict
 from itertools import combinations
-import time
 
-master_board_state = [('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', []), ('7D', []), ('9S', ['AS', 'KS', 'QC']), ('KD', []), ('6C', []), ('3D', []), ('AD', []), ('JD', []), ('AS', []), ('2H', []), ('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', []), ('7D', []), ('9S', ['AS', 'KS', 'QC']), ('KD', []), ('6C', []), ('3D', []), ('AD', []), ('JD', []), ('AS', []), ('2H', []), ('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', []), ('7D', []), ('9S', ['AS', 'KS', 'QC']), ('KD', []), ('6C', []), ('3D', []), ('AD', []), ('JD', []), ('AS', []), ('2H', []), ('10S', []), ('3H', []), ('6C', ['KS', '9C']), ('6H', []), ('7D', []), ('9S', ['AS', 'KS', 'QC']), ('KD', []), ('6C', []), ('3D', []), ('AD', []), ('JD', []), ('AS', []), ('2H', [])]
+
+master_board_state = []
 
 def pick_random_card():
     '''
@@ -231,17 +232,41 @@ def initialize_variable_offset():
         print "[Current,Previous1]:",offset_list
         return offset_list
 
+def get_card_value(card):
+    """Returns the numeric value of a card or card value as an integer 1..13"""
+    prefix = card[:len(card) - 1]
+    names = {'A':1, 'J':11, 'Q':12, 'K':13}
+    if prefix in names:
+        return names.get(prefix)
+    else:
+        return int(prefix)
 
 
-def pick_negative_random(card_characterstic_list):
+def pick_negative_random(card_characterstic_list, last_rule_counter, card_list = []):
     '''
      Picks a random negative card based on the characterstic presented
     '''
-    color_mapping = {'R': 'D,H', 'B': 'S,C'}
+    color_mapping = get_color_mapping()
     face_value_mapping = {'A': '1', 'J':'11', 'Q':'12', 'K': '13' }
     royal_card = {'J', 'Q', 'K'}
     numeric_characterstic = {'A':False,'2':False,'3':False,'4':False,'5':False,'6':False,'7':False,'8':False,'9':False,'10':False,'J':False,'Q':False,'K':False}
     suit_characterstic = {'C':False,'S':False,'D':False,'H':False}
+    legal_cards = parse_board_state()['legal_cards']
+    # print('-------------------legal_cards-----------------------', legal_cards)
+    illegal_cards = parse_illegal_indices()
+    illegal_counter = 0
+    for elem in illegal_cards:
+        if len(elem) == 2:
+            illegal_counter += 1
+
+    ratio_legal = float(len(legal_cards))/float(len(legal_cards)+ illegal_counter)
+    # print('-------------------legal_cards-----------------------', len(legal_cards))
+    # print('-------------------illegal_card_counter-----------------------', illegal_counter)
+    # print('-------------------ratio_legal-----------------------', ratio_legal)
+    put_out_legal = False
+    if(ratio_legal < 0.667):
+        put_out_legal = True
+
     if (card_characterstic_list):
         # number 
         if ('number' in card_characterstic_list):
@@ -329,97 +354,254 @@ def pick_negative_random(card_characterstic_list):
     
     numeric_characterstic_list = []
     suit_characterstic_list = []
-    for number in numeric_characterstic:
-        if numeric_characterstic[number] == False:
-            numeric_characterstic_list.append(number)
+    
+    if put_out_legal == False:
+        
+        for number in numeric_characterstic:
+            if numeric_characterstic[number] == False:
+                numeric_characterstic_list.append(number)
 
-    for suite in suit_characterstic:
-        if suit_characterstic[suite] == False:
-            suit_characterstic_list.append(suite)
+        for suite in suit_characterstic:
+            if suit_characterstic[suite] == False:
+                suit_characterstic_list.append(suite)
+    else:
+        
+        for number in numeric_characterstic:
+            if numeric_characterstic[number] == True:
+                numeric_characterstic_list.append(number)
+
+        for suite in suit_characterstic:
+            if suit_characterstic[suite] == True:
+                suit_characterstic_list.append(suite)
+
 
     if ((not numeric_characterstic_list) or (not suit_characterstic_list)):
         print('No valid card, Picking random card')
         return pick_random_card()
     else:
-        rank = random.choice( numeric_characterstic_list )
-        suit = random.choice( suit_characterstic_list )
-        card = rank + suit
+        # send empty card list now
+        card = get_card_from_characterstic(suit_characterstic, numeric_characterstic, card_list, card_characterstic_list)
         return card
 
-def pick_next_negative_card(rule_list):
+def get_color_mapping():
+    return {'R': 'D,H', 'B': 'S,C'}
+
+def get_card_from_characterstic(suite_characterstic, number_characterstic, card_list, characterstic_list):
+    no_card_found = True
+    negative_card_list = []
+    color_mapping = get_color_mapping()
+    if (card_list):
+
+        if no_card_found == True and characterstic_list:
+            # pick the other characterstic
+            # first the color
+            if 'color' in characterstic_list and len(characterstic_list['color']) == 1:
+                suites = color_mapping[characterstic_list['color']].split(',')
+                for suite in suites:
+                    for card in card_list:
+                        if suite in card:
+                            negative_card_list.append(card)
+
+            # suite
+            if 'suite' in characterstic_list:
+                suit_card_list = []
+                suite_characterstic = characterstic_list['suite'].split(',')
+                if not negative_card_list:
+                    negative_card_list = card_list
+                for suite in suite_characterstic:
+                    for card in negative_card_list:
+                        if suite in card:
+                            suit_card_list.append(card)
+                if suit_card_list:
+                    negative_card_list = suit_card_list
+
+            # parity
+            if 'even' in characterstic_list or 'odd' in characterstic_list:
+                parity_list = []
+                if 'even' in characterstic_list:
+                    parity = True
+                if 'odd' in characterstic_list:
+                    parity = False
+                
+                if not negative_card_list:
+                    negative_card_list = card_list
+                for card in negative_card_list:
+                    if parity == True:
+                        if get_card_value(card) % 2==0:
+                            parity_list.append(card)
+                    elif parity == False:
+                        if get_card_value(card)%2 !=0:
+                            parity_list.append(card)
+                if parity_list:
+                    negative_card_list = parity_list
+            
+            # number        
+            if 'numbers' in characterstic_list:
+                numbers_card_list = []
+                if not negative_card_list:
+                    negative_card_list = card_list
+                numeric_characterstic = characterstic_list['numbers'].split(',')
+                for number in numeric_characterstic:
+                    for card in negative_card_list:
+                        if number in card:
+                            numbers_card_list.append(card)
+                if numbers_card_list:
+                    negative_card_list = numbers_card_list
+
+            # single card is found
+            if len(negative_card_list) == 1:
+                return negative_card_list[0]
+            else:
+                # multiple cards
+                return random.choice(negative_card_list)
+    if no_card_found == True:
+        print('no card found')
+        if card_list:
+            return random.choice(card_list)
+        else:
+            return pick_random_card()
+
+    return random.choice(negative_card_list)
+
+
+def pick_next_negative_card(rule_list, last_rule_counter):
     '''
      This returns a negative card associated with the top rule by using an intersection of the
      card characterstics of the top rule. If there is no intersection found we just return a
      random card
     '''
-    intersection_rule_list = []
-    numbers = []
-    colors = []
-    suites = []
-    even_list = []
-    odd_list = []
-    royal_list = []
-    not_royal_list = []
+    # print('-------------------rule_list-----------------------', rule_list)
+    top_rule_list = []
+    for rules in rule_list:
+        top_rule_list.append(rules)
+
+    print('-------------------top_rule_list-----------------------', top_rule_list)
+    
+    intersection_rule_list = {}
+    numbers = {}
+    colors = {}
+    suites = {}
+    even_list = {}
+    odd_list = {}
+    royal_list = {}
+    not_royal_list = {}
     number_list =['C1','C2','C3','C4','C5','C6','C7','C8','C9','C10','C11','C12','C13']
     color_list =['C14','C15']
+    black = ['C14']
+    red = ['C15']
     suite_list = ['C16','C17','C18','C19']
     even = ['C20']
     odd = ['C21']
     royal = ['C22']
     not_royal = ['C23']
-    for rule in rule_list:
 
-        # numbers
-        if (rule[len(rule)-1] in number_list):
-            numbers.append(map_card_characteristic_to_value(rule[len(rule)-1]))
+    for rules in top_rule_list:
         
-        #colors
-        if (rule[len(rule)-1] in color_list):
-            colors.append(map_card_characteristic_to_value(rule[len(rule)-1]))
+        number_list =['C1','C2','C3','C4','C5','C6','C7','C8','C9','C10','C11','C12','C13']
+        for rule in rules:
+            # put out negative of the current card card characterstic
+            
+            # numbers
+            if (rule[len(rule)-1] in number_list):
+                if map_card_characteristic_to_value(rule[len(rule)-1]) not in numbers.keys():
+                    numbers[map_card_characteristic_to_value(rule[len(rule)-1])] = 1
+                else:
+                    numbers[map_card_characteristic_to_value(rule[len(rule)-1])] += 1
+            
+            #colors
+            if (rule[len(rule)-1] in color_list):
 
-        #suites
-        if (rule[len(rule)-1] in suite_list):
-            suites.append(map_card_characteristic_to_value(rule[len(rule)-1]))
+                if map_card_characteristic_to_value(rule[len(rule)-1]) not in colors.keys():
+                    colors[map_card_characteristic_to_value(rule[len(rule)-1])] = 1
+                else:
+                    colors[map_card_characteristic_to_value(rule[len(rule)-1])] += 1
 
-        #even
-        if (rule[len(rule)-1] in even):
-            even_list.append(map_card_characteristic_to_value(rule[len(rule)-1]))
+            #suites
+            if (rule[len(rule)-1] in suite_list):
+                if map_card_characteristic_to_value(rule[len(rule)-1]) not in suites.keys():
+                    suites[map_card_characteristic_to_value(rule[len(rule)-1])] = 1
+                else:
+                    suites[map_card_characteristic_to_value(rule[len(rule)-1])] += 1
 
-        #odd
-        if (rule[len(rule)-1] in odd):
-            odd_list.append(map_card_characteristic_to_value(rule[len(rule)-1]))
+            #even
+            if (rule[len(rule)-1] in even):
+                if map_card_characteristic_to_value(rule[len(rule)-1]) not in even_list.keys():
+                    even_list[map_card_characteristic_to_value(rule[len(rule)-1])] = 1
+                else: 
+                    even_list[map_card_characteristic_to_value(rule[len(rule)-1])] += 1
 
-        #royal
-        if (rule[len(rule)-1] in royal):
-            royal_list.append(map_card_characteristic_to_value(rule[len(rule)-1]))
+            #odd
+            if (rule[len(rule)-1] in odd):
+                if map_card_characteristic_to_value(rule[len(rule)-1]) not in odd_list.keys():
+                    odd_list[map_card_characteristic_to_value(rule[len(rule)-1])] = 1
+                else:
+                    odd_list[map_card_characteristic_to_value(rule[len(rule)-1])] += 1
 
-        #not_royal
-        if (rule[len(rule)-1] in not_royal):
-            not_royal_list.append(map_card_characteristic_to_value(rule[len(rule)-1]))
+            #royal
+            if (rule[len(rule)-1] in royal):
+                if map_card_characteristic_to_value(rule[len(rule)-1]) not in royal_list.keys():
+                    royal_list[map_card_characteristic_to_value(rule[len(rule)-1])] = 1
+                else:
+                    royal_list[map_card_characteristic_to_value(rule[len(rule)-1])] += 1
+
+            #not_royal
+            if (rule[len(rule)-1] in not_royal):
+                if map_card_characteristic_to_value(rule[len(rule)-1]) not in not_royal_list.keys():
+                    not_royal_list[map_card_characteristic_to_value(rule[len(rule)-1])] = 1
+                else: 
+                    not_royal_list[map_card_characteristic_to_value(rule[len(rule)-1])] += 1
     card_characterstic_list = {}
     if (numbers):
         card_characterstic_list['numbers'] = ','.join(numbers)
 
     if (colors):
-        card_characterstic_list['color'] = ','.join(colors)
+        
+        card_characterstic_list['color'] = ','.join(max_dict(colors))
 
     if (suites):
         card_characterstic_list['suite'] = ','.join(suites)
 
-    if (even_list):
-        card_characterstic_list['even'] = True
-
-    if (odd_list):
-        card_characterstic_list['odd'] = True
-
-    if (royal_list):
-        card_characterstic_list['royal'] = True
-
-    if (not_royal_list):
-        card_characterstic_list['not_royal'] = True
+    # merge both list together
+    even_odd_list_merged = even_list.copy()
+    even_odd_list_merged.update(odd_list)
     
-    return pick_negative_random(card_characterstic_list)
+    if (even_odd_list_merged):
+        max_even_odd_list = max_dict(even_odd_list_merged)
+        if ('odd' in max_even_odd_list):
+            card_characterstic_list['odd'] = True
+        elif ('even' in max_even_odd_list):
+            card_characterstic_list['even'] = True
+        else:
+            card_characterstic_list['even'] = True
+            card_characterstic_list['odd'] = True
 
+    royal_non_royal_list = royal_list.copy()
+    royal_non_royal_list.update(not_royal_list)
+    if (royal_non_royal_list):        
+        max_royal_non_royal_list = max_dict(royal_non_royal_list)
+        if ('royal' in max_royal_non_royal_list):
+            card_characterstic_list['royal'] = True
+        elif ('not_royal' in max_royal_non_royal_list):
+            card_characterstic_list['not_royal'] = True
+        else:
+            card_characterstic_list['royal'] = True
+            card_characterstic_list['not_royal'] = True
+    return pick_negative_random(card_characterstic_list, last_rule_counter)
+
+def max_dict(dict):
+    hash_table = {}
+    max_value = dict[dict.keys()[0]]
+    for dic in dict:
+        if (max_value < dict[dic]):
+            max_value = dict[dic]
+    
+    max_value_list = []
+
+    for dic in dict:
+        if (dict[dic] == max_value):
+            max_value_list.append(dic)
+    
+    return max_value_list
 def update_characteristic_list(current_card, current_card_index, char_dict):
     '''Read the current card
      Get the card characteristics by invoking get_card_characteristics()
