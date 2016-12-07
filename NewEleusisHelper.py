@@ -13,9 +13,15 @@ import itertools
 import time
 from collections import OrderedDict
 from itertools import combinations
+<<<<<<< Updated upstream
 
 
 master_board_state = []
+
+
+import time
+
+master_board_state = [] # [('10S', []), ('3H', []), ('10H', []), ('10H', []), ('10H', []), ('10H', []) ]
 
 def pick_random_card():
     '''
@@ -391,7 +397,6 @@ def get_card_from_characterstic(suite_characterstic, number_characterstic, card_
     negative_card_list = []
     color_mapping = get_color_mapping()
     if (card_list):
-
         if no_card_found == True and characterstic_list:
             # pick the other characterstic
             # first the color
@@ -414,7 +419,6 @@ def get_card_from_characterstic(suite_characterstic, number_characterstic, card_
                             suit_card_list.append(card)
                 if suit_card_list:
                     negative_card_list = suit_card_list
-
             # parity
             if 'even' in characterstic_list or 'odd' in characterstic_list:
                 parity_list = []
@@ -453,6 +457,7 @@ def get_card_from_characterstic(suite_characterstic, number_characterstic, card_
                 return negative_card_list[0]
             else:
                 # multiple cards
+
                 return random.choice(negative_card_list)
     if no_card_found == True:
         print('no card found')
@@ -462,7 +467,6 @@ def get_card_from_characterstic(suite_characterstic, number_characterstic, card_
             return pick_random_card()
 
     return random.choice(negative_card_list)
-
 
 def pick_next_negative_card(rule_list, last_rule_counter):
     '''
@@ -551,19 +555,23 @@ def pick_next_negative_card(rule_list, last_rule_counter):
                 else: 
                     not_royal_list[map_card_characteristic_to_value(rule[len(rule)-1])] += 1
     card_characterstic_list = {}
+    print('-------------------numbers-----------------------', numbers)
     if (numbers):
         card_characterstic_list['numbers'] = ','.join(numbers)
 
+    print('-------------------colors-----------------------', colors)
     if (colors):
         
         card_characterstic_list['color'] = ','.join(max_dict(colors))
 
+    print('-------------------suites-----------------------')
     if (suites):
         card_characterstic_list['suite'] = ','.join(suites)
 
     # merge both list together
     even_odd_list_merged = even_list.copy()
     even_odd_list_merged.update(odd_list)
+
     
     if (even_odd_list_merged):
         max_even_odd_list = max_dict(even_odd_list_merged)
@@ -619,6 +627,7 @@ def update_characteristic_list(current_card, current_card_index, char_dict):
             char_dict[current_card_index] = []
         char_dict[current_card_index].append(card_characteristic_index)
     return char_dict
+
 
 def get_card_mapping_characterstic(current_card):
     '''Read the current card
