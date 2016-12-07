@@ -13,12 +13,6 @@ import itertools
 import time
 from collections import OrderedDict
 from itertools import combinations
-<<<<<<< Updated upstream
-
-
-master_board_state = []
-
-
 import time
 
 master_board_state = [] # [('10S', []), ('3H', []), ('10H', []), ('10H', []), ('10H', []), ('10H', []) ]
