@@ -175,7 +175,7 @@ def scan_and_rank_hypothesis(three_length_hypothesis_flag):
                         ranked_hypothesis[characteristic_tuple] -= ((weighted_property_dict[characteristic_tuple[0]]+weighted_property_dict[characteristic_tuple[1]])/2)*hypothesis_occurrence_count[characteristic_tuple]
 
     ranked_hypothesis = OrderedDict(sorted(ranked_hypothesis.items(), key = lambda (key, value) : (value, key), reverse=True))
-    
+
     return ranked_hypothesis
 
 
