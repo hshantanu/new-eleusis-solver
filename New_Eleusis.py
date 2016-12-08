@@ -79,6 +79,12 @@ def less(a, b):
        colors, or values. For suits: C < D < H < S. For colors,
        B < R. For cards, suits are considered first, then values.
        Values are compared numerically."""
+
+    if isinstance(a, int):
+        a = number_to_value(a)
+    if isinstance(b, int):
+        b = number_to_value(b)
+
     if is_card(a):
         if suit(a) != suit(b):
             return suit(a) < suit(b)
@@ -150,7 +156,7 @@ function_names = ['suit', 'color', 'value', 'is_royal',
 # ----- Functions for creating, printing, and evaluating Trees
 
 # Build a dictionary from function names to actual functions
-to_function = {'and':andf, 'or':orf, 'not':notf, 'if':iff, 'equals':equal, 'even':even, 'odd':odd}
+to_function = {'and':andf, 'or':orf, 'not':notf, 'if':iff, 'equals':equal, 'even':even, 'odd':odd, 'greater':greater, 'less':less}
 for f in functions:
     to_function[f.__name__] = f
     
@@ -362,6 +368,7 @@ def play(card):
     '''
     #play_counter += 1
     set_play_counter(get_play_counter()+1)
+    
     #Invoke validate_card() which returns True/False if the current play is legal/illegal.
     #Update the board_state by calling update_board_state()
     #Return a boolean value based on the legality of the card. 
@@ -376,53 +383,49 @@ def play(card):
 
 def validate_and_refine_formulated_rule(rule_list): 
     
-    i = 0   
-    exception_legal = {}
-    exception_illegal = {}
-    exception_list = {} 
-    
-    legal_card = parse_board_state()
-    legal_card = legal_card['legal_cards']
+    board_state = parse_board_state()
+    legal_cards = board_state['legal_cards']
     
     illegal_cards = parse_illegal_indices()
 
-    for rule in rule_list:
-        while((i + 2) < len(legal_card)):
-            my_legal_list = (legal_card[i],legal_card[i+1],legal_card[i+2])
-            if rule.evaluate((my_legal_list)) == False:
-                if rule in exception_legal:
-                    exception_list[rule].append(my_legal_list)
-                else:
-                    exception_list[rule] = [my_legal_list]
-            i += 1
-
-        for tup in illegal_cards:
-            if len(tup) > 2:
-                my_illegal_list = (tup[0], tup[1], tup[2])
-                if rule.evaluate((my_illegal_list)) == True:
-                    if rule in exception_list:
-                        exception_list[rule].append(my_illegal_list)
-                    else:
-                        exception_list[rule] = [my_illegal_list]
-
-    exceptions = exception_list.values()
+    exception_legal = {}
+    exception_illegal = {}
+    exception_dict = {} 
     
-    #property_dict = {'1' : 'C1' , '2' : 'C2', '3': 'C3', '4': 'C4', '5': 'C5', '6': 'C6', '7': 'C7', '8': 'C8', '9': 'C9', '10': 'C10', '11': 'C11', '12': 'C12', '13': 'C13', 'red':'C14' , 'black': 'C15', 'diamond': 'C16' , 'heart':'C17', 'spade': 'C18', 'club': 'C19', 'even': 'C20', 'odd': 'C21', 'royal': 'C22' , 'not_royal': 'C23'}
-    hypothesis_index_dict = {}
-    hypothesis_dict = {}
-    weighted_property_dict = set_characteristic_weights()
-    hypothesis_occurrence_count = {}
-    mean = 0.0
+    for i in xrange(2, len(legal_cards)):
+        for rule in rule_list:
+            #Check if rule is made of strictly 2 chars
+            legal_tuple = (legal_cards[i-2],legal_cards[i-1],legal_cards[i])
+            if not rule.evaluate(legal_tuple):
+                if rule in exception_legal:
+                    exception_legal[rule].append(legal_tuple)
+                else:
+                    exception_legal[rule] = [legal_tuple]
 
-    if len(exceptions) > 0:
-        for tup in exceptions:
-            for val in tup:
-                combined_char_indices_list = [get_card_mapping_characterstic(val[0]), get_card_mapping_characterstic(val[1]), get_card_mapping_characterstic(val[2])]
+    for rule in rule_list:
+        for tup in illegal_cards:
+            illegal_tup = tup
+            if len(tup) == 2:
+                illegal_tup = (None, tup[0], tup[1])
+            if rule.evaluate(illegal_tup):
+                if rule in exception_illegal:
+                    exception_illegal[rule].append(tup)
+                else:
+                    exception_illegal[rule] = [tup]
+
+    exception_decision_dict = {}
+    #property_dict = {'1' : 'C1' , '2' : 'C2', '3': 'C3', '4': 'C4', '5': 'C5', '6': 'C6', '7': 'C7', '8': 'C8', '9': 'C9', '10': 'C10', '11': 'C11', '12': 'C12', '13': 'C13', 'red':'C14' , 'black': 'C15', 'diamond': 'C16' , 'heart':'C17', 'spade': 'C18', 'club': 'C19', 'even': 'C20', 'odd': 'C21', 'royal': 'C22' , 'not_royal': 'C23'}
+    weighted_property_dict = set_characteristic_weights()
+
+    for key in exception_legal.keys():
+        value_list = exception_legal[key] 
+        hypothesis_dict = {}
+        hypothesis_occurrence_count = {}
+        mean = 0.0
+        for tup in value_list:
+            if len(tup) == 3:
+                combined_char_indices_list = [get_card_mapping_characterstic(tup[0]), get_card_mapping_characterstic(tup[1]), get_card_mapping_characterstic(tup[2])]
                 for characteristic_tuple in itertools.product(*combined_char_indices_list):
-                    if characteristic_tuple in hypothesis_index_dict.keys():
-                        hypothesis_index_dict[characteristic_tuple].append((val[2],val[1],val[0]))
-                    else:
-                        hypothesis_index_dict[characteristic_tuple] = [(val[2],val[1],val[0])]
                     if characteristic_tuple in hypothesis_dict.keys():
                         hypothesis_occurrence_count[characteristic_tuple] += 1
                         hypothesis_dict[characteristic_tuple] += ((weighted_property_dict[characteristic_tuple[0]]+weighted_property_dict[characteristic_tuple[1]]+weighted_property_dict[characteristic_tuple[2]])/3)*hypothesis_occurrence_count[characteristic_tuple]
@@ -431,16 +434,9 @@ def validate_and_refine_formulated_rule(rule_list):
                         hypothesis_occurrence_count[characteristic_tuple] = 1
                     mean += (weighted_property_dict[characteristic_tuple[0]]+weighted_property_dict[characteristic_tuple[1]]+weighted_property_dict[characteristic_tuple[2]]) / 3
         
-        for tup in exceptions:
-            for val in tup:     
-                hypothesis_occurrence_count = {}
-                combined_char_indices_list = [get_card_mapping_characterstic(val[1]), get_card_mapping_characterstic(val[2])]
+            elif len(tup) == 2:
+                combined_char_indices_list = [get_card_mapping_characterstic(val[0]), get_card_mapping_characterstic(val[1])]
                 for characteristic_tuple in itertools.product(*combined_char_indices_list):
-                    if characteristic_tuple in hypothesis_index_dict.keys():
-                        hypothesis_index_dict[characteristic_tuple].append((val[2], val[1]))
-                    else:
-                        hypothesis_index_dict[characteristic_tuple] = [(val[2], val[1])]
-
                     if characteristic_tuple in hypothesis_dict.keys():
                         hypothesis_occurrence_count[characteristic_tuple] += 1
                         hypothesis_dict[characteristic_tuple] += ((weighted_property_dict[characteristic_tuple[0]]+weighted_property_dict[characteristic_tuple[1]])/2)*hypothesis_occurrence_count[characteristic_tuple]
@@ -449,26 +445,73 @@ def validate_and_refine_formulated_rule(rule_list):
                         hypothesis_dict[characteristic_tuple] = (weighted_property_dict[characteristic_tuple[0]]+weighted_property_dict[characteristic_tuple[1]])/2
                     mean += (weighted_property_dict[characteristic_tuple[0]]+weighted_property_dict[characteristic_tuple[1]])/2
         
-    
-        ranked_hypothesis_dict = OrderedDict(sorted(hypothesis_dict.items(), key = lambda (key, value) : (value, key), reverse=True))
-
-        hypothesis_offset = len(ranked_hypothesis_dict)
+        print str(hypothesis_dict)            
+        hypothesis_offset = len(hypothesis_dict)
+        if hypothesis_offset == 0:
+            hypothesis_offset = 1
         mean_cutoff = mean/hypothesis_offset
-        ranked_hypothesis = {} 
-        for value in ranked_hypothesis_dict.iteritems():
-            if value[1] > mean_cutoff :
-                ranked_hypothesis[value[0]] = value[1]
+        for key in hypothesis_dict.keys():
+            if hypothesis_dict[key] < mean_cutoff :
+                del hypothesis_dict[key]
+        #print str(hypothesis_dict)
+        ranked_hypothesis = OrderedDict(sorted(hypothesis_dict.items(), key = lambda (key, value) : (value, key), reverse=True))
+        if hypothesis_dict:
+            if (ranked_hypothesis.items()[0][1] > 1):
+                new_key = (key, ranked_hypothesis.items()[0][0], True)
+                exception_decision_dict[new_key] = True
             else:
-                break
-        ranked_hypothesis = OrderedDict(sorted(ranked_hypothesis.items(), key = lambda (key, value) : (value, key), reverse=True))
+                exception_decision_dict[key] = False
 
-    else:
-        print "Legal exception list is NULL!!"
+    for key in exception_illegal.keys():
+        value_list = exception_illegal[key] 
+        hypothesis_dict = {}
+        hypothesis_occurrence_count = {}
+        mean = 0.0
+        for tup in value_list:
+            if len(tup) == 3:
+                combined_char_indices_list = [get_card_mapping_characterstic(tup[0]), get_card_mapping_characterstic(tup[1]), get_card_mapping_characterstic(tup[2])]
+                for characteristic_tuple in itertools.product(*combined_char_indices_list):
+                    if characteristic_tuple in hypothesis_dict.keys():
+                        hypothesis_occurrence_count[characteristic_tuple] += 1
+                        hypothesis_dict[characteristic_tuple] += ((weighted_property_dict[characteristic_tuple[0]]+weighted_property_dict[characteristic_tuple[1]]+weighted_property_dict[characteristic_tuple[2]])/3)*hypothesis_occurrence_count[characteristic_tuple]
+                    else:
+                        hypothesis_dict[characteristic_tuple] = (weighted_property_dict[characteristic_tuple[0]]+weighted_property_dict[characteristic_tuple[1]]+weighted_property_dict[characteristic_tuple[2]])/3
+                        hypothesis_occurrence_count[characteristic_tuple] = 1
+                    mean += (weighted_property_dict[characteristic_tuple[0]]+weighted_property_dict[characteristic_tuple[1]]+weighted_property_dict[characteristic_tuple[2]]) / 3
+        
+            elif len(tup) == 2:
+                combined_char_indices_list = [get_card_mapping_characterstic(val[0]), get_card_mapping_characterstic(val[1])]
+                for characteristic_tuple in itertools.product(*combined_char_indices_list):
+                    if characteristic_tuple in hypothesis_dict.keys():
+                        hypothesis_occurrence_count[characteristic_tuple] += 1
+                        hypothesis_dict[characteristic_tuple] += ((weighted_property_dict[characteristic_tuple[0]]+weighted_property_dict[characteristic_tuple[1]])/2)*hypothesis_occurrence_count[characteristic_tuple]
+                    else:
+                        hypothesis_occurrence_count[characteristic_tuple] = 1
+                        hypothesis_dict[characteristic_tuple] = (weighted_property_dict[characteristic_tuple[0]]+weighted_property_dict[characteristic_tuple[1]])/2
+                    mean += (weighted_property_dict[characteristic_tuple[0]]+weighted_property_dict[characteristic_tuple[1]])/2
+        
+        print str(hypothesis_dict)            
+        hypothesis_offset = len(hypothesis_dict)
+        if hypothesis_offset == 0:
+            hypothesis_offset = 1
+        mean_cutoff = mean/hypothesis_offset
+        for key in hypothesis_dict.keys():
+            if hypothesis_dict[key] < mean_cutoff :
+                del hypothesis_dict[key]
+        #print str(hypothesis_dict)
+        ranked_hypothesis = OrderedDict(sorted(hypothesis_dict.items(), key = lambda (key, value) : (value, key), reverse=True))
+        if hypothesis_dict and (ranked_hypothesis.items()[0][1] > 1):
+            new_key = (key, ranked_hypothesis.items()[0][0], True)
+            exception_decision_dict[new_key] = True
+        else:
+            exception_decision_dict[key] = False
 
-    if(ranked_hypothesis.items()[0][1]) > 1:
-        return True
-    else:
-        return False
+
+     else:
+        print "No Exceptions found!!"
+
+    return exception_decision_dict
+
 
 def setRule(ruleExp):
     '''
@@ -513,46 +556,6 @@ def score(scientist_rule):
         player_won = True
     return current_score, player_won
 
-def find_numeric_characteristic_relation(current_card, prev_card, prev2_card):
-    '''
-     This function defines a numeric relation between a sliding window of current, prev, prev2 cards
-    '''
-    numeric_relation_dic = {}
-    if (equal(current_card, prev_card)):
-        numeric_relation_dic['current_equal_prev'] = True
-    if (equal(current_card, prev2_card)):
-        numeric_relation_dic['current_equal_prev2'] = True
-    if (equal(prev_card, prev2_card)):
-        numeric_relation_dic['prev_equal_prev2'] = True
-
-    # greater relation
-    if (greater(current_card, prev_card)):
-        numeric_relation_dic['current_greater_prev'] = True
-    if (greater(current_card, prev2_card)):
-        numeric_relation_dic['current_greater_prev2'] = True
-    if (greater(prev_card, prev2_card)):
-        numeric_relation_dic['prev_greater_prev2'] = True
-
-    # less relation
-    if (less(current_card, prev_card)):
-        numeric_relation_dic['current_less_prev'] = True
-    if (less(current_card, prev2_card)):
-        numeric_relation_dic['current_less_prev2'] = True
-    if (less(prev_card, prev2_card)):
-        numeric_relation_dic['prev_less_prev2'] = True
-
-
-    # adds relation
-    numeric_relation_dic['current_adds_prev'] = value(current_card) + value(prev_card)
-    numeric_relation_dic['current_adds_prev2'] = value(current_card) + value(prev2_card)
-    numeric_relation_dic['prev_adds_prev2'] = value(prev_card) + value(prev2_card)
-
-    # minus relation
-    numeric_relation_dic['current_minus_prev'] = value(current_card) - value(prev_card)
-    numeric_relation_dic['current_minus_prev2'] = value(current_card) - value(prev2_card)
-    numeric_relation_dic['prev_minus_prev2'] = value(prev_card) - value(prev2_card)
-
-    return numeric_relation_dic;
 
 def validate_card(card):
     #Output: Return True/False, if the current card conforms to the actual rule.
@@ -565,8 +568,9 @@ def map_characteristic_value_to_characteristic_property(characteristic_value):
     '''
      This function returns a mapping of the characterstic value to the property
     '''
-    characteristic_value_to_characteristic_property_dict = {'R':color, 'B':color, 'S':suit, 'C':suit, 'H':suit, 'D':suit, '1': value, '2': value, '3': value, '4': value, '5': value, '6': value, '7': value, '8': value, '9': value, '10': value}
+    characteristic_value_to_characteristic_property_dict = {'R':color, 'B':color, 'S':suit, 'C':suit, 'H':suit, 'D':suit, '1': value, '2': value, '3': value, '4': value, '5': value, '6': value, '7': value, '8': value, '9': value, '10': value, '11':value, '12':value, '13':value}
     return characteristic_value_to_characteristic_property_dict[characteristic_value]    
+
 
 def create_tree(rule):
     '''
@@ -631,6 +635,102 @@ def create_tree(rule):
     return transformed_rule
 
 
+def find_numeric_characteristic_relation(prev_card, current_card, prev2_card = None):
+    '''
+     This function defines a numeric relation between a sliding window of current, prev, prev2 cards
+    '''
+
+    if (equal(current_card, prev_card)):
+        numeric_relation_tree = create_numeric_tree('equal', curr=True, prev = True)
+        suit_relation_tree = create_numeric_tree('equal', curr=True, prev = True, suite=True)
+    else: 
+        if (equal(value(current_card), value(prev_card))):
+            numeric_relation_tree = create_numeric_tree('equal', curr=True, prev = True)
+        elif (greater(value(current_card), value(prev_card))):
+            numeric_relation_tree = create_numeric_tree('greater', curr=True, prev = True)
+        elif (less(value(current_card), value(prev_card))):
+            numeric_relation_tree = create_numeric_tree('less', curr=True, prev = True)
+        
+        if (greater(current_card, prev_card)):
+            suit_relation_tree = create_numeric_tree('greater', curr=True, prev = True, suite=True)
+        elif (less(current_card, prev_card)):
+            suit_relation_tree = create_numeric_tree('less', curr=True, prev = True, suite=True)
+    
+    if prev2_card:
+        if (equal(current_card, prev2_card)):
+            numeric_relation_tree = create_numeric_tree('equal', curr=True, prev2 = True)
+            suit_relation_tree = create_numeric_tree('equal', curr=True, prev2 = True, suite=True)
+        else:    
+            if (equal(value(current_card), value(prev2_card))):
+                numeric_relation_tree = create_numeric_tree('equal', curr=True, prev2 = True)
+            elif (greater(value(current_card), value(prev2_card))):
+                numeric_relation_tree = create_numeric_tree('greater', curr=True, prev2 = True)
+            elif (less(value(current_card), value(prev2_card))):
+                numeric_relation_tree = create_numeric_tree('less', curr=True, prev2 = True)
+
+            if (greater(current_card, prev2_card)):
+                suit_relation_tree = create_numeric_tree('greater', curr=True, prev2 = True, suite=True)
+            elif (less(current_card, prev2_card)):
+                suit_relation_tree = create_numeric_tree('less', curr=True, prev2 = True, suite=True)
+
+                
+        if (equal(prev_card, prev2_card)):
+            numeric_relation_tree = create_numeric_tree('equal', prev=True, prev2 = True)
+            suit_relation_tree = create_numeric_tree('equal', prev=True, prev2 = True, suite=True)
+        else:
+            if (equal(value(prev_card), value(prev2_card))):
+                numeric_relation_tree = create_numeric_tree('equal', prev=True, prev2 = True)
+            elif (greater(value(prev_card), value(prev2_card))):
+                numeric_relation_tree = create_numeric_tree('greater', prev=True, prev2 = True)
+            elif (less(value(prev_card), value(prev2_card))):
+                numeric_relation_tree = create_numeric_tree('less', prev=True, prev2 = True)
+            
+            if (greater(prev_card, prev2_card)):
+                suit_relation_tree = create_numeric_tree('greater', prev=True, prev2 = True, suite=True)
+            elif (less(prev_card, prev2_card)):
+                suit_relation_tree = create_numeric_tree('less', prev=True, prev2 = True, suite=True)
+            
+
+    # # adds relation
+    # numeric_relation_dic['current_adds_prev'] = value(current_card) + value(prev_card)
+    # numeric_relation_dic['current_adds_prev2'] = value(current_card) + value(prev2_card)
+    # numeric_relation_dic['prev_adds_prev2'] = value(prev_card) + value(prev2_card)
+
+    # # minus relation
+    # numeric_relation_dic['current_minus_prev'] = value(current_card) - value(prev_card)
+    # numeric_relation_dic['current_minus_prev2'] = value(current_card) - value(prev2_card)
+    # numeric_relation_dic['prev_minus_prev2'] = value(prev_card) - value(prev2_card)
+
+    numeric_relation_list = [numeric_relation_tree, suit_relation_tree]
+
+    return numeric_relation_list;
+
+def create_numeric_tree(relation, curr=None, prev=None, prev2=None, suite=None):
+    
+    if suite:
+        funct = suit
+    else:
+        funct = value
+    if curr:
+        current = Tree(funct, 'current')
+    if prev:
+        previous = Tree(funct, 'previous')
+    if prev2:
+        previous2 = Tree(funct, 'previous2')
+
+    if curr and prev and (not prev2):
+        lhs = current
+        rhs = previous
+    elif curr and prev2 and (not prev):
+        lhs = current
+        rhs = previous2
+    elif prev and prev2 and (not curr):
+        lhs = previous
+        rhs = previous2
+
+    return Tree(to_function['if'], Tree(to_function[relation], lhs, rhs), True)
+
+
 #print create_tree((('C14', 'C19', 'C14'), ('C14', 'C15', 'C17')))
 def set_three_length_hypothesis_flag(value):
     global three_length_hypothesis_flag
@@ -654,6 +754,8 @@ def scientist(prev2, prev, curr):
     top_rule_confidence = {};
     initalize_characteristic_list()
     loop_start_time = time.time()
+    last_rule = ''
+    last_rule_counter = 0
     while play_counter <= 200:
         print 'Playing next card: ' + str(current_card)
         play(current_card)
@@ -662,16 +764,32 @@ def scientist(prev2, prev, curr):
             current_card = pick_random_card()
         else:
             ranked_hypothesis = scan_and_rank_hypothesis(get_three_length_hypothesis_flag())
-            pr_ranked_hypothesis = scan_and_rank_rules(ranked_hypothesis)
-            top_rule = pr_ranked_hypothesis.popitem()[0]
-            if top_rule in top_rule_confidence:
-                top_rule_confidence[top_rule] += 1
-                if top_rule_confidence[top_rule] > 10:
-                    break
+            numeric_relation_hypothesis = scan_and_rank_numeric_hypothesis(get_three_length_hypothesis_flag())
+            pr_ranked_hypothesis = scan_and_rank_rules(ranked_hypothesis, numeric_relation_hypothesis)
+            print 'Numeric Relations: ' + str(numeric_relation_hypothesis)
+
+            if pr_ranked_hypothesis:
+                print str(pr_ranked_hypothesis)
+                top_rule = pr_ranked_hypothesis.items()[0][0]
+                if top_rule in top_rule_confidence:
+                    top_rule_confidence[top_rule] += 1
+                    if top_rule_confidence[top_rule] > 100:
+                        break
+                else:
+                    top_rule_confidence[top_rule] = 1
+
+                if last_rule == '':
+                    last_rule = top_rule
+                elif top_rule == last_rule:
+                    last_rule_counter += 1
+                elif top_rule != last_rule:
+                    last_rule_counter = 0
+                    last_rule = top_rule
+
+                current_card = pick_next_negative_card(pr_ranked_hypothesis, last_rule_counter)
+                print 'Current Predicted Rule: ' + str(create_tree(top_rule))
             else:
-                top_rule_confidence[top_rule] = 1
-            current_card = pick_next_negative_card(top_rule)
-            print 'Current Predicted Rule: ' + str(create_tree(top_rule))
+                current_card = pick_random_card()
             # #Create Tree for each rule in pr_ranked_hypothesis and pass to validate
             # print str(create_tree(top_rule[0]))
             # #validate_and_refine_formulated_rule()
@@ -684,7 +802,7 @@ def scientist(prev2, prev, curr):
 
 def main():
     global master_rule
-    master_rule = Tree(orf, Tree(equal, Tree(color, 'previous'), 'R'), Tree(equal, Tree(color, 'current'), 'R'))
+    master_rule = Tree(andf, Tree(equal, Tree(color, 'previous'), 'R'), Tree(equal, Tree(color, 'current'), 'R'))
     setRule(master_rule)
     prev2 = None
     prev = '10S'
