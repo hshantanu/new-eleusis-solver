@@ -15,7 +15,6 @@ from collections import OrderedDict
 from itertools import combinations
 import time
 
-<<<<<<< Updated upstream
 master_board_state = [] # [('10S', []), ('3H', []), ('10H', []), ('10H', []), ('10H', []), ('10H', []) ]
 
 def pick_random_card():
