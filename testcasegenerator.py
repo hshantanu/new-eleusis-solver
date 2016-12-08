@@ -13,7 +13,10 @@ def generate():
 	elif(characteristic=='color'):
 		rule = "Tree("+get_clause()+",Tree("+relation+",Tree("+characteristic+",'previous'),'"+random.choice(['R','B'])+"'), Tree("+relation+", Tree("+characteristic+",'current'),'"+random.choice(['R','B'])+"'))"
 	elif(characteristic=='even' or characteristic=='odd'):
-		rule = "Tree("+get_clause()+",Tree("+relation+",Tree("+characteristic+",'previous'),'"+random.choice(['odd','even'])+"'), Tree("+relation+", Tree("+characteristic+",'current'),'"+random.choice(['odd','even'])+"'))"
+		rule = "Tree("+get_clause()+",Tree("+relation+",Tree("+characteristic+",'previous'), Tree("+relation+", Tree("+characteristic+",'current'))))"
+	elif(characteristic=='royal' or characteristic=='not_royal'):
+		rule = "Tree("+get_clause()+",Tree("+relation+",Tree("+characteristic+",'previous'), Tree("+relation+", Tree("+characteristic+",'current'))))"
+
 	print rule
 
 
@@ -29,7 +32,8 @@ def get_relation():
 	return random.choice(relation)
 
 def get_characteristic():
-	characteristic=['even','odd','is_royal','value','suit','color']
+	# value is pending
+	characteristic=['even','odd','royal','not_royal','suit','color']
 	return random.choice(characteristic)
 
 def print_rules():
