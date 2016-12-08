@@ -14,6 +14,7 @@ from collections import OrderedDict
 from itertools import combinations
 import time
 from NewEleusisHelper import *
+from New_Eleusis import find_numeric_characteristic_relation
 
 char_dict={}
 

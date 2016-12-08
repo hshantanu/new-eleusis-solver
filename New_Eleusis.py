@@ -462,6 +462,7 @@ def validate_and_refine_formulated_rule(rule_list):
             else:
                 exception_decision_dict[key] = False
 
+    #Find pattern in illegal cards.. To be formulated as an exception rule
     for key in exception_illegal.keys():
         value_list = exception_illegal[key] 
         hypothesis_dict = {}
@@ -501,14 +502,15 @@ def validate_and_refine_formulated_rule(rule_list):
         #print str(hypothesis_dict)
         ranked_hypothesis = OrderedDict(sorted(hypothesis_dict.items(), key = lambda (key, value) : (value, key), reverse=True))
         if hypothesis_dict and (ranked_hypothesis.items()[0][1] > 1):
-            new_key = (key, ranked_hypothesis.items()[0][0], True)
+            #Find negative of ranked_hypothesis.items()[0][0]
+            hypo = ranked_hypothesis.items()[0][1]
+            if len(hypo) == 3:
+                negative_hypo = tuple(find_negative_index(hypo[0]), find_negative_index(hypo[1]), find_negative_index(hypo[2]))
+            new_key = (key, negative_hypo)
             exception_decision_dict[new_key] = True
         else:
             exception_decision_dict[key] = False
 
-
-     else:
-        print "No Exceptions found!!"
 
     return exception_decision_dict
 
