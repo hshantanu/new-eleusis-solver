@@ -15,6 +15,7 @@ from collections import OrderedDict
 from itertools import combinations
 import time
 
+<<<<<<< Updated upstream
 master_board_state = [] # [('10S', []), ('3H', []), ('10H', []), ('10H', []), ('10H', []), ('10H', []) ]
 
 def pick_random_card():
@@ -265,7 +266,7 @@ def pick_negative_random(card_characterstic_list, last_rule_counter, card_list =
     # print('-------------------ratio_legal-----------------------', ratio_legal)
     put_out_legal = False
     if(ratio_legal < 0.667):
-        put_out_legal = True
+        put_out_legal =  True
 
     if (card_characterstic_list):
         # number 
@@ -462,13 +463,14 @@ def get_card_from_characterstic(suite_characterstic, number_characterstic, card_
 
     return random.choice(negative_card_list)
 
-def pick_next_negative_card(rule_list, last_rule_counter):
+def pick_next_negative_card(rule_list, last_rule_counter,card_list = []):
     '''
      This returns a negative card associated with the top rule by using an intersection of the
      card characterstics of the top rule. If there is no intersection found we just return a
      random card
     '''
     # print('-------------------rule_list-----------------------', rule_list)
+    print "Card list is: ",card_list
     top_rule_list = []
     for rules in rule_list:
         top_rule_list.append(rules)
@@ -588,7 +590,7 @@ def pick_next_negative_card(rule_list, last_rule_counter):
         else:
             card_characterstic_list['royal'] = True
             card_characterstic_list['not_royal'] = True
-    return pick_negative_random(card_characterstic_list, last_rule_counter)
+    return pick_negative_random(card_characterstic_list, last_rule_counter,card_list)
 
 def max_dict(dict):
     hash_table = {}
