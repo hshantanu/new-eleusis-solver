@@ -17,6 +17,7 @@ from NewEleusisHelper import *
 from ScanRank import *
 from Player import *
 from adversary import *
+from Exception_Hypothesis import *
 
 # Trivial functions to be used in the important test functions
 # All require a nonempty string as the argument
@@ -467,8 +468,11 @@ def validate_and_refine_formulated_rule(rule_list):
                 exception_decision_dict[key] = False
 
     #Find pattern in illegal cards.. To be formulated as an exception rule
-    for key in exception_illegal.keys():
-        value_list = exception_illegal[key] 
+    for key_rule in exception_illegal.keys():
+        value_list = exception_illegal[key_rule]
+        prev2_list = decompose_index_chars(key_rule, 'prev2') 
+        prev_list = decompose_index_chars(key_rule, 'prev') 
+        curr_list = decompose_index_chars(key_rule, 'curr') 
         hypothesis_dict = {}
         hypothesis_occurrence_count = {}
         mean = 0.0
@@ -476,24 +480,32 @@ def validate_and_refine_formulated_rule(rule_list):
             if len(tup) == 3:
                 combined_char_indices_list = [get_card_mapping_characterstic(tup[0]), get_card_mapping_characterstic(tup[1]), get_card_mapping_characterstic(tup[2])]
                 for characteristic_tuple in itertools.product(*combined_char_indices_list):
+                    prev2_wt = (characteristic_tuple[0] in prev2_list)? 0 : weighted_property_dict[characteristic_tuple[0]]
+                    prev_wt = (characteristic_tuple[1] in prev_list)? 0 : weighted_property_dict[characteristic_tuple[1]]
+                    curr_wt = (characteristic_tuple[2] in curr_list)? 0 : weighted_property_dict[characteristic_tuple[2]]
+                    normalized_wt_sum = (prev2_wt + prev_wt + curr_wt)/3
                     if characteristic_tuple in hypothesis_dict.keys():
                         hypothesis_occurrence_count[characteristic_tuple] += 1
-                        hypothesis_dict[characteristic_tuple] += ((weighted_property_dict[characteristic_tuple[0]]+weighted_property_dict[characteristic_tuple[1]]+weighted_property_dict[characteristic_tuple[2]])/3)*hypothesis_occurrence_count[characteristic_tuple]
+                        hypothesis_dict[characteristic_tuple] += normalized_wt_sum*hypothesis_occurrence_count[characteristic_tuple]
                     else:
-                        hypothesis_dict[characteristic_tuple] = (weighted_property_dict[characteristic_tuple[0]]+weighted_property_dict[characteristic_tuple[1]]+weighted_property_dict[characteristic_tuple[2]])/3
                         hypothesis_occurrence_count[characteristic_tuple] = 1
-                    mean += (weighted_property_dict[characteristic_tuple[0]]+weighted_property_dict[characteristic_tuple[1]]+weighted_property_dict[characteristic_tuple[2]]) / 3
+                        hypothesis_dict[characteristic_tuple] = normalized_wt_sum
+                    mean += normalized_wt_sum
         
             elif len(tup) == 2:
                 combined_char_indices_list = [get_card_mapping_characterstic(val[0]), get_card_mapping_characterstic(val[1])]
                 for characteristic_tuple in itertools.product(*combined_char_indices_list):
+                    prev_wt = (characteristic_tuple[0] in prev_list)? 0 : weighted_property_dict[characteristic_tuple[0]]
+                    curr_wt = (characteristic_tuple[1] in curr_list)? 0 : weighted_property_dict[characteristic_tuple[1]]
+                    normalized_wt_sum = (prev_wt + curr_wt)/2
+
                     if characteristic_tuple in hypothesis_dict.keys():
                         hypothesis_occurrence_count[characteristic_tuple] += 1
-                        hypothesis_dict[characteristic_tuple] += ((weighted_property_dict[characteristic_tuple[0]]+weighted_property_dict[characteristic_tuple[1]])/2)*hypothesis_occurrence_count[characteristic_tuple]
+                        hypothesis_dict[characteristic_tuple] += normalized_wt_sum*hypothesis_occurrence_count[characteristic_tuple]
                     else:
                         hypothesis_occurrence_count[characteristic_tuple] = 1
-                        hypothesis_dict[characteristic_tuple] = (weighted_property_dict[characteristic_tuple[0]]+weighted_property_dict[characteristic_tuple[1]])/2
-                    mean += (weighted_property_dict[characteristic_tuple[0]]+weighted_property_dict[characteristic_tuple[1]])/2
+                        hypothesis_dict[characteristic_tuple] = normalized_wt_sum
+                    mean += normalized_wt_sum/2
         
         print str(hypothesis_dict)            
         hypothesis_offset = len(hypothesis_dict)
@@ -501,22 +513,59 @@ def validate_and_refine_formulated_rule(rule_list):
             hypothesis_offset = 1
         mean_cutoff = mean/hypothesis_offset
         for key in hypothesis_dict.keys():
-            if hypothesis_dict[key] < mean_cutoff :
+            if hypothesis_dict[key] < mean_cutoff or key in rule:
                 del hypothesis_dict[key]
         #print str(hypothesis_dict)
         ranked_hypothesis = OrderedDict(sorted(hypothesis_dict.items(), key = lambda (key, value) : (value, key), reverse=True))
-        if hypothesis_dict and (ranked_hypothesis.items()[0][1] > 1):
-            #Find negative of ranked_hypothesis.items()[0][0]
-            hypo = ranked_hypothesis.items()[0][1]
-            if len(hypo) == 3:
-                negative_hypo = tuple(find_negative_index(hypo[0]), find_negative_index(hypo[1]), find_negative_index(hypo[2]))
-            new_key = (key, negative_hypo)
-            exception_decision_dict[new_key] = True
-        else:
-            exception_decision_dict[key] = False
 
+        if hypothesis_dict and (ranked_hypothesis.items()[0][1] > 1):
+            #Store the negative of ranked_hypothesis.items()[0][0]
+            hypo = ranked_hypothesis.items()[0][0]
+            prev2_elem = None
+            prev_elem = None
+            current_elem = None
+            if len(hypo) == 3:
+                if hypo[0] not in prev2_list:
+                    prev2_elem = hypo[0]
+                if hypo[1] not in prev_list:
+                    prev_elem = hypo[1]
+                if hypo[2] not in current_list:
+                    current_elem = hypo[2]
+            elif len(hypo) == 2:
+                if hypo[0] in prev_list:
+                    prev_elem = hypo[0]
+                if hypo[1] in curr_list:
+                    current_elem = hypo[1]
+            exception_hypothesis = Exception_Hypothesis(prev2_elem, prev_elem, current_elem)    
+            new_key_rule = key_rule
+            #Add a not function to this exception_hypothesis
+            #negative_hypo = negate_hypothesis(hypo)
+            #Append the not_exception to the key_rule with and clause
+            #new_key_rule = (andf, key_rule, negative_hypo)
+            exception_decision_dict[new_key_rule] = True
+        else:
+            exception_decision_dict[key_rule] = False
 
     return exception_decision_dict
+
+def decompose_index_chars(rule, index_pos):
+    index_val = -1
+    if index_pos == 'prev2':
+        index_val = 0
+    elif index_pos == 'prev':
+        index_val = 1
+    elif index_pos == 'curr':
+        index_val = 2
+    char_list = []
+    for hypothesis in rule:
+        tmp_index = index_val
+        if len(hypothesis) == 2 and index_val > 0:
+            tmp_index = index_val - 1
+        char_list.append(hypothesis[tmp_index])
+    return char_list
+
+            
+
 
 
 def setRule(ruleExp):

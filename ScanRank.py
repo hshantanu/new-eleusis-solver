@@ -223,7 +223,7 @@ def scan_and_rank_rules(ranked_hypothesis, numeric_hypothesis = []):
                             accumulated_weight += (weighted_property_dict[tuple_elem[2][0]] + weighted_property_dict[tuple_elem[2][1]]) / 2
                             occurrence_flag = True
                 elif len(tuple_elem[0]) == 2 and tuple_elem[0][0] in get_card_mapping_characterstic(legal_cards[i - 1]) and tuple_elem[0][1] in get_card_mapping_characterstic(legal_cards[i]):
-                    accumulated_weight += (weighted_property_dict[tuple_elem[1][0]] + weighted_property_dict[tuple_elem[1][1]]) / 2
+                    accumulated_weight += (weighted_property_dict[tuple_elem[0][0]] + weighted_property_dict[tuple_elem[1][1]]) / 2
                     if len(tuple_elem[1]) == 3 and tuple_elem[1][0] in get_card_mapping_characterstic(legal_cards[i - 2]) and tuple_elem[1][1] in get_card_mapping_characterstic(legal_cards[i - 1]) and tuple_elem[1][2] in get_card_mapping_characterstic(legal_cards[i]):
                         accumulated_weight += (weighted_property_dict[tuple_elem[1][0]] + weighted_property_dict[tuple_elem[1][1]] + weighted_property_dict[tuple_elem[1][2]]) / 3
                         if len(tuple_elem[2]) == 3 and tuple_elem[2][0] in get_card_mapping_characterstic(legal_cards[i - 2]) and tuple_elem[2][1] in get_card_mapping_characterstic(legal_cards[i - 1]) and tuple_elem[2][2] in get_card_mapping_characterstic(legal_cards[i]):
