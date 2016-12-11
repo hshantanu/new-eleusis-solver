@@ -13,6 +13,7 @@ import itertools
 from collections import OrderedDict
 from itertools import combinations
 import time
+import re
 from NewEleusisHelper import *
 from ScanRank import *
 from Player import *
@@ -480,9 +481,9 @@ def validate_and_refine_formulated_rule(rule_list):
             if len(tup) == 3:
                 combined_char_indices_list = [get_card_mapping_characterstic(tup[0]), get_card_mapping_characterstic(tup[1]), get_card_mapping_characterstic(tup[2])]
                 for characteristic_tuple in itertools.product(*combined_char_indices_list):
-                    prev2_wt = (characteristic_tuple[0] in prev2_list)? 0 : weighted_property_dict[characteristic_tuple[0]]
-                    prev_wt = (characteristic_tuple[1] in prev_list)? 0 : weighted_property_dict[characteristic_tuple[1]]
-                    curr_wt = (characteristic_tuple[2] in curr_list)? 0 : weighted_property_dict[characteristic_tuple[2]]
+                    prev2_wt = 0 if (characteristic_tuple[0] in prev2_list) else weighted_property_dict[characteristic_tuple[0]]
+                    prev_wt = 0 if (characteristic_tuple[1] in prev_list) else weighted_property_dict[characteristic_tuple[1]]
+                    curr_wt = 0 if (characteristic_tuple[2] in curr_list) else weighted_property_dict[characteristic_tuple[2]]
                     normalized_wt_sum = (prev2_wt + prev_wt + curr_wt)/3
                     if characteristic_tuple in hypothesis_dict.keys():
                         hypothesis_occurrence_count[characteristic_tuple] += 1
@@ -495,8 +496,8 @@ def validate_and_refine_formulated_rule(rule_list):
             elif len(tup) == 2:
                 combined_char_indices_list = [get_card_mapping_characterstic(val[0]), get_card_mapping_characterstic(val[1])]
                 for characteristic_tuple in itertools.product(*combined_char_indices_list):
-                    prev_wt = (characteristic_tuple[0] in prev_list)? 0 : weighted_property_dict[characteristic_tuple[0]]
-                    curr_wt = (characteristic_tuple[1] in curr_list)? 0 : weighted_property_dict[characteristic_tuple[1]]
+                    prev_wt = 0 if (characteristic_tuple[0] in prev_list) else weighted_property_dict[characteristic_tuple[0]]
+                    curr_wt = 0 if (characteristic_tuple[1] in curr_list) else weighted_property_dict[characteristic_tuple[1]]
                     normalized_wt_sum = (prev_wt + curr_wt)/2
 
                     if characteristic_tuple in hypothesis_dict.keys():
@@ -524,7 +525,7 @@ def validate_and_refine_formulated_rule(rule_list):
             prev2_elem = None
             prev_elem = None
             current_elem = None
-            if len(hypo) == 3:
+            if len(hypo) == 3:  
                 if hypo[0] not in prev2_list:
                     prev2_elem = hypo[0]
                 if hypo[1] not in prev_list:
@@ -654,7 +655,7 @@ def create_tree(rule):
                 if i == 2:
                     break
                 param_index = i+1
-            
+                    
             characteristic_value = map_card_characteristic_to_value(hypothesis[i])
             if characteristic_value in triple_tree_characteristic_list:
                 characteristic_property = map_characteristic_value_to_characteristic_property(characteristic_value)
@@ -875,6 +876,46 @@ def scientist(prev2, prev, curr):
 
     return create_tree(top_rule)
 
+def tree_transform(hypothesis):
+
+    triple_tree_characteristic_list = ['R', 'B', 'S', 'C', 'H', 'D', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13']
+    
+    #"and(previous='C2',current='C3')"
+    prev2_pattern = re.compile(".*((previous2)=\'([C][1-9][0-9]?)\').*")
+    prev_pattern = re.compile(".*((previous)=\'([C][1-9][0-9]?)\').*")
+    curr_pattern = re.compile(".*((current)=\'([C][1-9][0-9]?)\').*")
+
+    pattern_list = [prev2_pattern, prev_pattern, curr_pattern]
+    transformed_hypothesis_string = str(hypothesis)
+
+    for pattern in pattern_list:
+        if pattern.match(transformed_hypothesis_string):
+            (start_index, end_index) = pattern.match(transformed_hypothesis_string).span(1)
+            position_index = pattern.match(transformed_hypothesis_string).group(2)
+            characteristic_index = pattern.match(transformed_hypothesis_string).group(3)
+
+            characteristic_value = map_card_characteristic_to_value(characteristic_index)
+            if characteristic_value in triple_tree_characteristic_list:
+                characteristic_property = map_characteristic_value_to_characteristic_property(characteristic_value)
+                transformed_hypothesis = str(characteristic_property.__name__) + '(' + str(position_index) + ')'
+            else:
+                if characteristic_value == 'not_royal':
+                    transformed_hypothesis = 'is_royal' + '(' + str(position_index) + ')'
+                    transformed_hypothesis = 'notf' + '(' + str(transformed_hypothesis) + ')'
+                elif characteristic_value == 'royal':
+                    transformed_hypothesis = 'is_royal' + '(' + str(position_index) + ')'
+                else:
+                    transformed_hypothesis = characteristic_value + '(' + str(position_index) + ')'
+
+            if characteristic_value in triple_tree_characteristic_list:
+                #create Tree with 3 paramaters
+                #characteristic_index = C14, characteristic_value = R, characteristic_property = 'color'
+                third_param = characteristic_value
+                transformed_hypothesis = 'equal' + '(' + str(transformed_hypothesis) + ',' + str(third_param) + ')'
+            transformed_hypothesis_string = transformed_hypothesis_string[0:start_index] + transformed_hypothesis + transformed_hypothesis_string[end_index:]
+    
+    return parse(transformed_hypothesis_string)    
+
 def main():
     global master_rule
     master_rule = Tree(andf, Tree(equal, Tree(color, 'previous'), 'R'), Tree(equal, Tree(color, 'current'), 'R'))
@@ -904,4 +945,5 @@ def main():
         print 'God won the Game!'
     print 'Score: ' + str(result_score)
 
-if __name__ == "__main__": main()
+if __name__ == "__main__":main()
+#if __name__ == "__main__": print str(tree_transform(tree_transform("or(previous2 = 'C22' , and(previous='C18',current='C14'))")))
