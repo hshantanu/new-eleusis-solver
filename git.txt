@@ -9,3 +9,4 @@ While merging something:
 git stash
 git pull
 git stash pop
+	
