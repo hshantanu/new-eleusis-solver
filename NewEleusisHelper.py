@@ -6,7 +6,7 @@
 # Rahul Raghavan
 # Shantanu Hirlekar
 
-
+import re
 import random
 import operator
 import itertools
@@ -14,6 +14,7 @@ import time
 from collections import OrderedDict
 from itertools import combinations
 import time
+
 
 
 master_board_state = [] # [('10S', []), ('3H', []), ('10H', []), ('10H', []), ('10H', []), ('10H', []) ]
@@ -501,9 +502,10 @@ def pick_next_negative_card(rule_list, last_rule_counter,card_list = []):
     royal = ['C22']
     not_royal = ['C23']
 
+
     for rules in top_rule_list:
     	print('-------------------rules-----------------------', rules)    
-    	# exit()
+    	return
         number_list =['C1','C2','C3','C4','C5','C6','C7','C8','C9','C10','C11','C12','C13']
         for rule in rules:
             # put out negative of the current card card characterstic

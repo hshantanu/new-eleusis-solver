@@ -15,7 +15,8 @@ from collections import OrderedDict
 from itertools import combinations
 import time
 from NewEleusisHelper import *
-from New_Eleusis import *
+from TreeFunctions import *
+from HypothesisRankParams import *
 
 
 char_dict={}
@@ -118,6 +119,7 @@ def scan_and_rank_hypothesis(three_length_hypothesis_flag):
 
 
 def scan_and_rank_rules(ranked_hypothesis, numeric_hypothesis = []):
+    global hypothesis_dict
     board_state = parse_board_state()
     weighted_property_dict = set_characteristic_weights()
     legal_cards = board_state['legal_cards']
@@ -133,47 +135,56 @@ def scan_and_rank_rules(ranked_hypothesis, numeric_hypothesis = []):
         rule1 = tree_transform(comb[0])
         rule2 = tree_transform(comb[1])
         rule3 = tree_transform(comb[2])
-        pruned_ranked_hypothesis_dict[Tree(andf, rule1, rule2, rule3)]
-        pruned_ranked_hypothesis_dict[Tree(orf, rule1, rule2, rule3)]
-        pruned_ranked_hypothesis_dict[Tree(andf, rule1, Tree(orf, rule2, rule3))]
-        pruned_ranked_hypothesis_dict[Tree(andf, rule2, Tree(orf, rule1, rule3))]
-        pruned_ranked_hypothesis_dict[Tree(andf, rule3, Tree(orf, rule1, rule2))]
-        pruned_ranked_hypothesis_dict[Tree(orf, rule1, Tree(andf, rule2, rule3))]
-        pruned_ranked_hypothesis_dict[Tree(orf, rule2, Tree(andf, rule1, rule3))]
-        pruned_ranked_hypothesis_dict[Tree(orf, rule3, Tree(andf, rule1, rule2))]
+        rule1_rank = hypothesis_dict[comb[0]]
+        rule2_rank = hypothesis_dict[comb[1]]
+        rule3_rank = hypothesis_dict[comb[2]]
+        pruned_ranked_hypothesis_dict[Tree(andf, rule1, rule2, rule3)] = HypothesisRankParams((rule1_rank+rule2_rank+rule3_rank)/3, 1)
+        pruned_ranked_hypothesis_dict[Tree(orf, rule1, rule2, rule3)] = HypothesisRankParams(max(rule1_rank, rule2_rank, rule3_rank),1)
+        pruned_ranked_hypothesis_dict[Tree(andf, rule1, Tree(orf, rule2, rule3))] = HypothesisRankParams((rule1_rank + max(rule2_rank, rule3_rank))/2,1)
+        pruned_ranked_hypothesis_dict[Tree(andf, rule2, Tree(orf, rule1, rule3))] = HypothesisRankParams((rule2_rank + max(rule1_rank, rule3_rank))/2,1)
+        pruned_ranked_hypothesis_dict[Tree(andf, rule3, Tree(orf, rule1, rule2))] = HypothesisRankParams((rule3_rank + max(rule1_rank, rule2_rank))/2,1)
+        pruned_ranked_hypothesis_dict[Tree(orf, rule1, Tree(andf, rule2, rule3))] = HypothesisRankParams(max(rule1_rank, (rule2_rank+rule3_rank)/2), 1)
+        pruned_ranked_hypothesis_dict[Tree(orf, rule2, Tree(andf, rule1, rule3))] = HypothesisRankParams(max(rule2_rank, (rule1_rank+rule3_rank)/2),1)
+        pruned_ranked_hypothesis_dict[Tree(orf, rule3, Tree(andf, rule1, rule2))] = HypothesisRankParams(max(rule3_rank, (rule1_rank+rule2_rank)/2),1)
 
 
     for comb in combinations(pruned_ranked_hypothesis, 2):
         # pruned_ranked_hypothesis_dict[comb]
         rule1 = tree_transform(comb[0])
         rule2 = tree_transform(comb[1])
-        pruned_ranked_hypothesis_dict[Tree(andf, rule1, rule2)]
-        pruned_ranked_hypothesis_dict[Tree(orf, rule1, rule2)]
+        rule1_rank = hypothesis_dict[comb[0]]
+        rule2_rank = hypothesis_dict[comb[1]]
+        pruned_ranked_hypothesis_dict[Tree(andf, rule1, rule2)] = HypothesisRankParams((rule1_rank+rule2_rank)/2,1)
+        pruned_ranked_hypothesis_dict[Tree(orf, rule1, rule2)] = HypothesisRankParams(max(rule1_rank, rule2_rank),1)
 
-    for hypo in pruned_ranked_hypothesis:
-        rule = tree_transform(hypothesis)    
-        pruned_ranked_hypothesis_dict[rule]
+    for hypothesis in pruned_ranked_hypothesis:
+        rule = tree_transform(hypothesis)
+        rule_rank = hypothesis_dict[hypothesis]    
+        pruned_ranked_hypothesis_dict[rule] = HypothesisRankParams(rule_rank,1)
     
-    pruned_ranked_hypothesis_dict = {}
-    pruned_ranked_hypothesis_index = {}
-    mean = 0.0
     for i in xrange(2, len(legal_cards)):
         for rule in pruned_ranked_hypothesis_dict:
-            if (rule.evaluate(legal_cards[i-2], legal_cards[i-1], legal_cards[i])):
-                #Increment rank of rule
-                pass
+            if (rule.evaluate((legal_cards[i-2], legal_cards[i-1], legal_cards[i]))):
+                pruned_ranked_hypothesis_dict[rule].increment_occurrence()
+
+    accumulated_wt = 0.0
+    for key, value in pruned_ranked_hypothesis_dict.iteritems():
+        accumulated_wt += value.get_weighted_product()
+    
     hypothesis_offset = len(pruned_ranked_hypothesis_dict)
     if hypothesis_offset == 0:
         hypothesis_offset = 1
-    mean_cutoff = mean / hypothesis_offset
+    mean_cutoff = accumulated_wt / hypothesis_offset
+    # print str(pruned_ranked_hypothesis_dict) + ' acc: ' + str(accumulated_wt) 
     pr_ranked_hypothesis = {}
-    for key in pruned_ranked_hypothesis_dict.keys():
-        if pruned_ranked_hypothesis_dict[key] < mean_cutoff:
-            del pruned_ranked_hypothesis_dict[key]
-            del pruned_ranked_hypothesis_index[key]
+    for key,value in pruned_ranked_hypothesis_dict.iteritems():
+        # print 'key: ' + str(key) + ' wt ' + str(value.get_weight())
+        # exit()
+        if pruned_ranked_hypothesis_dict[key].get_weighted_product() > mean_cutoff:
+            pr_ranked_hypothesis[key] = value.get_weight()
 
-    print str(pruned_ranked_hypothesis_index)
-    pr_ranked_hypothesis = OrderedDict(sorted(pruned_ranked_hypothesis_dict.items(), key=lambda (key, value): (value, key), reverse=True))
+    pr_ranked_hypothesis = OrderedDict(sorted(pr_ranked_hypothesis.items(), key=lambda (key, value): (value, key), reverse=True))
+    # print str(pr_ranked_hypothesis.iteritems()[0][0])
     return pr_ranked_hypothesis
 
 def scan_and_rank_numeric_hypothesis(three_length_hypothesis_flag,):
@@ -566,3 +577,4 @@ def generate_combination(previous2, previous, current, is_illegal=False):
     # merged_rules = list(set(prev_possible_rules) & set(curr_possible_rules))
     # for rule in merged_rules:
     #     evaluate(current_dict, previous2, previous, current, "current")
+

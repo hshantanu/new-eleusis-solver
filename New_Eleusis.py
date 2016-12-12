@@ -15,7 +15,8 @@ from itertools import combinations
 import time
 import re
 from NewEleusisHelper import *
-from ScanRank import *
+from ScanRank import scan_and_rank_hypothesis
+from ScanRank import scan_and_rank_rules
 # from Player import *
 from adversary import *
 from Exception_Hypothesis import *
@@ -811,17 +812,7 @@ def get_three_length_hypothesis_flag():
 
 def scientist(instance, cards, player_hand_cards):
     global game_ended
-    #parse_board_state()
-    #initialize_variable_offset()
-    # if not prev2:
-    #     set_three_length_hypothesis_flag(False)
-    # else:
-    #     play_card(prev2)
 
-    # play_card(prev)
-    # play_card(curr)
-    
-    # current_card = pick_random_card()
     if cards:
         for card in cards:
             play_card(card)
@@ -839,9 +830,9 @@ def scientist(instance, cards, player_hand_cards):
         loop_start_time = time.time()
 
         ranked_hypothesis = scan_and_rank_hypothesis(True)
-        pr_ranked_hypothesis= ranked_hypothesis
+        # pr_ranked_hypothesis= ranked_hypothesis
         # numeric_relation_hypothesis = scan_and_rank_numeric_hypothesis(get_three_length_hypothesis_flag())
-        # pr_ranked_hypothesis = scan_and_rank_rules(ranked_hypothesis)
+        pr_ranked_hypothesis = scan_and_rank_rules(ranked_hypothesis)
         # pr_ranked_hypothesis = scan_and_rank_rules(ranked_hypothesis, numeric_relation_hypothesis)
         # print 'Numeric Relations: ' + str(numeric_relation_hypothesis)
 
@@ -867,7 +858,10 @@ def scientist(instance, cards, player_hand_cards):
                 last_rule_counter = 0
                 last_rule = top_rule
 
+            print str(pr_ranked_hypothesis)
+            exit()
             current_card = pick_next_negative_card(pr_ranked_hypothesis, last_rule_counter, player_hand_cards)
+            
             print "Next card by Player", current_card
 
             if game_ended:
@@ -976,45 +970,6 @@ def play_initial_cards(prev2,prev,curr):
     play_card(prev)
     play_card(curr)
 
-def tree_transform(hypothesis):
-
-    triple_tree_characteristic_list = ['R', 'B', 'S', 'C', 'H', 'D', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13']
-    
-    #"and(previous='C2',current='C3')"
-    prev2_pattern = re.compile(".*((previous2)=\'([C][1-9][0-9]?)\').*")
-    prev_pattern = re.compile(".*((previous)=\'([C][1-9][0-9]?)\').*")
-    curr_pattern = re.compile(".*((current)=\'([C][1-9][0-9]?)\').*")
-
-    pattern_list = [prev2_pattern, prev_pattern, curr_pattern]
-    transformed_hypothesis_string = str(hypothesis)
-
-    for pattern in pattern_list:
-        if pattern.match(transformed_hypothesis_string):
-            (start_index, end_index) = pattern.match(transformed_hypothesis_string).span(1)
-            position_index = pattern.match(transformed_hypothesis_string).group(2)
-            characteristic_index = pattern.match(transformed_hypothesis_string).group(3)
-
-            characteristic_value = map_card_characteristic_to_value(characteristic_index)
-            if characteristic_value in triple_tree_characteristic_list:
-                characteristic_property = map_characteristic_value_to_characteristic_property(characteristic_value)
-                transformed_hypothesis = str(characteristic_property.__name__) + '(' + str(position_index) + ')'
-            else:
-                if characteristic_value == 'not_royal':
-                    transformed_hypothesis = 'is_royal' + '(' + str(position_index) + ')'
-                    transformed_hypothesis = 'notf' + '(' + str(transformed_hypothesis) + ')'
-                elif characteristic_value == 'royal':
-                    transformed_hypothesis = 'is_royal' + '(' + str(position_index) + ')'
-                else:
-                    transformed_hypothesis = characteristic_value + '(' + str(position_index) + ')'
-
-            if characteristic_value in triple_tree_characteristic_list:
-                #create Tree with 3 paramaters
-                #characteristic_index = C14, characteristic_value = R, characteristic_property = 'color'
-                third_param = characteristic_value
-                transformed_hypothesis = 'equal' + '(' + str(transformed_hypothesis) + ',' + str(third_param) + ')'
-            transformed_hypothesis_string = transformed_hypothesis_string[0:start_index] + transformed_hypothesis + transformed_hypothesis_string[end_index:]
-    
-    return parse(transformed_hypothesis_string)    
 
 def main():
     # global predicted_rule

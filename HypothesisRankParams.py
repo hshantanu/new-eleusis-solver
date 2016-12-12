@@ -6,8 +6,14 @@ class HypothesisRankParams:
 	def set_weight(self, weight):
 		self.weight = weight
 
-	def increment_occurrence(occurrence):
+	def get_weight(self):
+		return self.weight
+
+	def increment_occurrence(self):
 		self.occurrence += 1
 
-	def decrement_occurrence(occurrence):
+	def decrement_occurrence(self):
 		self.occurrence -= 1
+
+	def get_weighted_product(self):
+		return self.weight*self.occurrence

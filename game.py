@@ -1,6 +1,7 @@
 #Put your program name in place of program_name
 
-from New_Eleusis import *
+from New_Eleusis import play_card
+from New_Eleusis import score
 from random import randint
 # from new_eleusis import *
 from Player import *
