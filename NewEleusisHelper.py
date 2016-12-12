@@ -676,9 +676,3 @@ def find_negative_index(card_characteristic_index):
     #property_dict = {'R':'C14' , 'B': 'C15', 'D': 'C16' , 'H':'C17', 'S': 'C18', 'C': 'C19', 'even': 'C20', 'odd': 'C21', 'royal': 'C22' , 'not_royal': 'C23'}
 	negative_index_dict = {'C14':'C15', 'C15':'C14', 'C20':'C21', 'C21':'C20', 'C22':'C23', 'C23':'C22'}
 	return negative_index_dict
-
-def map_numerics():
-	board_state = get_master_board_state()
-	
-
-#map_numerics()
