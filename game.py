@@ -62,7 +62,8 @@ adversary2 = Adversary()
 adversary3 = Adversary()
 
 # Set a rule for testing
-rule = "iff(is_royal(current), False)"
+#rule = "iff(is_royal(current), False)"
+rule = Tree(andf, Tree(equal, Tree(color, 'previous'), 'R'), Tree(equal, Tree(color, 'current'), 'B'))
 setRule(rule)
 # The three cards that adhere to the rule
 cards = ["10H", "2C", "4S"]

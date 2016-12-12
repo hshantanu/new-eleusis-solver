@@ -15,6 +15,7 @@ from collections import OrderedDict
 from itertools import combinations
 import time
 
+
 master_board_state = [] # [('10S', []), ('3H', []), ('10H', []), ('10H', []), ('10H', []), ('10H', []) ]
 
 def pick_random_card():
@@ -199,7 +200,7 @@ def set_characteristic_weights():
     ''' 
       This function assigns a weighted probability for each card characterstic
     '''
-    weighted_property_dict = {'C1' : 0.92, 'C2':0.92, 'C3': 0.92, 'C4':0.92, 'C5':0.92, 'C6':0.92, 'C7':0.92, 'C8':0.92, 'C9': 0.92, 'C10': 0.92, 'C11': 0.92, 'C12': 0.92, 'C13': 0.92, 'C14' : 0.5, 'C15': 0.5, 'C16': 0.75, 'C17':0.75, 'C18':0.75, 'C19':0.75, 'C20':0.5, 'C21':0.5, 'C22': 0.77, 'C23':0.01}
+    weighted_property_dict = {'C1' : 0.92, 'C2':0.92, 'C3': 0.92, 'C4':0.92, 'C5':0.92, 'C6':0.92, 'C7':0.92, 'C8':0.92, 'C9': 0.92, 'C10': 0.92, 'C11': 0.92, 'C12': 0.92, 'C13': 0.92, 'C14' : 0.5, 'C15': 0.5, 'C16': 0.75, 'C17':0.75, 'C18':0.75, 'C19':0.75, 'C20':0.05, 'C21':0.05, 'C22': 0.77, 'C23':0.01}
     return weighted_property_dict
 
 def initialize_variable_offset():
@@ -377,7 +378,8 @@ def pick_negative_random(card_characterstic_list, last_rule_counter, card_list =
 
     if ((not numeric_characterstic_list) or (not suit_characterstic_list)):
         print('No valid card, Picking random card')
-        return pick_random_card()
+        if card_list:
+        	return random.choice(card_list)
     else:
         # send empty card list now
         card = get_card_from_characterstic(suit_characterstic, numeric_characterstic, card_list, card_characterstic_list)
@@ -471,10 +473,15 @@ def pick_next_negative_card(rule_list, last_rule_counter,card_list = []):
     # print('-------------------rule_list-----------------------', rule_list)
     print "Card list is: ",card_list
     top_rule_list = []
+    counter = 0
     for rules in rule_list:
+        if counter > 10:
+        	break
         top_rule_list.append(rules)
+        counter+=1
 
-    print('-------------------top_rule_list-----------------------', top_rule_list)
+
+    # print('-------------------top_rule_list-----------------------', top_rule_list)
     
     intersection_rule_list = {}
     numbers = {}
@@ -495,7 +502,8 @@ def pick_next_negative_card(rule_list, last_rule_counter,card_list = []):
     not_royal = ['C23']
 
     for rules in top_rule_list:
-        
+    	print('-------------------rules-----------------------', rules)    
+    	# exit()
         number_list =['C1','C2','C3','C4','C5','C6','C7','C8','C9','C10','C11','C12','C13']
         for rule in rules:
             # put out negative of the current card card characterstic

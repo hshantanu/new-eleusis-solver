@@ -380,7 +380,8 @@ def play_card(card):
      This function plays a card and validates the card and then updates the board state with the new card 
      based on whether the card is legal or not
     '''
-    #play_counter += 1
+    print 'playing card: ' + str(card)
+    print 'current play counter: ' + str(play_counter)
     set_play_counter(get_play_counter()+1)
     
     #Invoke validate_card() which returns True/False if the current play is legal/illegal.
@@ -461,7 +462,7 @@ def validate_and_refine_formulated_rule(rule_list):
                         hypothesis_dict[characteristic_tuple] = (weighted_property_dict[characteristic_tuple[0]]+weighted_property_dict[characteristic_tuple[1]])/2
                     mean += (weighted_property_dict[characteristic_tuple[0]]+weighted_property_dict[characteristic_tuple[1]])/2
         
-        print str(hypothesis_dict)            
+        # print str(hypothesis_dict)            
         hypothesis_offset = len(hypothesis_dict)
         if hypothesis_offset == 0:
             hypothesis_offset = 1
@@ -518,7 +519,7 @@ def validate_and_refine_formulated_rule(rule_list):
                         hypothesis_dict[characteristic_tuple] = normalized_wt_sum
                     mean += normalized_wt_sum/2
         
-        print str(hypothesis_dict)            
+        # print str(hypothesis_dict)            
         hypothesis_offset = len(hypothesis_dict)
         if hypothesis_offset == 0:
             hypothesis_offset = 1
@@ -838,13 +839,14 @@ def scientist(instance, cards, player_hand_cards):
         loop_start_time = time.time()
 
         ranked_hypothesis = scan_and_rank_hypothesis(True)
+        pr_ranked_hypothesis= ranked_hypothesis
         # numeric_relation_hypothesis = scan_and_rank_numeric_hypothesis(get_three_length_hypothesis_flag())
-        pr_ranked_hypothesis = scan_and_rank_rules(ranked_hypothesis)
+        # pr_ranked_hypothesis = scan_and_rank_rules(ranked_hypothesis)
         # pr_ranked_hypothesis = scan_and_rank_rules(ranked_hypothesis, numeric_relation_hypothesis)
         # print 'Numeric Relations: ' + str(numeric_relation_hypothesis)
 
         if pr_ranked_hypothesis:
-            print str(pr_ranked_hypothesis)
+            # print str(pr_ranked_hypothesis)
             top_rule = pr_ranked_hypothesis.items()[0][0]
             print "Top Rule",top_rule
             if top_rule in top_rule_confidence:
@@ -880,8 +882,7 @@ def scientist(instance, cards, player_hand_cards):
             instance.update_hand(current_card)
             return current_card
         else:
-            instance.player_card_play()
-            return player_play_type
+            return instance.player_card_play()
     # while play_counter <= 200:
     #     # print 'Playing next card: ' + str(current_card)
     #     # play(current_card)
