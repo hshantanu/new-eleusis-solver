@@ -16,6 +16,7 @@ import time
 from NewEleusisHelper import *
 from New_Eleusis import *
 
+
 char_dict={}
 begin_index = 0
 hypothesis_dict = {}
@@ -112,6 +113,7 @@ def scan_and_rank_hypothesis(three_length_hypothesis_flag):
 
     begin_index = legal_length-2
 
+
     #TODO eliminate conflicting hypothesis- ex: consecutive Royal/B/Odd & Non-Royal/R/Even. Check if already handled by pick_negative
     #Using illegal cards to eliminate possible hypothesis
     illegal_tuple_list = parse_illegal_indices()
@@ -134,11 +136,11 @@ def scan_and_rank_hypothesis(three_length_hypothesis_flag):
                         if or_characterstic_tuple in ranked_hypothesis.keys():
                             ranked_hypothesis[or_characterstic_tuple].decrement_occurrence()
 
+
                 normalized_and_wt_sum = (weighted_property_dict[characteristic_tuple[0]]+weighted_property_dict[characteristic_tuple[1]]+weighted_property_dict[characteristic_tuple[2]])/3
                 if(len(characteristic_tuple)>2):
                     if characteristic_tuple in ranked_hypothesis.keys():
                         ranked_hypothesis[characteristic_tuple].decrement_occurrence()
-
         else:
             prev = elem[0]
             curr = elem[1]
@@ -334,62 +336,113 @@ def scan_and_rank_rules(ranked_hypothesis, numeric_hypothesis = []):
     pr_ranked_hypothesis = OrderedDict(sorted(pruned_ranked_hypothesis_dict.items(), key=lambda (key, value): (value, key), reverse=True))
     return pr_ranked_hypothesis
 
-def scan_and_rank_numeric_hypothesis(three_length_hypothesis_flag):
+def scan_and_rank_numeric_hypothesis(three_length_hypothesis_flag,):
     hypothesis_dict = {}
     board_state = parse_board_state()
-    legal_cards = board_state['legal_cards']
-    print str(legal_cards)
+    master_board_state = get_master_board_state()
+    legal_cards_list = board_state['legal_cards']
+    print "Legal card list",legal_cards_list
+    illegal_cards_list = parse_illegal_indices()
+    curr = board_state['curr']
+    prev1 = board_state['prev']
+    prev2 = board_state['prev2']
+    print "Current is ", curr,' Previous is ',prev1,' Previous 2 is ',prev2
+    print "Master board state",master_board_state
+
+    # print "Legal cards",legal_cards_list
+    # print "Illegal cards",illegal_cards_list
+    for i in board_state:
+        print "i",i
+    for i in range(len(board_state)):
+        for i in board_state:
+            curr = board_state['curr']
+            prev1 = board_state['prev']
+            prev2 = board_state['prev2']
+            print "Current is ", curr,' Previous is ',prev1,' Previous 2 is ',prev2
+    get_numerical_range_relation(board_state)
+
     characteristic_index_list = []
     weighted_property_dict = set_characteristic_weights()
     mean = 0.0
-    if three_length_hypothesis_flag:
-        for i in xrange(2, len(legal_cards)):
-            numeric_relation_list = find_numeric_characteristic_relation(legal_cards[i - 2], legal_cards[i - 1], legal_cards[i])
-            print 'Numeric Relation List: ' + str(numeric_relation_list)
-            for numeric_relation in numeric_relation_list:
-                if numeric_relation in hypothesis_dict.keys():
-                    hypothesis_dict[numeric_relation] += 1
-                else:
-                    hypothesis_dict[numeric_relation] = 1
-                mean += 1
+    # if three_length_hypothesis_flag:
+    #     for i in xrange(2, len(board_state)):
+    #         numeric_relation_list = find_numeric_characteristic_relation(board_state[i - 2], board_state[i - 1], board_state[i])
+    #         print 'Numeric Relation List: ' + str(numeric_relation_list)
+    #         for numeric_relation in numeric_relation_list:
+    #             if numeric_relation in hypothesis_dict.keys():
+    #                 hypothesis_dict[numeric_relation] += 1
+    #             else:
+    #                 hypothesis_dict[numeric_relation] = 1
+    #             mean += 1
 
-    for i in xrange(1, len(legal_cards)):
-        numeric_relation_list = find_numeric_characteristic_relation(prev_card=legal_cards[i - 1], current_card=legal_cards[i])
-        numeric_relation_list = list((str(x) for x in numeric_relation_list))
-        for numeric_relation in numeric_relation_list:
-            if numeric_relation in hypothesis_dict.keys():
-                hypothesis_dict[numeric_relation] += 1
-            else:
-                hypothesis_dict[numeric_relation] = 1
-            mean += 1
+    # for i in xrange(1, len(board_state)):
+    #     numeric_relation_list = find_numeric_characteristic_relation(prev_card=board_state[i - 1], current_card=board_state[i])
+    #     numeric_relation_list = list((str(x) for x in numeric_relation_list))
+    #     for numeric_relation in numeric_relation_list:
+    #         if numeric_relation in hypothesis_dict.keys():
+    #             hypothesis_dict[numeric_relation] += 1
+    #         else:
+    #             hypothesis_dict[numeric_relation] = 1
+    #         mean += 1
 
-    hypothesis_offset = len(hypothesis_dict)
-    mean_cutoff = 0
-    numeric_ranked_hypothesis = {}
-    for value in hypothesis_dict.iteritems():
-        if value[1] > mean_cutoff:
-            numeric_ranked_hypothesis[value[0]] = value[1]
-        else:
-            break
+    # legal_cards = board_state['legal_cards']
+    # print "Board state:",board_state
+    # print "legal state:", legal_cards
+    # print str(legal_cards)
+    # characteristic_index_list = []
+    # weighted_property_dict = set_characteristic_weights()
+    # mean = 0.0
+    # if three_length_hypothesis_flag:
+    #     for i in xrange(2, len(legal_cards)):
+    #         numeric_relation_list = find_numeric_characteristic_relation(legal_cards[i - 2], legal_cards[i - 1], legal_cards[i])
+    #         print 'Numeric Relation List: ' + str(numeric_relation_list)
+    #         for numeric_relation in numeric_relation_list:
+    #             if numeric_relation in hypothesis_dict.keys():
+    #                 hypothesis_dict[numeric_relation] += 1
+    #             else:
+    #                 hypothesis_dict[numeric_relation] = 1
+    #             mean += 1
 
-    illegal_tuple_list = parse_illegal_indices()
-    for elem in illegal_tuple_list:
-        if len(elem) > 2 and three_length_hypothesis_flag:
-            prev2 = elem[0]
-            prev = elem[1]
-            curr = elem[2]
-            numeric_relation_list = find_numeric_characteristic_relation(prev2, prev, curr)
-            for numeric_relation in numeric_relation_list:
-                if numeric_relation in numeric_ranked_hypothesis.keys():
-                    numeric_ranked_hypothesis[numeric_relation] -= 1
+    # for i in xrange(1, len(legal_cards)):
+    #     numeric_relation_list = find_numeric_characteristic_relation(prev_card=legal_cards[i - 1], current_card=legal_cards[i])
+    #     numeric_relation_list = list((str(x) for x in numeric_relation_list))
+    #     for numeric_relation in numeric_relation_list:
+    #         if numeric_relation in hypothesis_dict.keys():
+    #             hypothesis_dict[numeric_relation] += 1
+    #         else:
+    #             hypothesis_dict[numeric_relation] = 1
+    #         mean += 1
 
-        else:
-            prev = elem[0]
-            curr = elem[1]
-            numeric_relation_list = find_numeric_characteristic_relation(prev_card=prev, current_card=curr)
-            for numeric_relation in numeric_relation_list:
-                if numeric_relation in numeric_ranked_hypothesis.keys():
-                    numeric_ranked_hypothesis[numeric_relation] -= 1
+    # hypothesis_offset = len(hypothesis_dict)
+    # mean_cutoff = 0
+    # numeric_ranked_hypothesis = {}
+    # for value in hypothesis_dict.iteritems():
+    #     if value[1] > mean_cutoff:
+    #         numeric_ranked_hypothesis[value[0]] = value[1]
+    #     else:
+    #         break
 
-    numeric_ranked_hypothesis = OrderedDict(sorted(numeric_ranked_hypothesis.items(), key=lambda (key, value): (value, key), reverse=True))
-    return numeric_ranked_hypothesis
+    # illegal_tuple_list = parse_illegal_indices()
+    # for elem in illegal_tuple_list:
+    #     if len(elem) > 2 and three_length_hypothesis_flag:
+    #         prev2 = elem[0]
+    #         prev = elem[1]
+    #         curr = elem[2]
+    #         numeric_relation_list = find_numeric_characteristic_relation(prev2, prev, curr)
+    #         for numeric_relation in numeric_relation_list:
+    #             if numeric_relation in numeric_ranked_hypothesis.keys():
+    #                 numeric_ranked_hypothesis[numeric_relation] -= 1
+
+    #     else:
+    #         prev = elem[0]
+    #         curr = elem[1]
+    #         numeric_relation_list = find_numeric_characteristic_relation(prev_card=prev, current_card=curr)
+    #         for numeric_relation in numeric_relation_list:
+    #             if numeric_relation in numeric_ranked_hypothesis.keys():
+    #                 numeric_ranked_hypothesis[numeric_relation] -= 1
+
+    # numeric_ranked_hypothesis = OrderedDict(sorted(numeric_ranked_hypothesis.items(), key=lambda (key, value): (value, key), reverse=True))
+    # return numeric_ranked_hypothesis
+
+def get_numerical_range_relation(board_state):
+    print "Board state"
