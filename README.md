@@ -2,26 +2,8 @@
 
 Repository for New Eleusis
 
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+* This is solver for the card game New Eleusis (https://en.wikipedia.org/wiki/Eleusis_(card_game))
+* We have designed and implemented a probabilistic ranking algorithm for solving the card game 'New Eleusis' using inductive reasoning. The algorithm uses the existing board state as training data and formulates ranked hypotheses to predict the card rule using weighted card characteristics as the building blocks.
 
-### How do I get set up? ###
-
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
-
-### Contribution guidelines ###
-
-* Writing tests
-* Code review
-* Other guidelines
-
-### Who do I talk to? ###
-
-* Repo owner or admin
-* Other community or team contact
+#Prerequisites:
+* Python 2.7
