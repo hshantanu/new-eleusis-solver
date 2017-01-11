@@ -1,11 +1,3 @@
-# Team Name: Guess My Rule! 
-
-# Members: 
-# Vipin Pillai
-# Sailakshmi Pisupati
-# Rahul Raghavan
-# Shantanu Hirlekar
-
 
 import random
 import re
@@ -17,7 +9,14 @@ import time
 from NewEleusisHelper import *
 from TreeFunctions import *
 from HypothesisRankParams import *
+from itertools import izip_longest
 
+sum_greater_than = []
+curr_greater_than_prev = []
+curr_less_than_prev = []
+sum_less_than = []
+empty_less_flag = False
+empty_great_flag = False
 
 char_dict={}
 begin_index = 0
@@ -574,7 +573,111 @@ def generate_combination(previous2, previous, current, is_illegal=False):
             parse_elements(rule)
             add_elements(previous2_dict, previous_dict, current_dict, rule) 
 
-    # merged_rules = list(set(prev_possible_rules) & set(curr_possible_rules))
-    # for rule in merged_rules:
-    #     evaluate(current_dict, previous2, previous, current, "current")
 
+def get_mapping(prev1,curr,legal_flag):    
+
+    global sum_greater_than,sum_less_than
+    global empty_less_flag, empty_great_flag
+    global curr_greater_than_prev, curr_less_than_prev
+    if empty_great_flag and empty_less_flag:
+        return True
+    if (len(sum_greater_than) == 1 and len(sum_less_than) == 0):
+        return True
+    if (len(sum_greater_than) == 0 and len(sum_less_than) == 1):
+        return True
+    
+    curr = value(curr)
+    prev1 = value(prev1)
+
+    if (curr > prev1 and legal_flag):
+        curr_greater_than_prev.append(True)
+    elif((curr<prev1 and legal_flag==True) or (curr>prev1 and legal_flag==False)):
+        curr_greater_than_prev.append(False)
+
+    if (curr<prev1 and legal_flag):
+        curr_less_than_prev.append(True)
+    elif((curr>prev1 and legal_flag==True) or (curr<prev1 and legal_flag==False)):
+        curr_less_than_prev.append(False)
+
+    add = prev1 + curr
+    if len(sum_less_than) == 0 and len(sum_greater_than) == 0:
+        sum_greater_than = range(1, add)
+        sum_less_than = range(add+1, 27)
+    else:
+        if legal_flag == True:
+            if add-1 < sum_greater_than[-1] and empty_great_flag == False:
+                sum_greater_than = range(1,add)
+            if sum_less_than and add+1 > sum_less_than[0] and empty_less_flag == False:
+                sum_less_than = range(add+1,27)
+        else:
+            if empty_great_flag == False:
+                if add > sum_greater_than[-1]: 
+                    sum_greater_than = []
+                    empty_great_flag = True
+                else:
+                    print empty_great_flag
+                    if empty_great_flag == False:
+                        sum_greater_than = range(add+1,sum_greater_than[-1]+1)
+            
+            if (sum_less_than and add < sum_less_than[0]) and empty_less_flag == False:
+                sum_less_than = []
+                empty_less_flag = True
+            elif(sum_less_than):
+                if empty_less_flag == False:
+                    sum_less_than = range(sum_less_than[0],add)
+
+    return False
+
+def pairs(state):
+    for (key, lst), nxt in izip_longest(state, state[1:]):
+        for x in lst:
+            yield key, x, False
+        if nxt is not None:
+            yield key, nxt[0], True
+
+
+def map_numeric():
+    
+    master_board_state = get_master_board_state()
+    less_than_rule = []
+    greater_than_rule = []
+
+    card_pair_list = []
+
+    for p in pairs(master_board_state):
+        card_pair_list.append(p)
+
+    for card in card_pair_list:
+        rules = get_mapping(card[0],card[1],card[2])
+        if rules == True:
+            break
+    
+    for val in sum_less_than:
+                less_than_rule.append("less(summation(value(previous),value(current))," + str(val) + ")")
+    for val in sum_greater_than:
+                greater_than_rule.append("greater(summation(value(previous),value(current))," + str(val) + ")")
+
+    if False not in curr_greater_than_prev:
+        greater_than_rule.append("greater(value(current), value(previous)), True")
+    elif False in curr_greater_than_prev and "greater(value(current), value(previous)), True" in greater_than_rule:
+        greater_than_rule.remove("greater(value(current), value(previous)), True")
+
+    if False not in curr_less_than_prev:
+        less_than_rule.append("less(value(current), value(previous)), True")
+    elif False in curr_less_than_prev and "less(value(current), value(previous)), True" in less_than_rule:
+        less_than_rule.remove("less(value(current), value(previous)), True")
+
+    return less_than_rule, greater_than_rule
+
+def parse_numeric_rules(less_value_rules, greater_value_rules):
+    
+    less_than_rules = []
+    if (less_value_rules):
+        for rule in less_value_rules:
+             less_than_rules.append(parse(rule))
+
+    greater_than_rules = []
+    if (greater_value_rules):
+        for rule in greater_value_rules:
+            greater_than_rules.append(parse(rule))     
+    return less_than_rules,greater_than_rules

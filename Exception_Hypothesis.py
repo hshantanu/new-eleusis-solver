@@ -1,3 +1,4 @@
+
 class Exception_Hypothesis:
 	def __init__(self, previous2 = None, previous = None, current = None):
 		#Here, the position specific flag indicates whether the exception evaluation should be enabled for this position

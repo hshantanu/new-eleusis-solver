@@ -1,11 +1,3 @@
-# Team Name: Guess My Rule! 
-
-# Members: 
-# Vipin Pillai
-# Sailakshmi Pisupati
-# Rahul Raghavan
-# Shantanu Hirlekar
-
 
 import random
 import operator
@@ -17,8 +9,7 @@ import re
 from NewEleusisHelper import *
 from ScanRank import scan_and_rank_hypothesis
 from ScanRank import scan_and_rank_rules
-# from Player import *
-from adversary import *
+
 from Exception_Hypothesis import *
 
 global top_rule_confidence
@@ -382,7 +373,6 @@ def play_card(card):
      based on whether the card is legal or not
     '''
     print 'playing card: ' + str(card)
-    print 'current play counter: ' + str(play_counter)
     set_play_counter(get_play_counter()+1)
     
     #Invoke validate_card() which returns True/False if the current play is legal/illegal.
@@ -594,9 +584,9 @@ def rule():
     #return the current rule
     return predicted_rule;
 
-def score(scientist_rule):
+def score(scientist_rule,player_scores,current_player, game_end_player):
+    current_rule = rule()
     current_score = 0
-    player_won = False
     illegal_cards = parse_illegal_indices()
     illegal_counter = 0
     for elem in illegal_cards:
@@ -610,19 +600,17 @@ def score(scientist_rule):
             current_score += 1
         if elem[1]:
             free_counter += len(elem[1])
-            current_score += 2*len(elem[1]) 
+            current_score += 2*len(elem[1])
 
+    player_scores[current_player]=current_score
 
-    current_rule = rule()
-    if str(scientist_rule) != str(current_rule):
-        current_score += 15
-        # TODO: Validate predicted rule using validate_rule method for the current rule
-        # TODO: Check if predicted rule conforms to the rule current 
-        # TODO: Increase score by +30 for a rule that does not describe all cards on board
-    else:
-        player_won = True
-    return current_score, player_won
+    if game_end_player:
+        if (current_player == game_end_player) and (str(scientist_rule) == str(current_rule)):
+            player_scores[current_player]=current_score-100     # -75 for the correct guess and -25 for the player who first guesses
+        elif (str(scientist_rule) == str(current_rule)):
+            player_scores[current_player]=current_score-75
 
+    return player_scores[current_player]
 
 def validate_card(card):
     #Output: Return True/False, if the current card conforms to the actual rule.
@@ -830,23 +818,19 @@ def scientist(instance, cards, player_hand_cards):
         loop_start_time = time.time()
 
         ranked_hypothesis = scan_and_rank_hypothesis(True)
-        # pr_ranked_hypothesis= ranked_hypothesis
-        # numeric_relation_hypothesis = scan_and_rank_numeric_hypothesis(get_three_length_hypothesis_flag())
         pr_ranked_hypothesis = scan_and_rank_rules(ranked_hypothesis)
-        # pr_ranked_hypothesis = scan_and_rank_rules(ranked_hypothesis, numeric_relation_hypothesis)
-        # print 'Numeric Relations: ' + str(numeric_relation_hypothesis)
 
         if pr_ranked_hypothesis:
-            # print str(pr_ranked_hypothesis)
             top_rule = pr_ranked_hypothesis.items()[0][0]
-            print "Top Rule",top_rule
+            print "Top Rule: " + str(top_rule)
             if top_rule in top_rule_confidence:
-                print "Top rule confidence", top_rule_confidence
                 top_rule_confidence[top_rule] += 1
-                if top_rule_confidence[top_rule] > 50:
+                if top_rule_confidence[top_rule] > 25:
                     global game_ended
                     game_ended = True
-                    return create_tree(top_rule)
+                    print 'Game has ended: ' + game_ended
+                    print 'Player Guessed Rule: ' + str(top_rule)
+                    return top_rule
             else:
                 top_rule_confidence[top_rule] = 1
 
@@ -858,84 +842,18 @@ def scientist(instance, cards, player_hand_cards):
                 last_rule_counter = 0
                 last_rule = top_rule
 
-            print str(pr_ranked_hypothesis)
-            exit()
             current_card = pick_next_negative_card(pr_ranked_hypothesis, last_rule_counter, player_hand_cards)
             
             print "Next card by Player", current_card
 
             if game_ended:
-                return create_tree(top_rule)
-            # print 'Current Predicted Rule: ' + str(create_tree(top_rule))
-            #Create Tree for each rule in pr_ranked_hypothesis and pass to validate
-            # print str(create_tree(top_rule[0]))
-            # validate_and_refine_formnumber_of_cards_per_playerulated_rule()
-            # pick_next_random_card()
-            # validate_and_refine_formulated_rule()
+                return top_rule
+
             play_card(current_card)
             instance.update_hand(current_card)
             return current_card
         else:
             return instance.player_card_play()
-    # while play_counter <= 200:
-    #     # print 'Playing next card: ' + str(current_card)
-    #     # play(current_card)
-    #     # number_of_player=get_number_of_player()
-    #     # for i in range(1,number_of_player+1):
-    #     #     card=player_card_play(number_of_player)
-    #     if play_counter < 15:
-    #         print "Playing cards"
-    #         # Phase 1
-    #         # current_card = pick_random_card()     
-    #         # pick_player_card()
-    #         # Phase 2
-    #         # for i in range(1,number_of_player+1):
-    #         #     card=player_card_play(number_of_player)
-    #         #     print "Player playing",card
-    #         #     play_card(card)
-    #         #     for j in range(number_of_adversaries):
-    #         #         card=adversary.play()
-    #         #         print "Adversary",j," playing",card
-    #         #         play_card(card)
-    #     else:
-    #         ranked_hypothesis = scan_and_rank_hypothesis(get_three_length_hypothesis_flag())
-    #         numeric_relation_hypothesis = scan_and_rank_numeric_hypothesis(get_three_length_hypothesis_flag())
-    #         pr_ranked_hypothesis = scan_and_rank_rules(ranked_hypothesis, numeric_relation_hypothesis)
-    #         print 'Numeric Relations: ' + str(numeric_relation_hypothesis)
-
-    #         if pr_ranked_hypothesis:
-    #             print str(pr_ranked_hypothesis)
-    #             top_rule = pr_ranked_hypothesis.items()[0][0]
-    #             if top_rule in top_rule_confidence:
-    #                 top_rule_confidence[top_rule] += 1
-    #                 if top_rule_confidence[top_rule] > 100:
-
-    #                     break
-    #             else:
-    #                 top_rule_confidence[top_rule] = 1
-
-    #             if last_rule == '':
-    #                 last_rule = top_rule
-    #             elif top_rule == last_rule:
-    #                 last_rule_counter += 1
-    #             elif top_rule != last_rule:
-    #                 last_rule_counter = 0
-    #                 last_rule = top_rule
-
-    #             card_list=get_player_card_list(number_of_player)
-    #             print "Player deck",card_list
-    #             current_card = pick_next_negative_card(top_rule, last_rule_counter,card_list)
-    #             print "Next card play by Player", current_card
-    #         print 'Current Predicted Rule: ' + str(create_tree(top_rule))
-    #         # print 'Current Predicted Rule: ' + str(create_tree(top_rule))
-    #         #Create Tree for each rule in pr_ranked_hypothesis and pass to validate
-    #         # print str(create_tree(top_rule[0]))
-    #         # validate_and_refine_formnumber_of_cards_per_playerulated_rule()
-    #         # pick_next_random_card()
-    #         # validate_and_refine_formulated_rule()
-    #         print 'Negative Card: ' + str(current_card)
-
-    # return create_tree(top_rule)
 
 def game_play(players):
     
@@ -971,48 +889,48 @@ def play_initial_cards(prev2,prev,curr):
     play_card(curr)
 
 
-def main():
-    # global predicted_rule
-    # predicted_rule = Tree(andf, Tree(equal, Tree(color, 'previous'), 'R'), Tree(equal, Tree(color, 'current'), 'R'))
-    player = Player()
-    # predicted_rule = Tree(orf, Tree(equal, Tree(color, 'previous'), 'R'), Tree(equal, Tree(color, 'current'), 'R'))
-    # predicted_rule = Tree(notf,Tree(equal,Tree(odd,'previous'), Tree(equal, Tree(odd,'current'))))
-    setRule(predicted_rule)
-    number_of_adversaries=3
+# def main():
+#     # global predicted_rule
+#     # predicted_rule = Tree(andf, Tree(equal, Tree(color, 'previous'), 'R'), Tree(equal, Tree(color, 'current'), 'R'))
+#     player = Player()
+#     # predicted_rule = Tree(orf, Tree(equal, Tree(color, 'previous'), 'R'), Tree(equal, Tree(color, 'current'), 'R'))
+#     # predicted_rule = Tree(notf,Tree(equal,Tree(odd,'previous'), Tree(equal, Tree(odd,'current'))))
+#     setRule(predicted_rule)
+#     number_of_adversaries=3
     
-    game_end = False
-    play_counter=0
-    players=[player]
-    # initialize_player()
-    # number_of_player=get_number_of_player()
+#     game_end = False
+#     play_counter=0
+#     players=[player]
+#     # initialize_player()
+#     # number_of_player=get_number_of_player()
     
-    for i in range(number_of_adversaries):
-        adversary=Adversary()
-        players.append(adversary)
-    play_initial_cards('10H','3S','6C')
-    while not game_end:
-        game_play(players)
-        play_counter+=1
-        print "Play number",play_counter
-        if play_counter ==200:
-            break
+#     for i in range(number_of_adversaries):
+#         adversary=Adversary()
+#         players.append(adversary)
+#     play_initial_cards('10H','3S','6C')
+#     while not game_end:
+#         game_play(players)
+#         play_counter+=1
+#         print "Play number",play_counter
+#         if play_counter ==200:
+#             break
 
-    # scientist_rule = scientist(prev2, prev, curr)
-    # scientist_rule = Tree(andf, Tree(equal, Tree(color, 'previous'), 'R'), Tree(equal, Tree(color, 'current'), 'R'))
-    # print 'Predicted Rule By Scientist: ' + str(scientist_rule)
-    # Call all the adversary predictions
+#     # scientist_rule = scientist(prev2, prev, curr)
+#     # scientist_rule = Tree(andf, Tree(equal, Tree(color, 'previous'), 'R'), Tree(equal, Tree(color, 'current'), 'R'))
+#     # print 'Predicted Rule By Scientist: ' + str(scientist_rule)
+#     # Call all the adversary predictions
     
-    # result_score, player_won = score(scientist_rule)
+#     # result_score, player_won = score(scientist_rule)
     
-    # for i in range(number_of_adversaries):
-    #     print adversary.guessRule()
-    #     print score(adversary.guessRule())
+#     # for i in range(number_of_adversaries):
+#     #     print adversary.guessRule()
+#     #     print score(adversary.guessRule())
 
-    # if player_won:
-    #     print 'The Player won the Game! :) '
-    # else:
-    #     print 'God won the Game!'
-    # print 'Score: ' + str(result_score)
+#     # if player_won:
+#     #     print 'The Player won the Game! :) '
+#     # else:
+#     #     print 'God won the Game!'
+#     # print 'Score: ' + str(result_score)
 
-if __name__ == "__main__":main()
-#if __name__ == "__main__": print str(tree_transform(tree_transform("or(previous2 = 'C22' , and(previous='C18',current='C14'))")))
+# if __name__ == "__main__":main()
+# #if __name__ == "__main__": print str(tree_transform(tree_transform("or(previous2 = 'C22' , and(previous='C18',current='C14'))")))

@@ -1,3 +1,4 @@
+
 from New_Eleusis import *
 from NewEleusisHelper import *
 
@@ -11,8 +12,6 @@ class Player:
 		self.hand = self.get_card_list(14)
 	
 	def update_hand(self, card):
-		print 'Player playing ' + str(self.hand)
-		print str(card)
 		self.hand.remove(card)
 		self.hand.append(pick_random_card())
 

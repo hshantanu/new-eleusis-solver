@@ -1,3 +1,4 @@
+
 class HypothesisRankParams:
 	def __init__(self, weight, occurrence):
 		self.weight = weight

@@ -1,3 +1,4 @@
+
 import random
 def generate():
 	# rule =Tree(orf, Tree(equal, Tree(color, 'previous'), 'R'), Tree(equal, Tree(color, 'current'), 'R'))

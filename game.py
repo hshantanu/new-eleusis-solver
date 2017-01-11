@@ -1,4 +1,3 @@
-#Put your program name in place of program_name
 
 from New_Eleusis import play_card
 from New_Eleusis import score
@@ -72,19 +71,39 @@ cards = ["10H", "2C", "4S"]
 def is_tree_instance(instance):
     return True if instance.__class__.__name__ == 'Tree' else False
 
+game_end_player = False
 for round_num in range(14):
     # Each player plays a card or guesses a rule
-    print 'I\'m playing a rule : '
-    if (not is_tree_instance(player.play(cards))) and (not is_tree_instance(adversary1.play())) and (not is_tree_instance(adversary2.play())) and (not is_tree_instance(adversary3.play())):
-        continue
+    player_cards = []
+    if round_num == 1:
+        player_cards = cards
+    if (not is_tree_instance(player.play(player_cards))):
+        if (not is_tree_instance(adversary1.play())):
+            if (not is_tree_instance(adversary2.play())):
+                if (not is_tree_instance(adversary3.play())):
+                    continue
+                else:
+                    game_end_player = adversary3
+                    game_ended = True
+                    break
+            else:
+                game_end_player = adversary2
+                game_ended = True
+                break
+
+        else:
+            game_end_player = adversary1                        
+            game_ended = True
+            break
     else:
+        game_end_player = player
         game_ended = True
         break
 
+player_list = [player, adversary1, adversary2, adversary3]
+player_scores={player:0, adversary1:0,adversary2:0,adversary3:0}
+for key in player_list:
+    key_rule = key.play()
+    result_score = score(key_rule,player_scores, key, game_end_player)
+    print 'Score for ' + str(key.__class__.__name__) + ':  ' + str(result_score)    
 print "Exited"
-# Everyone has to guess a rule
-rule_player = player.play()
-print 'rule player: ' + str(rule_player)
-# Check if the guessed rule is correct and print the score
-result_score, player_won = score(rule_player)
-print 'Score ' + str(result_score) 
