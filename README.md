@@ -36,5 +36,8 @@ We have designed and implemented a probabilistic ranking algorithm which uses th
 6. Every time a rule survives a disapproval attempt, increment the confidence rank for this rule.
 7. Will return the rule as successful if we reach a threshold for the ranking index.
 
+###Alternative Strategy:###
+The other strategy that could work is to use Decision tree and list all the attributes probably more than 100 and try to eliminate these attributes and design the final rule
+
 ###Prerequisites:###
 * Python 2.7
